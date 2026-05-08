@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İletişim - Rawlabs | Bize Ulaşın</title>
+  <meta name="description" content="Rawlabs ile iletişime geçin. Sorularınız, önerileriniz veya siparişleriniz için bize yazın. Hızlı ve samimi destek.">
+  <link rel="canonical" href="https://rawlabs.com.tr/iletisim">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero{background:var(--gradient);padding:120px 0 50px;text-align:center;color:#fff;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 70%,rgba(170,49,131,0.3),transparent 60%)}
+    .page-hero h1,.page-hero p{position:relative;z-index:1}.page-hero h1{color:#fff;margin-bottom:12px}.page-hero p{color:rgba(255,255,255,0.8);max-width:500px;margin:0 auto}
+    .contact-layout{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+    .contact-form{background:var(--white);padding:40px;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);border:1px solid var(--border)}
+    .form-group{margin-bottom:20px}
+    .form-group label{display:block;font-size:0.88rem;font-weight:600;color:var(--secondary-dark);margin-bottom:8px}
+    .form-group input,.form-group textarea,.form-group select{width:100%;padding:14px 18px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.9rem;transition:var(--transition);background:var(--bg)}
+    .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(170,49,131,0.1);outline:none}
+    .form-group textarea{min-height:140px;resize:vertical}
+    .form-success{display:none;text-align:center;padding:40px;background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-md)}
+    .form-success.show{display:block}
+    .form-success-icon{font-size:3rem;margin-bottom:16px}
+    .contact-cards{display:flex;flex-direction:column;gap:20px}
+    .contact-card{background:var(--white);padding:28px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;align-items:flex-start;gap:18px;transition:var(--transition)}
+    .contact-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--primary-lighter)}
+    .contact-card-icon{width:52px;height:52px;min-width:52px;background:var(--gradient-soft);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+    .contact-card h3{font-size:1rem;margin-bottom:6px}
+    .contact-card p{font-size:0.88rem}
+    .contact-card a{color:var(--primary);font-weight:500}
+    .hours-table{width:100%;margin-top:10px;font-size:0.85rem}
+    .hours-table td{padding:4px 0;color:var(--text-light)}
+    .hours-table td:last-child{text-align:right;font-weight:500;color:var(--secondary-dark)}
+    @media(max-width:768px){.contact-layout{grid-template-columns:1fr}.contact-form{padding:28px 20px}.page-hero{padding:100px 0 40px}}
+  </style>
+</head>
+<body>
+  <header class="header scrolled" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo" onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
+      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
+      <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+  <main>
+    <section class="page-hero"><div class="container"><span class="section-badge" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.2)">📞 İletişim</span><h1>Bize Ulaşın</h1><p>Sorularınız, önerileriniz veya siparişleriniz için bize yazın.</p></div></section>
+    <section class="section">
+      <div class="container">
+        <div class="contact-layout">
+          <div>
+            <div class="contact-form" id="contactForm">
+              <h2 style="margin-bottom:24px;font-size:1.3rem">Mesaj Gönderin</h2>
+              <div class="form-group"><label for="name">Ad Soyad</label><input type="text" id="name" placeholder="Adınız Soyadınız" required></div>
+              <div class="form-group"><label for="email">E-posta</label><input type="email" id="email" placeholder="ornek@email.com" required></div>
+              <div class="form-group"><label for="subject">Konu</label>
+                <select id="subject"><option>Ürün Hakkında Bilgi</option><option>Sipariş Takibi</option><option>İade / Değişim</option><option>İş Birliği</option><option>Diğer</option></select>
+              </div>
+              <div class="form-group"><label for="message">Mesajınız</label><textarea id="message" placeholder="Mesajınızı buraya yazın..." required></textarea></div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitForm()">Mesajı Gönder →</button>
+            </div>
+            <div class="form-success" id="formSuccess">
+              <div class="form-success-icon">✅</div>
+              <h3>Mesajınız Gönderildi!</h3>
+              <p style="margin-top:10px;color:var(--text-light)">En kısa sürede size dönüş yapacağız. Teşekkürler!</p>
+              <a href="index.html" class="btn btn-secondary" style="margin-top:20px">Ana Sayfaya Dön</a>
+            </div>
+          </div>
+          <div class="contact-cards">
+            <div class="contact-card animate-on-scroll"><div class="contact-card-icon">📧</div><div><h3>E-posta</h3><p><a href="mailto:info@rawlabs.com.tr">info@rawlabs.com.tr</a></p><p style="margin-top:4px;font-size:0.82rem;color:var(--text-lighter)">24 saat içinde yanıt</p></div></div>
+            <div class="contact-card animate-on-scroll"><div class="contact-card-icon">📱</div><div><h3>Telefon</h3><p><a href="tel:+908501234567">0850 123 45 67</a></p><p style="margin-top:4px;font-size:0.82rem;color:var(--text-lighter)">Hafta içi 09:00 - 18:00</p></div></div>
+            <div class="contact-card animate-on-scroll"><div class="contact-card-icon">💬</div><div><h3>WhatsApp</h3><p><a href="https://wa.me/908501234567">WhatsApp ile yazın</a></p><p style="margin-top:4px;font-size:0.82rem;color:var(--text-lighter)">Hızlı sipariş ve destek</p></div></div>
+            <div class="contact-card animate-on-scroll"><div class="contact-card-icon">📍</div><div><h3>Adres</h3><p>Rawlabs Üretim Merkezi<br>İstanbul, Türkiye</p></div></div>
+            <div class="contact-card animate-on-scroll"><div class="contact-card-icon">🕐</div><div><h3>Çalışma Saatleri</h3>
+              <table class="hours-table"><tr><td>Pazartesi - Cuma</td><td>09:00 - 18:00</td></tr><tr><td>Cumartesi</td><td>10:00 - 15:00</td></tr><tr><td>Pazar</td><td>Kapalı</td></tr></table>
+            </div></div>
+            <div class="contact-card animate-on-scroll" style="background:var(--gradient-soft);border-color:var(--primary-lighter)"><div class="contact-card-icon" style="background:var(--gradient)">❓</div><div><h3>Sıkça Sorulan Sorular</h3><p>Belki cevabınız zaten <a href="sss.html">SSS sayfamızda</a> vardır.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-text" style="color:var(--primary-light)">Rawlabs</span></a><p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p></div>
+        <div><h4>Hızlı Erişim</h4><div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div></div>
+        <div><h4>Araçlar</h4><div class="footer-links"><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a></div></div>
+        <div><h4>İletişim</h4><div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:info@rawlabs.com.tr">📧 info@rawlabs.com.tr</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Rawlabs. Tüm hakları saklıdır.</span><div class="footer-social"><a href="#">📷</a><a href="#">📘</a><a href="#">🐦</a><a href="#">🎬</a></div></div>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+  <script>
+    function submitForm(){const n=document.getElementById('name').value,e=document.getElementById('email').value,m=document.getElementById('message').value;if(!n||!e||!m){alert('Lütfen tüm alanları doldurun.');return}document.getElementById('contactForm').style.display='none';document.getElementById('formSuccess').classList.add('show')}
+  </script>
+</body>
+</html>

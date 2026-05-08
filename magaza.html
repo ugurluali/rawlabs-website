@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mağaza - Rawlabs Freeze Dry Kedi & Köpek Mamaları</title>
+  <meta name="description" content="Rawlabs freeze dry doğal kedi ve köpek mamalarını keşfedin. Tam mama, ödül maması ve özel formüller. %100 doğal, katkısız.">
+  <link rel="canonical" href="https://rawlabs.com.tr/magaza">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero{background:var(--gradient);padding:120px 0 50px;text-align:center;color:#fff;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 70%,rgba(170,49,131,0.3),transparent 60%)}
+    .page-hero h1{color:#fff;margin-bottom:12px;position:relative;z-index:1}
+    .page-hero p{color:rgba(255,255,255,0.8);max-width:500px;margin:0 auto;position:relative;z-index:1}
+    .shop-layout{display:grid;grid-template-columns:260px 1fr;gap:32px;padding-top:40px}
+    .shop-sidebar{position:sticky;top:100px;align-self:start}
+    .filter-group{background:var(--white);border-radius:var(--radius-md);padding:24px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+    .filter-group h3{font-size:0.95rem;margin-bottom:16px;color:var(--secondary-dark);display:flex;align-items:center;gap:8px}
+    .filter-btn{display:block;width:100%;padding:10px 16px;margin-bottom:6px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:0.88rem;color:var(--text);transition:var(--transition);text-align:left}
+    .filter-btn:hover,.filter-btn.active{background:var(--primary-lighter);border-color:var(--primary);color:var(--primary);font-weight:600}
+    .filter-count{float:right;font-size:0.75rem;background:var(--secondary-lighter);padding:2px 8px;border-radius:10px;color:var(--secondary)}
+    .filter-btn.active .filter-count{background:var(--primary);color:#fff}
+    .shop-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+    .shop-result-count{font-size:0.9rem;color:var(--text-light)}
+    .shop-result-count strong{color:var(--secondary-dark)}
+    .shop-sort select{padding:10px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.85rem;background:var(--white);color:var(--text);cursor:pointer}
+    @media(max-width:768px){
+      .shop-layout{grid-template-columns:1fr}
+      .shop-sidebar{position:static;display:flex;gap:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;scrollbar-width:none}
+      .shop-sidebar::-webkit-scrollbar{display:none}
+      .filter-group{min-width:200px;flex-shrink:0;margin-bottom:0}
+      .filter-btn{padding:8px 12px;font-size:0.82rem}
+    }
+    @media(max-width:480px){
+      .page-hero{padding:100px 0 40px}
+      .shop-sidebar{flex-direction:column}
+      .filter-group{min-width:auto}
+    }
+  </style>
+</head>
+<body>
+  <header class="header scrolled" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <img src="img/logo.png" alt="Rawlabs Logo" onerror="this.style.display='none'">
+        <span class="logo-text">Rawlabs</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="index.html">Ana Sayfa</a>
+        <a href="magaza.html">Mağaza</a>
+        <a href="hakkimizda.html">Hakkımızda</a>
+        <a href="blog.html">Blog</a>
+        <a href="sss.html">S.S.S</a>
+        <a href="mama-onerisi.html">Mama Önerisi</a>
+        <a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a>
+        <a href="iletisim.html">İletişim</a>
+        <a href="magaza.html" class="nav-cta">🛒 Alışveriş</a>
+      </nav>
+      <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <span class="section-badge" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.2)">🛒 Mağaza</span>
+        <h1>Tüm Ürünler</h1>
+        <p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamalarını keşfedin.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <div class="shop-layout">
+          <aside class="shop-sidebar">
+            <div class="filter-group">
+              <h3>🐾 Hayvan Türü</h3>
+              <button class="filter-btn active" data-filter="all" onclick="filterProducts('all')">Tümü <span class="filter-count" id="count-all">17</span></button>
+              <button class="filter-btn" data-filter="kedi" onclick="filterProducts('kedi')">🐱 Kedi <span class="filter-count" id="count-kedi">8</span></button>
+              <button class="filter-btn" data-filter="kopek" onclick="filterProducts('kopek')">🐶 Köpek <span class="filter-count" id="count-kopek">9</span></button>
+            </div>
+            <div class="filter-group">
+              <h3>📦 Kategori</h3>
+              <button class="filter-btn" data-filter="tam-mama" onclick="filterProducts('tam-mama')">Tam Mama <span class="filter-count" id="count-tam">5</span></button>
+              <button class="filter-btn" data-filter="odul" onclick="filterProducts('odul')">Ödül Maması <span class="filter-count" id="count-odul">12</span></button>
+            </div>
+            <div class="filter-group">
+              <h3>💡 Araçlar</h3>
+              <a href="mama-onerisi.html" class="filter-btn">💡 Mama Önerisi Al</a>
+              <a href="ne-kadar-mama-yer.html" class="filter-btn">📊 Porsiyon Hesapla</a>
+            </div>
+          </aside>
+          <div>
+            <div class="shop-toolbar">
+              <span class="shop-result-count"><strong id="result-count">17</strong> ürün gösteriliyor</span>
+              <div class="shop-sort">
+                <select id="sort-select" onchange="sortProducts(this.value)">
+                  <option value="popular">En Popüler</option>
+                  <option value="price-low">Fiyat: Düşükten Yükseğe</option>
+                  <option value="price-high">Fiyat: Yüksekten Düşüğe</option>
+                  <option value="rating">En Yüksek Puan</option>
+                  <option value="name">İsme Göre (A-Z)</option>
+                </select>
+              </div>
+            </div>
+            <div class="products-grid" id="shop-grid"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="logo"><span class="logo-text" style="color:var(--primary-light)">Rawlabs</span></a>
+          <p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p>
+        </div>
+        <div><h4>Hızlı Erişim</h4><div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div></div>
+        <div><h4>Araçlar</h4><div class="footer-links"><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a href="magaza.html?tur=kedi">Kedi Mamaları</a><a href="magaza.html?tur=kopek">Köpek Mamaları</a></div></div>
+        <div><h4>İletişim</h4><div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:info@rawlabs.com.tr">📧 info@rawlabs.com.tr</a><a href="tel:+908501234567">📱 0850 123 45 67</a></div></div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Rawlabs. Tüm hakları saklıdır.</span>
+        <div class="footer-social"><a href="#">📷</a><a href="#">📘</a><a href="#">🐦</a><a href="#">🎬</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    let currentFilter = 'all';
+    let currentSort = 'popular';
+
+    function filterProducts(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.filter-btn[data-filter="${filter}"]`)?.classList.add('active');
+      applyFiltersAndSort();
+    }
+
+    function sortProducts(sort) {
+      currentSort = sort;
+      applyFiltersAndSort();
+    }
+
+    function applyFiltersAndSort() {
+      let filtered = [...PRODUCTS];
+      if (currentFilter === 'kedi') filtered = filtered.filter(p => p.petType === 'kedi');
+      else if (currentFilter === 'kopek') filtered = filtered.filter(p => p.petType === 'kopek');
+      else if (currentFilter === 'tam-mama') filtered = filtered.filter(p => p.category === 'tam-mama');
+      else if (currentFilter === 'odul') filtered = filtered.filter(p => p.category === 'odul');
+
+      if (currentSort === 'price-low') filtered.sort((a, b) => a.price - b.price);
+      else if (currentSort === 'price-high') filtered.sort((a, b) => b.price - a.price);
+      else if (currentSort === 'rating') filtered.sort((a, b) => b.rating - a.rating);
+      else if (currentSort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+      else filtered.sort((a, b) => b.reviewCount - a.reviewCount);
+
+      document.getElementById('result-count').textContent = filtered.length;
+      renderProducts(filtered, 'shop-grid');
+      // Re-animate
+      document.querySelectorAll('#shop-grid .animate-on-scroll').forEach(el => el.classList.add('visible'));
+    }
+
+    // URL param filter
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tur')) { currentFilter = params.get('tur'); }
+    if (params.get('kategori')) { currentFilter = params.get('kategori'); }
+    applyFiltersAndSort();
+  </script>
+</body>
+</html>

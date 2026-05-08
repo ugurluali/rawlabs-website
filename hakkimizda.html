@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hakkımızda - Rawlabs | Freeze Dry Doğal Mama Üreticisi</title>
+  <meta name="description" content="Rawlabs, freeze dry teknolojisiyle %100 doğal kedi ve köpek mamaları üreten bir Türk markasıdır. Hikayemizi, misyonumuzu ve farkımızı keşfedin.">
+  <link rel="canonical" href="https://rawlabs.com.tr/hakkimizda">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero{background:var(--gradient);padding:120px 0 50px;text-align:center;color:#fff;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 70%,rgba(170,49,131,0.3),transparent 60%)}
+    .page-hero h1,.page-hero p{position:relative;z-index:1}
+    .page-hero h1{color:#fff;margin-bottom:12px}
+    .page-hero p{color:rgba(255,255,255,0.8);max-width:550px;margin:0 auto}
+    .story-section{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+    .story-image{border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg)}
+    .story-image img{width:100%;height:400px;object-fit:cover}
+    .story-content h2{margin-bottom:20px}
+    .story-content p{margin-bottom:16px}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+    .stat-card{background:var(--white);padding:36px 20px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+    .stat-number{font-size:2.4rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .stat-label{font-size:0.88rem;color:var(--text-light);margin-top:6px}
+    .values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+    .value-card{background:var(--white);padding:36px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm);border:1px solid var(--border);transition:var(--transition)}
+    .value-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--primary-lighter)}
+    .value-icon{font-size:2.4rem;margin-bottom:16px}
+    .value-card h3{margin-bottom:10px}
+    .value-card p{font-size:0.88rem}
+    .process-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;counter-reset:step}
+    .process-step{text-align:center;position:relative;counter-increment:step}
+    .process-step::before{content:counter(step);display:flex;align-items:center;justify-content:center;width:48px;height:48px;background:var(--gradient);color:#fff;border-radius:50%;font-weight:700;font-size:1.1rem;margin:0 auto 16px}
+    .process-step h3{margin-bottom:8px;font-size:1rem}
+    .process-step p{font-size:0.85rem}
+    @media(max-width:768px){
+      .story-section{grid-template-columns:1fr;gap:28px}
+      .story-image img{height:260px}
+      .stats-grid{grid-template-columns:repeat(2,1fr);gap:14px}
+      .stat-card{padding:24px 14px}
+      .stat-number{font-size:1.8rem}
+      .values-grid{grid-template-columns:1fr;gap:16px}
+      .process-steps{grid-template-columns:repeat(2,1fr);gap:20px}
+    }
+    @media(max-width:480px){
+      .page-hero{padding:100px 0 40px}
+      .stats-grid{grid-template-columns:1fr}
+      .process-steps{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <header class="header scrolled" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo" onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
+      <nav class="nav" id="nav">
+        <a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a>
+      </nav>
+      <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <span class="section-badge" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.2)">📖 Hakkımızda</span>
+        <h1>Rawlabs Hikayesi</h1>
+        <p>Evcil dostlarımızın daha sağlıklı ve mutlu yaşaması için doğanın gücünü teknolojiyle birleştiriyoruz.</p>
+      </div>
+    </section>
+
+    <!-- Hikaye -->
+    <section class="section">
+      <div class="container">
+        <div class="story-section animate-on-scroll">
+          <div class="story-image">
+            <img src="img/hero-banner.png" alt="Rawlabs hikayesi">
+          </div>
+          <div class="story-content">
+            <span class="section-badge">🌿 Hikayemiz</span>
+            <h2>Doğallığı Teknolojiyle Buluşturduk</h2>
+            <p>Rawlabs, evcil dostlarımızın endüstriyel mamalarla değil, doğanın sunduğu en saf besinlerle beslenmesi gerektiğine inanan bir ekip tarafından kuruldu.</p>
+            <p><strong>Freeze dry teknolojisi</strong> ile taze et, balık ve sebzelerin besin değerlerini %97 oranında koruyarak, katkısız ve koruyucusuz mamalar üretiyoruz. Amacımız her evcil hayvanın doğal beslenme hakkına erişebilmesi.</p>
+            <p>Bugün <strong>15.000+</strong> evcil hayvan sahibi Rawlabs'ı tercih ediyor ve bu sayı her gün artıyor.</p>
+            <a href="magaza.html" class="btn btn-primary" style="margin-top:12px">Ürünlerimizi Keşfet →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rakamlar -->
+    <section class="section" style="background:var(--white)">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">📊 Rakamlarla</span>
+          <h2 class="section-title">Rawlabs Rakamlarla</h2>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card animate-on-scroll"><div class="stat-number">15K+</div><div class="stat-label">Mutlu Evcil Hayvan</div></div>
+          <div class="stat-card animate-on-scroll"><div class="stat-number">%98.7</div><div class="stat-label">Müşteri Memnuniyeti</div></div>
+          <div class="stat-card animate-on-scroll"><div class="stat-number">17</div><div class="stat-label">Ürün Çeşidi</div></div>
+          <div class="stat-card animate-on-scroll"><div class="stat-number">%100</div><div class="stat-label">Doğal İçerik</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Değerlerimiz -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">💎 Değerlerimiz</span>
+          <h2 class="section-title">Bizi Biz Yapan Değerler</h2>
+          <p class="section-subtitle">Her ürünümüzün arkasında duran ilkelerimiz.</p>
+        </div>
+        <div class="values-grid">
+          <div class="value-card animate-on-scroll"><div class="value-icon">🧬</div><h3>Bilimsel Yaklaşım</h3><p>Veteriner hekimler ve beslenme uzmanlarıyla formüle edilen, araştırmaya dayalı ürünler geliştiriyoruz.</p></div>
+          <div class="value-card animate-on-scroll"><div class="value-icon">🌍</div><h3>Sürdürülebilirlik</h3><p>Çevre dostu ambalajlar ve sürdürülebilir kaynaklardan tedarik ile gezegenimize saygılı üretim yapıyoruz.</p></div>
+          <div class="value-card animate-on-scroll"><div class="value-icon">💛</div><h3>Şeffaflık</h3><p>Her ürünümüzün tam içerik listesini paylaşıyoruz. Gizli içerik, gizli katkı maddesi yok.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Üretim Süreci -->
+    <section class="section" style="background:var(--white)">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">🧊 Üretim</span>
+          <h2 class="section-title">Freeze Dry Üretim Sürecimiz</h2>
+          <p class="section-subtitle">Doğanın en saf halini sofralarına nasıl getiriyoruz?</p>
+        </div>
+        <div class="process-steps">
+          <div class="process-step animate-on-scroll"><h3>Taze Tedarik</h3><p>İnsan tüketimine uygun taze et, balık ve sebzeleri özenle seçiyoruz.</p></div>
+          <div class="process-step animate-on-scroll"><h3>Hazırlık</h3><p>Malzemeler yıkanır, doğranır ve porsiyon boyutlarına ayrılır.</p></div>
+          <div class="process-step animate-on-scroll"><h3>Freeze Dry</h3><p>-40°C'de dondurularak vakum altında kurutulur. Besin değerleri korunur.</p></div>
+          <div class="process-step animate-on-scroll"><h3>Paketleme</h3><p>Nitrojen gazıyla koruyucu ambalajlara yerleştirilip tazeliği korunur.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+      <div class="container">
+        <div class="cta-banner" style="text-align:center;display:block;padding:50px 40px">
+          <h2 style="color:#fff;margin-bottom:14px">Evcil Dostunuz En İyisini Hak Ediyor</h2>
+          <p style="color:rgba(255,255,255,0.85);max-width:500px;margin:0 auto 28px">Rawlabs freeze dry mamalarını keşfedin, doğanın gücünü sofralarına taşıyın.</p>
+          <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+            <a href="magaza.html" class="btn btn-primary" style="background:#fff;color:var(--secondary)">Mağazaya Git →</a>
+            <a href="iletisim.html" class="btn btn-outline">Bize Ulaşın</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-text" style="color:var(--primary-light)">Rawlabs</span></a><p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p></div>
+        <div><h4>Hızlı Erişim</h4><div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div></div>
+        <div><h4>Araçlar</h4><div class="footer-links"><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a href="magaza.html?tur=kedi">Kedi Mamaları</a><a href="magaza.html?tur=kopek">Köpek Mamaları</a></div></div>
+        <div><h4>İletişim</h4><div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:info@rawlabs.com.tr">📧 info@rawlabs.com.tr</a><a href="tel:+908501234567">📱 0850 123 45 67</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Rawlabs. Tüm hakları saklıdır.</span><div class="footer-social"><a href="#">📷</a><a href="#">📘</a><a href="#">🐦</a><a href="#">🎬</a></div></div>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sık Sorulan Sorular - Rawlabs Freeze Dry Mama</title>
+  <meta name="description" content="Rawlabs freeze dry mama hakkında sık sorulan sorular. Sipariş, teslimat, ürün içerikleri ve iade politikası hakkında bilgi edinin.">
+  <link rel="canonical" href="https://rawlabs.com.tr/sss">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero{background:var(--gradient);padding:120px 0 50px;text-align:center;color:#fff;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 70%,rgba(170,49,131,0.3),transparent 60%)}
+    .page-hero h1,.page-hero p{position:relative;z-index:1}.page-hero h1{color:#fff;margin-bottom:12px}.page-hero p{color:rgba(255,255,255,0.8);max-width:500px;margin:0 auto}
+    .faq-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+    .faq-tab{padding:10px 24px;border-radius:var(--radius-full);border:2px solid var(--border);background:var(--white);color:var(--text);font-weight:500;font-size:0.88rem;cursor:pointer;transition:var(--transition)}
+    .faq-tab.active,.faq-tab:hover{background:var(--gradient);color:#fff;border-color:transparent}
+    .faq-list{max-width:800px;margin:0 auto}
+    .faq-item{background:var(--white);border-radius:var(--radius-md);margin-bottom:12px;box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden;transition:var(--transition)}
+    .faq-item:hover{border-color:var(--primary-lighter)}
+    .faq-question{padding:20px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:0.95rem;color:var(--secondary-dark);transition:var(--transition)}
+    .faq-question:hover{color:var(--primary)}
+    .faq-toggle{font-size:1.4rem;transition:transform 0.3s ease;color:var(--primary);flex-shrink:0;margin-left:16px}
+    .faq-item.open .faq-toggle{transform:rotate(45deg)}
+    .faq-answer{max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease}
+    .faq-answer-inner{padding:0 24px 20px;color:var(--text-light);font-size:0.9rem;line-height:1.8}
+    .faq-answer-inner a{color:var(--primary);font-weight:500;text-decoration:underline}
+    .faq-cta{background:var(--white);border-radius:var(--radius-lg);padding:48px;text-align:center;box-shadow:var(--shadow-md);border:1px solid var(--border);max-width:600px;margin:48px auto 0}
+    .faq-cta h3{margin-bottom:12px}.faq-cta p{margin-bottom:24px;font-size:0.9rem}
+    @media(max-width:768px){.page-hero{padding:100px 0 40px}.faq-question{padding:16px 18px;font-size:0.88rem}.faq-answer-inner{padding:0 18px 16px}.faq-cta{padding:32px 20px}}
+  </style>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"Freeze dry mama nedir?","acceptedAnswer":{"@type":"Answer","text":"Freeze dry, taze gıdaların -40°C'de dondurularak vakum altında kurutulması işlemidir. Bu yöntemle besin değerlerinin %97'si korunur."}},
+    {"@type":"Question","name":"Rawlabs mamalarında katkı maddesi var mı?","acceptedAnswer":{"@type":"Answer","text":"Hayır. Rawlabs mamalarında hiçbir katkı maddesi, koruyucu veya renklendirici bulunmaz. Sadece %100 doğal içerikler kullanılır."}},
+    {"@type":"Question","name":"Kargo ücretsiz mi?","acceptedAnswer":{"@type":"Answer","text":"200₺ ve üzeri siparişlerde kargo ücretsizdir. Siparişler 1-3 iş günü içinde teslim edilir."}}
+  ]}
+  </script>
+</head>
+<body>
+  <header class="header scrolled" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo" onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
+      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
+      <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+  <main>
+    <section class="page-hero"><div class="container"><span class="section-badge" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.2)">❓ S.S.S</span><h1>Sık Sorulan Sorular</h1><p>Rawlabs hakkında merak edilen tüm soruların cevapları burada.</p></div></section>
+    <section class="section">
+      <div class="container">
+        <div class="faq-tabs">
+          <button class="faq-tab active" onclick="filterFaq('all')">Tümü</button>
+          <button class="faq-tab" onclick="filterFaq('urun')">Ürünler</button>
+          <button class="faq-tab" onclick="filterFaq('siparis')">Sipariş</button>
+          <button class="faq-tab" onclick="filterFaq('teslimat')">Teslimat</button>
+          <button class="faq-tab" onclick="filterFaq('iade')">İade</button>
+        </div>
+        <div class="faq-list" id="faq-list">
+          <div class="faq-item animate-on-scroll" data-cat="urun"><div class="faq-question" onclick="toggleFaq(this)"><span>Freeze dry mama nedir?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Freeze dry (dondurarak kurutma), taze gıdaların -40°C'de dondurularak vakum altında kurutulması işlemidir. Bu yöntemle besin değerlerinin %97'si korunur, tat ve aroma bozulmaz. Geleneksel kurutma yöntemlerinden çok daha üstündür. <a href="blog.html">Blog yazımızda</a> detaylı bilgi bulabilirsiniz.</div></div></div>
+          <div class="faq-item animate-on-scroll" data-cat="urun"><div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs mamalarında katkı maddesi var mı?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Hayır, kesinlikle yok. Rawlabs mamalarında hiçbir katkı maddesi, koruyucu, renklendirici veya yapay aroma bulunmaz. Sadece %100 doğal, insan tüketimine uygun kalitede içerikler kullanılır.</div></div></div>
+          <div class="faq-item animate-on-scroll" data-cat="urun"><div class="faq-question" onclick="toggleFaq(this)"><span>Tam mama ile ödül maması arasındaki fark nedir?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner"><strong>Tam mama</strong>, evcil hayvanınızın günlük tüm besin ihtiyaçlarını karşılayacak şekilde formüle edilmiş ana öğündür. <strong>Ödül maması</strong> ise eğitim, ödüllendirme veya ara öğün olarak kullanılan, genellikle tek içerikli atıştırmalıklardır. <a href="magaza.html">Mağazamızda</a> her iki kategoriyi de bulabilirsiniz.</div></div></div>
+          <div class="faq-item animate-on-scroll" data-cat="urun"><div class="faq-question" onclick="toggleFaq(this)"><span>Hangi hayvan için hangi mama uygun?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Her ürünümüz kedi veya köpek için özel olarak formüle edilmiştir. Hangisinin dostunuza uygun olduğunu öğrenmek için <a href="mama-onerisi.html">Mama Önerisi</a> aracımızı kullanabilirsiniz.</div></div></div>
+          <div class="faq-item animate-on-scroll" data-cat="urun"><div class="faq-question" onclick="toggleFaq(this)"><span>Günlük ne kadar mama vermeliyim?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Mama miktarı evcil hayvanınızın kilosu, yaşı ve aktivite düzeyine göre değişir. Doğru miktarı hesaplamak için <a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a> aracımızı kullanabilirsiniz.</div></div></div>
+          <div class="faq-item animate-on-scroll" data-cat="siparis"><div class="faq-question" onclick="toggleFaq(this)"><span>Nasıl sipariş verebilirim?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner"><a href="magaza.html">Mağaza</a> sayfamızdan istediğiniz ürünleri seçerek sipariş verebilirsiniz. Ayrıca WhatsApp ve telefon ile de sipariş kabul ediyoruz.</div></div></div>
+          <div class="faq-item animate-on-scroll" data-cat="siparis"><div class="faq-question" onclick="toggleFaq(this)"><span>Hangi ödeme yöntemlerini kabul ediyorsunuz?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Kredi kartı, banka kartı, havale/EFT ve kapıda ödeme seçenekleri mevcuttur. Kredi kartıyla 3 ve 6 taksit imkanı sunuyoruz.</div></div></div>
+          <div class="faq-item animate-on-scroll" data-cat="teslimat"><div class="faq-question" onclick="toggleFaq(this)"><span>Kargo ücretsiz mi?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">200₺ ve üzeri siparişlerde kargo ücretsizdir. 200₺ altı siparişlerde sabit 29.90₺ kargo ücreti uygulanır.</div></div></div>
+          <div class="faq-item animate-on-scroll" data-cat="teslimat"><div class="faq-question" onclick="toggleFaq(this)"><span>Siparişim ne zaman teslim edilir?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Siparişler genellikle aynı gün veya ertesi iş günü kargoya verilir. Teslimat süresi bölgenize göre 1-3 iş günüdür. Kargo takip numaranız SMS ve e-posta ile paylaşılır.</div></div></div>
+          <div class="faq-item animate-on-scroll" data-cat="iade"><div class="faq-question" onclick="toggleFaq(this)"><span>İade ve değişim politikanız nedir?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Açılmamış ürünlerde 14 gün içinde koşulsuz iade kabul ediyoruz. Hasarlı veya hatalı ürünlerde ücretsiz değişim yapılır. Detaylar için <a href="iletisim.html">bize ulaşın</a>.</div></div></div>
+          <div class="faq-item animate-on-scroll" data-cat="iade"><div class="faq-question" onclick="toggleFaq(this)"><span>Ürün beğenmezsem iade edebilir miyim?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Evet! Evcil dostunuz mamayı beğenmezse, açılmış olsa bile ilk siparişinizde tam iade garantisi sunuyoruz. Müşteri memnuniyeti bizim için en önemli değerdir.</div></div></div>
+        </div>
+        <div class="faq-cta animate-on-scroll">
+          <h3>Cevabınızı Bulamadınız mı?</h3>
+          <p>Aklınıza takılan her konuda bize ulaşabilirsiniz. En kısa sürede yanıtlayacağız.</p>
+          <a href="iletisim.html" class="btn btn-primary">Bize Yazın →</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-text" style="color:var(--primary-light)">Rawlabs</span></a><p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p></div>
+        <div><h4>Hızlı Erişim</h4><div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div></div>
+        <div><h4>Araçlar</h4><div class="footer-links"><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a></div></div>
+        <div><h4>İletişim</h4><div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:info@rawlabs.com.tr">📧 info@rawlabs.com.tr</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Rawlabs. Tüm hakları saklıdır.</span><div class="footer-social"><a href="#">📷</a><a href="#">📘</a><a href="#">🐦</a><a href="#">🎬</a></div></div>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+  <script>
+    function toggleFaq(el){const item=el.parentElement;item.classList.toggle('open');const answer=item.querySelector('.faq-answer');answer.style.maxHeight=item.classList.contains('open')?answer.scrollHeight+'px':'0'}
+    function filterFaq(cat){document.querySelectorAll('.faq-tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');document.querySelectorAll('.faq-item').forEach(item=>{item.style.display=(cat==='all'||item.dataset.cat===cat)?'block':'none'})}
+  </script>
+</body>
+</html>

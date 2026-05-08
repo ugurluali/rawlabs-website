@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mama Önerisi - Rawlabs | Evcil Dostunuza Uygun Mama Bulun</title>
+  <meta name="description" content="Kedi veya köpeğinizin yaşına, kilosuna ve ihtiyaçlarına göre en uygun Rawlabs freeze dry mamasını bulun. Akıllı mama önerisi aracı.">
+  <link rel="canonical" href="https://rawlabs.com.tr/mama-onerisi">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero{background:var(--gradient);padding:120px 0 50px;text-align:center;color:#fff;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 70%,rgba(170,49,131,0.3),transparent 60%)}
+    .page-hero h1,.page-hero p{position:relative;z-index:1}.page-hero h1{color:#fff;margin-bottom:12px}.page-hero p{color:rgba(255,255,255,0.8);max-width:550px;margin:0 auto}
+    .tool-layout{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+    .tool-form{background:var(--white);padding:40px;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);border:1px solid var(--border)}
+    .form-group{margin-bottom:22px}
+    .form-group label{display:block;font-size:0.9rem;font-weight:600;color:var(--secondary-dark);margin-bottom:8px}
+    .form-group select,.form-group input{width:100%;padding:14px 18px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.9rem;transition:var(--transition);background:var(--bg)}
+    .form-group select:focus,.form-group input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(170,49,131,0.1);outline:none}
+    .pet-type-toggle{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+    .pet-type-btn{padding:16px;border:2px solid var(--border);border-radius:var(--radius-md);text-align:center;cursor:pointer;transition:var(--transition);background:var(--white);font-size:0.9rem;font-weight:500}
+    .pet-type-btn:hover{border-color:var(--primary-light)}
+    .pet-type-btn.active{border-color:var(--primary);background:var(--primary-lighter);color:var(--primary);font-weight:600}
+    .pet-type-btn .emoji{font-size:2rem;display:block;margin-bottom:8px}
+    .result-panel{background:var(--white);padding:40px;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);border:1px solid var(--border)}
+    .result-empty{text-align:center;padding:40px 20px;color:var(--text-lighter)}
+    .result-empty .emoji{font-size:3rem;margin-bottom:16px;display:block}
+    .result-title{margin-bottom:20px;display:flex;align-items:center;gap:10px}
+    .result-title .emoji{font-size:1.6rem}
+    .recommended-product{background:var(--bg);border-radius:var(--radius-md);padding:20px;margin-bottom:14px;border:1px solid var(--border);transition:var(--transition);display:flex;gap:16px;align-items:center}
+    .recommended-product:hover{border-color:var(--primary-lighter);box-shadow:var(--shadow-sm)}
+    .recommended-product img{width:70px;height:70px;object-fit:cover;border-radius:var(--radius-sm)}
+    .rec-info h4{font-size:0.92rem;margin-bottom:4px;color:var(--secondary-dark)}
+    .rec-info p{font-size:0.8rem;color:var(--text-light)}
+    .rec-price{margin-left:auto;font-weight:700;color:var(--secondary-dark);font-size:1rem;white-space:nowrap}
+    .tip-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px}
+    .tip-card{background:var(--white);padding:24px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm);border:1px solid var(--border);text-align:center}
+    .tip-card .emoji{font-size:1.8rem;margin-bottom:10px;display:block}
+    .tip-card h4{font-size:0.92rem;margin-bottom:6px}
+    .tip-card p{font-size:0.82rem}
+    @media(max-width:768px){.tool-layout{grid-template-columns:1fr}.tool-form,.result-panel{padding:28px 20px}.tip-cards{grid-template-columns:1fr}.page-hero{padding:100px 0 40px}}
+  </style>
+</head>
+<body>
+  <header class="header scrolled" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo" onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
+      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
+      <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+  <main>
+    <section class="page-hero"><div class="container"><span class="section-badge" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.2)">💡 Mama Önerisi</span><h1>Dostunuza En Uygun Mamayı Bulun</h1><p>Birkaç soruyu yanıtlayın, evcil dostunuzun ihtiyaçlarına göre en uygun Rawlabs mamasını önerelim.</p></div></section>
+    <section class="section">
+      <div class="container">
+        <div class="tool-layout">
+          <div class="tool-form">
+            <h2 style="margin-bottom:24px;font-size:1.3rem">🐾 Dostunuzu Tanıyalım</h2>
+            <div class="pet-type-toggle">
+              <div class="pet-type-btn active" onclick="setPetType('kedi',this)"><span class="emoji">🐱</span>Kedi</div>
+              <div class="pet-type-btn" onclick="setPetType('kopek',this)"><span class="emoji">🐶</span>Köpek</div>
+            </div>
+            <div class="form-group"><label>Yaş</label><select id="age"><option value="yavru">Yavru (0-1 yaş)</option><option value="yetiskin" selected>Yetişkin (1-7 yaş)</option><option value="yasli">Yaşlı (7+ yaş)</option></select></div>
+            <div class="form-group"><label>Kilo (kg)</label><input type="number" id="weight" placeholder="Örn: 5" min="0.5" max="80" step="0.5" value="5"></div>
+            <div class="form-group"><label>Aktivite Düzeyi</label><select id="activity"><option value="dusuk">Düşük (ev içi, sakin)</option><option value="orta" selected>Orta (normal aktivite)</option><option value="yuksek">Yüksek (çok aktif, sporcu)</option></select></div>
+            <div class="form-group"><label>Özel Durum</label><select id="condition"><option value="yok" selected>Özel durum yok</option><option value="hassas-mide">Hassas sindirim</option><option value="tuy-saglik">Tüy/deri sağlığı</option><option value="eklem">Eklem sağlığı</option><option value="kilo-kontrol">Kilo kontrolü</option></select></div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="getRecommendation()">Mama Önerisi Al →</button>
+          </div>
+          <div class="result-panel" id="result-panel">
+            <div class="result-empty" id="result-empty"><span class="emoji">💡</span><h3>Formu Doldurun</h3><p style="margin-top:8px">Evcil dostunuzun bilgilerini girdiğinizde, ona en uygun mamaları önereceğiz.</p></div>
+            <div id="result-content" style="display:none"></div>
+          </div>
+        </div>
+        <div class="tip-cards">
+          <div class="tip-card animate-on-scroll"><span class="emoji">📏</span><h4>Doğru Porsiyon</h4><p>Ne kadar mama vermeniz gerektiğini <a href="ne-kadar-mama-yer.html" style="color:var(--primary)">hesaplayın</a>.</p></div>
+          <div class="tip-card animate-on-scroll"><span class="emoji">🔄</span><h4>Mama Geçişi</h4><p>Yeni mamaya 7-10 gün içinde kademeli geçiş yapın.</p></div>
+          <div class="tip-card animate-on-scroll"><span class="emoji">💧</span><h4>Taze Su</h4><p>Freeze dry mama ile birlikte her zaman taze su bulundurun.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-text" style="color:var(--primary-light)">Rawlabs</span></a><p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p></div>
+        <div><h4>Hızlı Erişim</h4><div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div></div>
+        <div><h4>Araçlar</h4><div class="footer-links"><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a></div></div>
+        <div><h4>İletişim</h4><div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:info@rawlabs.com.tr">📧 info@rawlabs.com.tr</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Rawlabs. Tüm hakları saklıdır.</span><div class="footer-social"><a href="#">📷</a><a href="#">📘</a><a href="#">🐦</a><a href="#">🎬</a></div></div>
+    </div>
+  </footer>
+  <script src="js/products.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    let selectedPetType = 'kedi';
+    function setPetType(type, el) {
+      selectedPetType = type;
+      document.querySelectorAll('.pet-type-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+    }
+    function getRecommendation() {
+      const weight = parseFloat(document.getElementById('weight').value) || 5;
+      const condition = document.getElementById('condition').value;
+      let recommended = PRODUCTS.filter(p => p.petType === selectedPetType);
+      // Tam mama öncelik
+      let tamMama = recommended.filter(p => p.category === 'tam-mama');
+      let odul = recommended.filter(p => p.category === 'odul');
+      // Condition-based sorting
+      if (condition === 'hassas-mide') { tamMama.sort((a,b) => (a.name.includes('Kuzu')||a.name.includes('Hindi')?-1:1)); }
+      if (condition === 'tuy-saglik' || condition === 'eklem') { tamMama.sort((a,b) => (a.name.includes('Somon')?-1:1)); odul.sort((a,b) => (a.name.includes('Somon')?-1:1)); }
+      let html = `<div class="result-title"><span class="emoji">✅</span><h3>Önerilen Mamalar</h3></div>`;
+      html += `<p style="color:var(--text-light);font-size:0.88rem;margin-bottom:20px">
+        <strong>${selectedPetType === 'kedi' ? '🐱 Kedi' : '🐶 Köpek'}</strong> · ${weight} kg · ${document.getElementById('age').selectedOptions[0].text}
+      </p>`;
+      html += `<h4 style="font-size:0.85rem;color:var(--primary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">Ana Öğün (Tam Mama)</h4>`;
+      tamMama.forEach(p => { html += renderRecommended(p); });
+      html += `<h4 style="font-size:0.85rem;color:var(--primary);margin:20px 0 12px;text-transform:uppercase;letter-spacing:0.5px">Ödül / Atıştırmalık</h4>`;
+      odul.slice(0, 3).forEach(p => { html += renderRecommended(p); });
+      html += `<a href="magaza.html?tur=${selectedPetType}" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-top:20px">Tüm ${selectedPetType === 'kedi' ? 'Kedi' : 'Köpek'} Mamalarını Gör →</a>`;
+      document.getElementById('result-empty').style.display = 'none';
+      document.getElementById('result-content').style.display = 'block';
+      document.getElementById('result-content').innerHTML = html;
+    }
+    function renderRecommended(p) {
+      return `<div class="recommended-product"><img src="${p.image}" alt="${p.name}"><div class="rec-info"><h4>${p.name}</h4><p>${p.weight} · ★${p.rating} (${p.reviewCount})</p></div><div class="rec-price">₺${p.price}</div></div>`;
+    }
+  </script>
+</body>
+</html>
