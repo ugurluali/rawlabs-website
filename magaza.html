@@ -151,8 +151,8 @@
 
     function applyFiltersAndSort() {
       let filtered = [...PRODUCTS];
-      if (currentFilter === 'kedi') filtered = filtered.filter(p => p.petType === 'kedi');
-      else if (currentFilter === 'kopek') filtered = filtered.filter(p => p.petType === 'kopek');
+      if (currentFilter === 'kedi') filtered = filtered.filter(p => p.petType === 'kedi' || p.petType === 'kedi-kopek');
+      else if (currentFilter === 'kopek') filtered = filtered.filter(p => p.petType === 'kopek' || p.petType === 'kedi-kopek');
       else if (currentFilter === 'tam-mama') filtered = filtered.filter(p => p.category === 'tam-mama');
       else if (currentFilter === 'odul') filtered = filtered.filter(p => p.category === 'odul');
 

@@ -64,10 +64,14 @@
               <button class="tab-btn active" onclick="switchTab('desc',this)">Detaylı Açıklama</button>
               <button class="tab-btn" onclick="switchTab('ingredients',this)">İçerikler</button>
               <button class="tab-btn" onclick="switchTab('usage',this)">Kullanım Önerisi</button>
+              <button class="tab-btn" onclick="switchTab('nutrition',this)">Besin Değerleri</button>
+              <button class="tab-btn" onclick="switchTab('storage',this)">Saklama Koşulları</button>
             </div>
             <div class="tab-content active" id="tab-desc"></div>
             <div class="tab-content" id="tab-ingredients"></div>
             <div class="tab-content" id="tab-usage"></div>
+            <div class="tab-content" id="tab-nutrition"></div>
+            <div class="tab-content" id="tab-storage"></div>
           </div>
 
           <div id="benefits-area"></div>
@@ -159,6 +163,25 @@
       document.getElementById('tab-ingredients').innerHTML = ingredientsHtml;
 
       document.getElementById('tab-usage').innerHTML = '<h3 style="margin-bottom:16px">Kullanım Önerisi</h3><p>' + (p.usageGuide || 'Günde 2 öğün olarak verin.') + '</p>';
+
+      let nutritionHtml = '<h3 style="margin-bottom:16px">Besin Değerleri</h3>';
+      if (p.nutrition) {
+        nutritionHtml += '<ul style="list-style:none;padding:0;line-height:1.8;color:var(--text);">';
+        if (p.nutrition.metabolicEnergy) nutritionHtml += '<li><strong>Metabolik Enerji (ME):</strong> ' + p.nutrition.metabolicEnergy + '</li>';
+        if (p.nutrition.protein) nutritionHtml += '<li><strong>Protein:</strong> %' + p.nutrition.protein + '</li>';
+        if (p.nutrition.fat) nutritionHtml += '<li><strong>Yağ:</strong> %' + p.nutrition.fat + '</li>';
+        if (p.nutrition.moisture) nutritionHtml += '<li><strong>Nem:</strong> %' + p.nutrition.moisture + '</li>';
+        if (p.nutrition.ash) nutritionHtml += '<li><strong>Kül:</strong> %' + p.nutrition.ash + '</li>';
+        if (p.nutrition.fiber === null || p.nutrition.fiber === undefined) {
+           nutritionHtml += '<li><strong>Selüloz:</strong> Belirtilmemiş</li>';
+        } else {
+           nutritionHtml += '<li><strong>Selüloz:</strong> %' + p.nutrition.fiber + '</li>';
+        }
+        nutritionHtml += '</ul>';
+      }
+      document.getElementById('tab-nutrition').innerHTML = nutritionHtml;
+
+      document.getElementById('tab-storage').innerHTML = '<h3 style="margin-bottom:16px">Saklama Koşulları</h3><p>' + (p.storage || 'Serin ve kuru ortamda saklayınız.') + '</p>';
 
       // Faydalar
       const benefitIcons = ['🌟', '💪', '✨', '🛡️', '🎯', '💎'];
