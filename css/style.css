@@ -618,7 +618,48 @@ p { color: var(--text-light); line-height: 1.8; }
   transform: translateY(0);
 }
 
-/* ---------- 17. Responsive ---------- */
+/* ---------- 17. Product Detail ---------- */
+.breadcrumb{padding:14px 0;font-size:0.85rem;color:var(--text-lighter)}
+.breadcrumb a{color:var(--text-light)}.breadcrumb a:hover{color:var(--primary)}
+.breadcrumb span{margin:0 8px;color:var(--border)}
+.product-detail{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-bottom:48px}
+.product-detail-image{border-radius:var(--radius-lg);overflow:hidden;background:var(--gradient-soft);box-shadow:var(--shadow-md);position:sticky;top:100px}
+.product-detail-image img{width:100%;height:auto;min-height:400px;object-fit:cover}
+.product-detail-info .product-category{font-size:0.8rem;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:inline-block}
+.product-detail-info h1{font-size:1.6rem;margin-bottom:12px;color:var(--secondary-dark)}
+.product-detail-info .product-rating{margin-bottom:16px}
+.detail-price{font-size:2rem;font-weight:800;color:var(--secondary-dark);margin-bottom:4px}
+.detail-price small{font-size:0.9rem;color:var(--text-lighter);font-weight:400}
+.detail-weight{font-size:0.9rem;color:var(--text-light);margin-bottom:20px}
+.detail-description{font-size:0.92rem;line-height:1.8;color:var(--text-light);margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.detail-actions{display:flex;flex-direction:column;gap:12px}
+.btn-cart{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 32px;background:var(--gradient);color:#fff;border-radius:var(--radius-full);font-weight:700;font-size:1rem;cursor:pointer;transition:var(--transition);border:none;min-height:54px}
+.btn-cart:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(170,49,131,0.4)}
+.btn-whatsapp{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 32px;background:#25D366;color:#fff;border-radius:var(--radius-full);font-weight:600;font-size:0.95rem;cursor:pointer;transition:var(--transition);border:none;min-height:54px}
+.btn-whatsapp:hover{background:#1fb855;transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,211,102,0.35)}
+.product-tabs{margin-bottom:48px}
+.tabs-nav{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:24px}
+.tab-btn{padding:12px 24px;font-weight:600;font-size:0.9rem;color:var(--text-light);cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:var(--transition)}
+.tab-btn:hover{color:var(--primary)}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
+.tab-content{display:none;line-height:1.9;color:var(--text-light);font-size:0.92rem}
+.tab-content.active{display:block}
+.tab-content p{margin-bottom:14px}
+.ingredients-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ingredient-tag{background:var(--gradient-soft);color:var(--secondary);padding:8px 18px;border-radius:var(--radius-full);font-size:0.85rem;font-weight:500}
+.benefits-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:48px}
+.benefit-card{background:var(--white);padding:24px 16px;border-radius:var(--radius-md);text-align:center;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.benefit-card .icon{font-size:1.6rem;margin-bottom:8px}
+.benefit-card span{font-size:0.85rem;font-weight:600;color:var(--secondary-dark)}
+.similar-section h2{margin-bottom:24px}
+.toast{position:fixed;bottom:30px;right:30px;background:var(--gradient);color:#fff;padding:16px 28px;border-radius:var(--radius-md);font-weight:600;font-size:0.9rem;box-shadow:var(--shadow-lg);z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.4s ease;display:flex;align-items:center;gap:10px}
+.toast.show{transform:translateY(0);opacity:1}
+.not-found{text-align:center;padding:80px 20px}
+.not-found .emoji{font-size:4rem;margin-bottom:20px;display:block}
+.not-found h1{margin-bottom:12px}
+.not-found p{margin-bottom:28px}
+
+/* ---------- 18. Responsive ---------- */
 
 /* --- Tablet Landscape / Small Desktop (max 1024px) --- */
 @media (max-width: 1024px) {
@@ -744,6 +785,18 @@ p { color: var(--text-light); line-height: 1.8; }
     padding: 24px;
   }
   .testimonial-text { font-size: 0.85rem; }
+
+  /* Product Detail */
+  .product-detail { grid-template-columns: 1fr; gap: 24px; }
+  .product-detail-image { position: static; }
+  .product-detail-image img { min-height: 280px; }
+  .product-detail-info h1 { font-size: 1.3rem; }
+  .detail-price { font-size: 1.6rem; }
+  .benefits-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .tabs-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .tabs-nav::-webkit-scrollbar { display: none; }
+  .tab-btn { white-space: nowrap; padding: 10px 18px; font-size: 0.85rem; }
+  .toast { left: 16px; right: 16px; bottom: 16px; }
 
   /* Footer */
   .footer { padding: 50px 0 0; }

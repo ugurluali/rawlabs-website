@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ürün Detayı | Rawlabs</title>
+  <meta name="description" content="Rawlabs freeze dry doğal kedi ve köpek mamaları.">
+  <link rel="canonical" href="https://rawlabs.com.tr/urun">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header scrolled" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo" onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
+      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
+      <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Ürün bulunamadı görünümü -->
+    <div class="not-found" id="not-found" style="display:none">
+      <span class="emoji">😿</span>
+      <h1>Ürün Bulunamadı</h1>
+      <p style="color:var(--text-light)">Aradığınız ürün mevcut değil veya kaldırılmış olabilir.</p>
+      <a href="magaza.html" class="btn btn-primary">Mağazaya Dön →</a>
+    </div>
+
+    <!-- Ürün detay içeriği -->
+    <div id="product-page" style="display:none">
+      <section style="padding-top:90px">
+        <div class="container">
+          <div class="breadcrumb" id="breadcrumb"></div>
+          <div class="product-detail">
+            <div class="product-detail-image">
+              <img id="detail-img" src="" alt="">
+            </div>
+            <div class="product-detail-info">
+              <span class="product-category" id="detail-category"></span>
+              <h1 id="detail-name"></h1>
+              <div class="product-rating">
+                <span class="stars" id="detail-stars"></span>
+                <span class="rating-count" id="detail-reviews"></span>
+              </div>
+              <div class="detail-price" id="detail-price"></div>
+              <div class="detail-weight" id="detail-weight"></div>
+              <p class="detail-description" id="detail-desc"></p>
+              <div class="detail-actions">
+                <button class="btn-cart" id="btn-add-cart" onclick="addToCart()">🛒 Sepete Ekle</button>
+                <a class="btn-whatsapp" id="btn-whatsapp" href="#" target="_blank">💬 WhatsApp ile Sipariş Ver</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" style="padding-top:0">
+        <div class="container">
+          <div class="product-tabs">
+            <div class="tabs-nav">
+              <button class="tab-btn active" onclick="switchTab('desc',this)">Detaylı Açıklama</button>
+              <button class="tab-btn" onclick="switchTab('ingredients',this)">İçerikler</button>
+              <button class="tab-btn" onclick="switchTab('usage',this)">Kullanım Önerisi</button>
+            </div>
+            <div class="tab-content active" id="tab-desc"></div>
+            <div class="tab-content" id="tab-ingredients"></div>
+            <div class="tab-content" id="tab-usage"></div>
+          </div>
+
+          <div id="benefits-area"></div>
+
+          <div class="similar-section">
+            <h2>Benzer Ürünler</h2>
+            <div class="products-grid" id="similar-grid"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Toast Bildirimi -->
+  <div class="toast" id="toast">✅ Ürün sepete eklendi!</div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-text" style="color:var(--primary-light)">Rawlabs</span></a><p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p></div>
+        <div><h4>Hızlı Erişim</h4><div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div></div>
+        <div><h4>Araçlar</h4><div class="footer-links"><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a></div></div>
+        <div><h4>İletişim</h4><div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:info@rawlabs.com.tr">📧 info@rawlabs.com.tr</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Rawlabs. Tüm hakları saklıdır.</span><div class="footer-social"><a href="#">📷</a><a href="#">📘</a><a href="#">🐦</a><a href="#">🎬</a></div></div>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    const WHATSAPP_NUMBER = '905XXXXXXXXX';
+    let currentProduct = null;
+
+    (function init() {
+      const slug = new URLSearchParams(window.location.search).get('slug');
+      if (!slug) { showNotFound(); return; }
+      const product = getProductBySlug(slug);
+      if (!product) { showNotFound(); return; }
+      currentProduct = product;
+      renderDetail(product);
+    })();
+
+    function showNotFound() {
+      document.getElementById('not-found').style.display = 'block';
+      document.getElementById('product-page').style.display = 'none';
+      document.title = 'Ürün Bulunamadı | Rawlabs';
+    }
+
+    function renderDetail(p) {
+      document.getElementById('product-page').style.display = 'block';
+      // SEO: Dinamik title ve meta description
+      document.title = p.name + ' | Rawlabs';
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute('content', p.description);
+
+      // Breadcrumb
+      document.getElementById('breadcrumb').innerHTML =
+        '<a href="index.html">Ana Sayfa</a><span>›</span>' +
+        '<a href="magaza.html">Mağaza</a><span>›</span>' +
+        '<a href="magaza.html?tur=' + p.petType + '">' + (p.petType === 'kedi' ? 'Kedi' : 'Köpek') + '</a><span>›</span>' +
+        '<strong>' + p.shortName + '</strong>';
+
+      // Ürün bilgileri
+      document.getElementById('detail-img').src = p.image;
+      document.getElementById('detail-img').alt = p.name;
+      document.getElementById('detail-category').textContent = p.categoryLabel;
+      document.getElementById('detail-name').textContent = p.name;
+      const starsHtml = '★'.repeat(Math.floor(p.rating)) + (p.rating % 1 >= 0.5 ? '½' : '');
+      document.getElementById('detail-stars').textContent = starsHtml;
+      document.getElementById('detail-reviews').textContent = '(' + p.reviewCount + ' değerlendirme)';
+      document.getElementById('detail-price').innerHTML = '₺' + p.price + ' <small>/ ' + p.weight + '</small>';
+      document.getElementById('detail-weight').textContent = '📦 Gramaj: ' + p.weight;
+      document.getElementById('detail-desc').textContent = p.description;
+
+      // WhatsApp butonu
+      const waMsg = encodeURIComponent(
+        'Merhaba, Rawlabs web sitesinden "' + p.name + '" (' + p.weight + ' - ₺' + p.price + ') ürününü sipariş vermek istiyorum.'
+      );
+      document.getElementById('btn-whatsapp').href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waMsg;
+
+      // Tablar
+      const longDesc = (p.longDescription || p.description).replace(/\\n/g, '\n');
+      document.getElementById('tab-desc').innerHTML = longDesc.split('\n\n').map(function(para) { return '<p>' + para + '</p>'; }).join('');
+
+      let ingredientsHtml = '<h3 style="margin-bottom:16px">İçerik Listesi</h3><div class="ingredients-list">';
+      p.ingredients.forEach(function(ing) { ingredientsHtml += '<span class="ingredient-tag">✓ ' + ing + '</span>'; });
+      ingredientsHtml += '</div><p style="margin-top:16px;font-size:0.85rem;color:var(--text-lighter)">Katkı maddesi, koruyucu veya yapay aroma içermez.</p>';
+      document.getElementById('tab-ingredients').innerHTML = ingredientsHtml;
+
+      document.getElementById('tab-usage').innerHTML = '<h3 style="margin-bottom:16px">Kullanım Önerisi</h3><p>' + (p.usageGuide || 'Günde 2 öğün olarak verin.') + '</p>';
+
+      // Faydalar
+      const benefitIcons = ['🌟', '💪', '✨', '🛡️', '🎯', '💎'];
+      let benefitsHtml = '<div class="benefits-grid">';
+      p.benefits.forEach(function(b, i) {
+        benefitsHtml += '<div class="benefit-card"><div class="icon">' + benefitIcons[i % benefitIcons.length] + '</div><span>' + b + '</span></div>';
+      });
+      benefitsHtml += '</div>';
+      document.getElementById('benefits-area').innerHTML = benefitsHtml;
+
+      // Benzer ürünler
+      const similar = PRODUCTS.filter(function(sp) { return sp.petType === p.petType && sp.id !== p.id; }).slice(0, 4);
+      renderProducts(similar, 'similar-grid');
+      document.querySelectorAll('#similar-grid .animate-on-scroll').forEach(function(el) { el.classList.add('visible'); });
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.getElementById('tab-' + tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function addToCart() {
+      if (!currentProduct) return;
+      // localStorage'a basit sepet kaydı
+      var cart = JSON.parse(localStorage.getItem('rawlabs_cart') || '[]');
+      var existing = cart.find(function(item) { return item.id === currentProduct.id; });
+      if (existing) { existing.qty++; } else { cart.push({ id: currentProduct.id, name: currentProduct.name, price: currentProduct.price, qty: 1 }); }
+      localStorage.setItem('rawlabs_cart', JSON.stringify(cart));
+      // Toast bildirimi göster
+      var toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(function() { toast.classList.remove('show'); }, 3000);
+    }
+  </script>
+</body>
+</html>
