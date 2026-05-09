@@ -109,14 +109,17 @@
   <script>
     let currentProduct = null;
 
-    (function init() {
-      const slug = new URLSearchParams(window.location.search).get('slug');
+    document.addEventListener('DOMContentLoaded', () => {
+      let slug = new URLSearchParams(window.location.search).get('slug');
+      if (slug) {
+        slug = slug.trim().replace(/\/$/, '');
+      }
       if (!slug) { showNotFound(); return; }
       const product = getProductBySlug(slug);
       if (!product) { showNotFound(); return; }
       currentProduct = product;
       renderDetail(product);
-    })();
+    });
 
     function showNotFound() {
       document.getElementById('not-found').style.display = 'block';
@@ -129,7 +132,7 @@
       // SEO: Dinamik title ve meta description
       document.title = p.name + ' | Rawlabs';
       const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) metaDesc.setAttribute('content', p.description);
+      if (metaDesc) metaDesc.setAttribute('content', p.shortDescription || p.name);
 
       // Breadcrumb
       document.getElementById('breadcrumb').innerHTML =
@@ -159,10 +162,10 @@
           '<small style="font-size:0.9rem; color:var(--text-lighter); margin-left:8px;">/ ' + p.weight + '</small>';
       }
       document.getElementById('detail-weight').textContent = '📦 Gramaj: ' + p.weight;
-      document.getElementById('detail-desc').textContent = p.description;
+      document.getElementById('detail-desc').textContent = p.shortDescription || '';
 
       // Tablar
-      const longDesc = (p.longDescription || p.description).replace(/\\n/g, '\n');
+      const longDesc = (p.longDescription || p.shortDescription || '').replace(/\\n/g, '\n');
       document.getElementById('tab-desc').innerHTML = longDesc.split('\n\n').map(function(para) { return '<p>' + para + '</p>'; }).join('');
 
       let ingredientsHtml = '<h3 style="margin-bottom:16px">İçerik Listesi</h3><div class="ingredients-list">';

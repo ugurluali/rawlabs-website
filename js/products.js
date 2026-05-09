@@ -520,3 +520,14 @@ function renderProducts(products, containerId) {
 function getProductBySlug(slug) {
   return PRODUCTS.find(p => p.slug === slug) || null;
 }
+
+// Global Scope Guarantee (Erişilebilirlik için)
+if (typeof window !== 'undefined') {
+  window.PRODUCTS = PRODUCTS;
+  window.getProductBySlug = getProductBySlug;
+  window.renderProducts = renderProducts;
+  window.renderProductCard = renderProductCard;
+  window.getProductsByCategory = getProductsByCategory;
+  window.getProductsByPetType = getProductsByPetType;
+  window.getBestSellers = getBestSellers;
+}

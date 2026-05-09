@@ -14,8 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
 function initHeader() {
   const header = document.querySelector('.header');
   if (!header) return;
+  const isHomePage = document.getElementById('hero') !== null;
+  
   const onScroll = () => {
-    header.classList.toggle('scrolled', window.scrollY > 60);
+    if (isHomePage) {
+      header.classList.toggle('scrolled', window.scrollY > 60);
+    } else {
+      header.classList.add('scrolled');
+    }
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
