@@ -457,11 +457,33 @@ function getProductsByPetType(petType) {
 
 // Ürün kartı HTML render
 function renderProductCard(product) {
-  const starsHtml = '★'.repeat(Math.floor(product.rating)) + (product.rating % 1 >= 0.5 ? '½' : '');
+  const formatPrice = (p) => p.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  
+  let ratingHtml = '';
+  if (product.reviewCount > 0) {
+    const starsHtml = '★'.repeat(Math.floor(product.rating)) + (product.rating % 1 >= 0.5 ? '½' : '');
+    ratingHtml = `
+        <div class="product-rating">
+          <span class="stars">${starsHtml}</span>
+          <span class="rating-count">(${product.reviewCount})</span>
+        </div>`;
+  } else {
+    ratingHtml = `
+        <div class="product-rating no-reviews">
+          <span class="rating-count">Henüz yorum yok</span>
+        </div>`;
+  }
+
   const badgeHtml = product.badge ? `<span class="product-badge">${product.badge}</span>` : '';
+  
   const priceHtml = product.salePrice
-    ? `<span class="product-price"><del>₺${product.price}</del> ₺${product.salePrice}</span>`
-    : `<span class="product-price">₺${product.price}</span>`;
+    ? `<div class="product-price-wrapper">
+         <del class="old-price">₺${formatPrice(product.price)}</del>
+         <span class="new-price">₺${formatPrice(product.salePrice)}</span>
+       </div>`
+    : `<div class="product-price-wrapper">
+         <span class="new-price">₺${formatPrice(product.price)}</span>
+       </div>`;
 
   return `
     <article class="product-card animate-on-scroll" data-id="${product.id}">
@@ -472,14 +494,11 @@ function renderProductCard(product) {
       <div class="product-info">
         <span class="product-category">${product.categoryLabel}</span>
         <h3 class="product-name">${product.name}</h3>
-        <div class="product-rating">
-          <span class="stars">${starsHtml}</span>
-          <span class="rating-count">(${product.reviewCount})</span>
-        </div>
+        ${ratingHtml}
         <span class="product-weight">${product.weight}</span>
         <div class="product-bottom">
           ${priceHtml}
-          <a href="urun.html?slug=${product.slug}" class="btn-incele">Ürünü İncele</a>
+          <a href="urun.html?slug=${product.slug}" class="btn-incele">Satın Al</a>
         </div>
       </div>
     </article>

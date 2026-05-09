@@ -143,7 +143,18 @@
       const starsHtml = '★'.repeat(Math.floor(p.rating)) + (p.rating % 1 >= 0.5 ? '½' : '');
       document.getElementById('detail-stars').textContent = starsHtml;
       document.getElementById('detail-reviews').textContent = '(' + p.reviewCount + ' değerlendirme)';
-      document.getElementById('detail-price').innerHTML = '₺' + p.price + ' <small>/ ' + p.weight + '</small>';
+      const formatPrice = function(num) { return num.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+      
+      if (p.salePrice) {
+        document.getElementById('detail-price').innerHTML = 
+          '<del style="font-size:1.1rem; color:var(--text-lighter); margin-right:12px;">₺' + formatPrice(p.price) + '</del>' +
+          '<span style="font-size:1.6rem; font-weight:700; color:var(--secondary-dark);">₺' + formatPrice(p.salePrice) + '</span>' +
+          '<small style="font-size:0.9rem; color:var(--text-lighter); margin-left:8px;">/ ' + p.weight + '</small>';
+      } else {
+        document.getElementById('detail-price').innerHTML = 
+          '<span style="font-size:1.6rem; font-weight:700; color:var(--secondary-dark);">₺' + formatPrice(p.price) + '</span>' +
+          '<small style="font-size:0.9rem; color:var(--text-lighter); margin-left:8px;">/ ' + p.weight + '</small>';
+      }
       document.getElementById('detail-weight').textContent = '📦 Gramaj: ' + p.weight;
       document.getElementById('detail-desc').textContent = p.description;
 
