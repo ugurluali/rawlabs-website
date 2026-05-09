@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,14 +9,20 @@
   <link rel="canonical" href="https://rawlabs.com.tr/urun">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
   <header class="header scrolled" id="header">
     <div class="header-inner">
-      <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo" onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
-      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
+      <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo"
+          onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
+      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a
+          href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a
+          href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a
+          href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
       <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
     </div>
   </header>
@@ -49,12 +56,17 @@
               <div class="detail-weight" id="detail-weight"></div>
               <p class="detail-description" id="detail-desc"></p>
               <div class="detail-actions" style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
-                <div class="qty-selector" style="display:flex; align-items:center; border:1px solid #ddd; border-radius:8px; overflow:hidden;">
-                  <button type="button" onclick="document.getElementById('qty-input').stepDown()" style="padding:10px 15px; background:#f9f9f9; border:none; cursor:pointer; font-size:16px; color:#333;">-</button>
-                  <input type="number" id="qty-input" value="1" min="1" max="99" style="width:50px; text-align:center; border:none; border-left:1px solid #ddd; border-right:1px solid #ddd; font-size:16px; padding:10px 0; -moz-appearance:textfield;">
-                  <button type="button" onclick="document.getElementById('qty-input').stepUp()" style="padding:10px 15px; background:#f9f9f9; border:none; cursor:pointer; font-size:16px; color:#333;">+</button>
+                <div class="qty-selector"
+                  style="display:flex; align-items:center; border:1px solid #ddd; border-radius:8px; overflow:hidden;">
+                  <button type="button" onclick="document.getElementById('qty-input').stepDown()"
+                    style="padding:10px 15px; background:#f9f9f9; border:none; cursor:pointer; font-size:16px; color:#333;">-</button>
+                  <input type="number" id="qty-input" value="1" min="1" max="99"
+                    style="width:50px; text-align:center; border:none; border-left:1px solid #ddd; border-right:1px solid #ddd; font-size:16px; padding:10px 0; appearance:textfield; -moz-appearance:textfield;">
+                  <button type="button" onclick="document.getElementById('qty-input').stepUp()"
+                    style="padding:10px 15px; background:#f9f9f9; border:none; cursor:pointer; font-size:16px; color:#333;">+</button>
                 </div>
-                <button class="btn-cart" id="btn-add-cart" onclick="addToCartFromDetail()" style="flex:1;">🛒 Sepete Ekle</button>
+                <button class="btn-cart" id="btn-add-cart" onclick="addToCartFromDetail()" style="flex:1;">🛒 Sepete
+                  Ekle</button>
               </div>
             </div>
           </div>
@@ -95,12 +107,29 @@
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
-        <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-text" style="color:var(--primary-light)">Rawlabs</span></a><p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p></div>
-        <div><h4>Hızlı Erişim</h4><div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div></div>
-        <div><h4>Araçlar</h4><div class="footer-links"><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a></div></div>
-        <div><h4>İletişim</h4><div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:info@rawlabs.com.tr">📧 info@rawlabs.com.tr</a></div></div>
+        <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-text"
+              style="color:var(--primary-light)">Rawlabs</span></a>
+          <p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p>
+        </div>
+        <div>
+          <h4>Hızlı Erişim</h4>
+          <div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a
+              href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div>
+        </div>
+        <div>
+          <h4>Araçlar</h4>
+          <div class="footer-links"><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne
+              Kadar Mama Yer?</a></div>
+        </div>
+        <div>
+          <h4>İletişim</h4>
+          <div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:info@rawlabs.com.tr">📧
+              info@rawlabs.com.tr</a></div>
+        </div>
       </div>
-      <div class="footer-bottom"><span>© 2026 Rawlabs. Tüm hakları saklıdır.</span><div class="footer-social"><a href="#">📷</a><a href="#">📘</a><a href="#">🐦</a><a href="#">🎬</a></div></div>
+      <div class="footer-bottom"><span>© 2026 Rawlabs. Tüm hakları saklıdır.</span>
+        <div class="footer-social"><a href="#">📷</a><a href="#">📘</a><a href="#">🐦</a><a href="#">🎬</a></div>
+      </div>
     </div>
   </footer>
 
@@ -110,21 +139,48 @@
     let currentProduct = null;
 
     document.addEventListener('DOMContentLoaded', () => {
-      let slug = new URLSearchParams(window.location.search).get('slug');
-      if (slug) {
-        slug = slug.trim().replace(/\/$/, '');
+      try {
+        let slug = new URLSearchParams(window.location.search).get('slug');
+        if (slug) {
+          slug = slug.trim().replace(/\/$/, '');
+        }
+        
+        if (!slug) { 
+          showNotFound("URL'de slug parametresi bulunamadı."); 
+          return; 
+        }
+        
+        const getProduct = typeof window !== 'undefined' && window.getProductBySlug 
+          ? window.getProductBySlug 
+          : getProductBySlug;
+          
+        const product = getProduct(slug);
+        
+        if (!product) { 
+          showNotFound("Bu slug ile eşleşen ürün bulunamadı: " + slug); 
+          return; 
+        }
+        
+        currentProduct = product;
+        renderDetail(product);
+      } catch (err) {
+        showNotFound("Sistem Hatası: " + err.message);
       }
-      if (!slug) { showNotFound(); return; }
-      const product = getProductBySlug(slug);
-      if (!product) { showNotFound(); return; }
-      currentProduct = product;
-      renderDetail(product);
     });
 
-    function showNotFound() {
+    function showNotFound(reason) {
       document.getElementById('not-found').style.display = 'block';
       document.getElementById('product-page').style.display = 'none';
       document.title = 'Ürün Bulunamadı | Rawlabs';
+      if (reason) {
+        const p = document.createElement('p');
+        p.style.color = 'red';
+        p.style.fontSize = '0.9rem';
+        p.style.marginTop = '20px';
+        p.style.fontWeight = 'bold';
+        p.textContent = 'Hata Detayı: ' + reason;
+        document.getElementById('not-found').appendChild(p);
+      }
     }
 
     function renderDetail(p) {
@@ -149,15 +205,15 @@
       const starsHtml = '★'.repeat(Math.floor(p.rating)) + (p.rating % 1 >= 0.5 ? '½' : '');
       document.getElementById('detail-stars').textContent = starsHtml;
       document.getElementById('detail-reviews').textContent = '(' + p.reviewCount + ' değerlendirme)';
-      const formatPrice = function(num) { return num.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
-      
+      const formatPrice = function (num) { return num.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+
       if (p.salePrice) {
-        document.getElementById('detail-price').innerHTML = 
+        document.getElementById('detail-price').innerHTML =
           '<del style="font-size:1.1rem; color:var(--text-lighter); margin-right:12px;">₺' + formatPrice(p.price) + '</del>' +
           '<span style="font-size:1.6rem; font-weight:700; color:var(--secondary-dark);">₺' + formatPrice(p.salePrice) + '</span>' +
           '<small style="font-size:0.9rem; color:var(--text-lighter); margin-left:8px;">/ ' + p.weight + '</small>';
       } else {
-        document.getElementById('detail-price').innerHTML = 
+        document.getElementById('detail-price').innerHTML =
           '<span style="font-size:1.6rem; font-weight:700; color:var(--secondary-dark);">₺' + formatPrice(p.price) + '</span>' +
           '<small style="font-size:0.9rem; color:var(--text-lighter); margin-left:8px;">/ ' + p.weight + '</small>';
       }
@@ -166,10 +222,10 @@
 
       // Tablar
       const longDesc = (p.longDescription || p.shortDescription || '').replace(/\\n/g, '\n');
-      document.getElementById('tab-desc').innerHTML = longDesc.split('\n\n').map(function(para) { return '<p>' + para + '</p>'; }).join('');
+      document.getElementById('tab-desc').innerHTML = longDesc.split('\n\n').map(function (para) { return '<p>' + para + '</p>'; }).join('');
 
       let ingredientsHtml = '<h3 style="margin-bottom:16px">İçerik Listesi</h3><div class="ingredients-list">';
-      p.ingredients.forEach(function(ing) { ingredientsHtml += '<span class="ingredient-tag">✓ ' + ing + '</span>'; });
+      p.ingredients.forEach(function (ing) { ingredientsHtml += '<span class="ingredient-tag">✓ ' + ing + '</span>'; });
       ingredientsHtml += '</div><p style="margin-top:16px;font-size:0.85rem;color:var(--text-lighter)">Katkı maddesi, koruyucu veya yapay aroma içermez.</p>';
       document.getElementById('tab-ingredients').innerHTML = ingredientsHtml;
 
@@ -184,9 +240,9 @@
         if (p.nutrition.moisture) nutritionHtml += '<li><strong>Nem:</strong> %' + p.nutrition.moisture + '</li>';
         if (p.nutrition.ash) nutritionHtml += '<li><strong>Kül:</strong> %' + p.nutrition.ash + '</li>';
         if (p.nutrition.fiber === null || p.nutrition.fiber === undefined) {
-           nutritionHtml += '<li><strong>Selüloz:</strong> Belirtilmemiş</li>';
+          nutritionHtml += '<li><strong>Selüloz:</strong> Belirtilmemiş</li>';
         } else {
-           nutritionHtml += '<li><strong>Selüloz:</strong> %' + p.nutrition.fiber + '</li>';
+          nutritionHtml += '<li><strong>Selüloz:</strong> %' + p.nutrition.fiber + '</li>';
         }
         nutritionHtml += '</ul>';
       }
@@ -197,21 +253,21 @@
       // Faydalar
       const benefitIcons = ['🌟', '💪', '✨', '🛡️', '🎯', '💎'];
       let benefitsHtml = '<div class="benefits-grid">';
-      p.benefits.forEach(function(b, i) {
+      p.benefits.forEach(function (b, i) {
         benefitsHtml += '<div class="benefit-card"><div class="icon">' + benefitIcons[i % benefitIcons.length] + '</div><span>' + b + '</span></div>';
       });
       benefitsHtml += '</div>';
       document.getElementById('benefits-area').innerHTML = benefitsHtml;
 
       // Benzer ürünler
-      const similar = PRODUCTS.filter(function(sp) { return sp.petType === p.petType && sp.id !== p.id; }).slice(0, 4);
+      const similar = PRODUCTS.filter(function (sp) { return sp.petType === p.petType && sp.id !== p.id; }).slice(0, 4);
       renderProducts(similar, 'similar-grid');
-      document.querySelectorAll('#similar-grid .animate-on-scroll').forEach(function(el) { el.classList.add('visible'); });
+      document.querySelectorAll('#similar-grid .animate-on-scroll').forEach(function (el) { el.classList.add('visible'); });
     }
 
     function switchTab(tabId, btn) {
-      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function (t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
       document.getElementById('tab-' + tabId).classList.add('active');
       btn.classList.add('active');
     }
@@ -227,4 +283,5 @@
     }
   </script>
 </body>
+
 </html>

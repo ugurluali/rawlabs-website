@@ -458,7 +458,7 @@ function getProductsByPetType(petType) {
 // Ürün kartı HTML render
 function renderProductCard(product) {
   const formatPrice = (p) => p.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  
+
   let ratingHtml = '';
   if (product.reviewCount > 0) {
     const starsHtml = '★'.repeat(Math.floor(product.rating)) + (product.rating % 1 >= 0.5 ? '½' : '');
@@ -475,7 +475,7 @@ function renderProductCard(product) {
   }
 
   const badgeHtml = product.badge ? `<span class="product-badge">${product.badge}</span>` : '';
-  
+
   const priceHtml = product.salePrice
     ? `<div class="product-price-wrapper">
          <del class="old-price">₺${formatPrice(product.price)}</del>
