@@ -488,7 +488,7 @@ function renderProductCard(product) {
   return `
     <article class="product-card animate-on-scroll" data-id="${product.id}">
       ${badgeHtml}
-      <div class="product-image">
+      <div class="product-image ${product.category === 'odul' ? 'product-image-odul' : ''}">
         <a href="urun.html?slug=${product.slug}">
           <img src="${product.image}" alt="${product.name}" loading="lazy">
         </a>
