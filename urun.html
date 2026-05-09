@@ -48,9 +48,13 @@
               <div class="detail-price" id="detail-price"></div>
               <div class="detail-weight" id="detail-weight"></div>
               <p class="detail-description" id="detail-desc"></p>
-              <div class="detail-actions">
-                <button class="btn-cart" id="btn-add-cart" onclick="addToCart()">🛒 Sepete Ekle</button>
-                <a class="btn-whatsapp" id="btn-whatsapp" href="#" target="_blank">💬 WhatsApp ile Sipariş Ver</a>
+              <div class="detail-actions" style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+                <div class="qty-selector" style="display:flex; align-items:center; border:1px solid #ddd; border-radius:8px; overflow:hidden;">
+                  <button type="button" onclick="document.getElementById('qty-input').stepDown()" style="padding:10px 15px; background:#f9f9f9; border:none; cursor:pointer; font-size:16px; color:#333;">-</button>
+                  <input type="number" id="qty-input" value="1" min="1" max="99" style="width:50px; text-align:center; border:none; border-left:1px solid #ddd; border-right:1px solid #ddd; font-size:16px; padding:10px 0; -moz-appearance:textfield;">
+                  <button type="button" onclick="document.getElementById('qty-input').stepUp()" style="padding:10px 15px; background:#f9f9f9; border:none; cursor:pointer; font-size:16px; color:#333;">+</button>
+                </div>
+                <button class="btn-cart" id="btn-add-cart" onclick="addToCartFromDetail()" style="flex:1;">🛒 Sepete Ekle</button>
               </div>
             </div>
           </div>
@@ -103,7 +107,6 @@
   <script src="js/products.js"></script>
   <script src="js/main.js"></script>
   <script>
-    const WHATSAPP_NUMBER = '905XXXXXXXXX';
     let currentProduct = null;
 
     (function init() {
@@ -158,12 +161,6 @@
       document.getElementById('detail-weight').textContent = '📦 Gramaj: ' + p.weight;
       document.getElementById('detail-desc').textContent = p.description;
 
-      // WhatsApp butonu
-      const waMsg = encodeURIComponent(
-        'Merhaba, Rawlabs web sitesinden "' + p.name + '" (' + p.weight + ' - ₺' + p.price + ') ürününü sipariş vermek istiyorum.'
-      );
-      document.getElementById('btn-whatsapp').href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waMsg;
-
       // Tablar
       const longDesc = (p.longDescription || p.description).replace(/\\n/g, '\n');
       document.getElementById('tab-desc').innerHTML = longDesc.split('\n\n').map(function(para) { return '<p>' + para + '</p>'; }).join('');
@@ -216,17 +213,14 @@
       btn.classList.add('active');
     }
 
-    function addToCart() {
+    function addToCartFromDetail() {
       if (!currentProduct) return;
-      // localStorage'a basit sepet kaydı
-      var cart = JSON.parse(localStorage.getItem('rawlabs_cart') || '[]');
-      var existing = cart.find(function(item) { return item.id === currentProduct.id; });
-      if (existing) { existing.qty++; } else { cart.push({ id: currentProduct.id, name: currentProduct.name, price: currentProduct.price, qty: 1 }); }
-      localStorage.setItem('rawlabs_cart', JSON.stringify(cart));
-      // Toast bildirimi göster
-      var toast = document.getElementById('toast');
-      toast.classList.add('show');
-      setTimeout(function() { toast.classList.remove('show'); }, 3000);
+      const qtyInput = document.getElementById('qty-input');
+      const qty = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+      // main.js içindeki fonksiyonu çağır
+      if (typeof addToCartAndRedirect === 'function') {
+        addToCartAndRedirect(currentProduct.slug, qty);
+      }
     }
   </script>
 </body>

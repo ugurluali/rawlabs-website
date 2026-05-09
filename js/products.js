@@ -489,16 +489,20 @@ function renderProductCard(product) {
     <article class="product-card animate-on-scroll" data-id="${product.id}">
       ${badgeHtml}
       <div class="product-image">
-        <img src="${product.image}" alt="${product.name}" loading="lazy">
+        <a href="urun.html?slug=${product.slug}">
+          <img src="${product.image}" alt="${product.name}" loading="lazy">
+        </a>
       </div>
       <div class="product-info">
         <span class="product-category">${product.categoryLabel}</span>
-        <h3 class="product-name">${product.name}</h3>
+        <a href="urun.html?slug=${product.slug}" style="text-decoration:none; color:inherit;">
+          <h3 class="product-name">${product.name}</h3>
+        </a>
         ${ratingHtml}
         <span class="product-weight">${product.weight}</span>
         <div class="product-bottom">
           ${priceHtml}
-          <a href="urun.html?slug=${product.slug}" class="btn-incele">Satın Al</a>
+          <button class="btn-incele" onclick="addToCartAndRedirect('${product.slug}')" style="cursor:pointer; border:none; font-family:inherit;">Satın Al</button>
         </div>
       </div>
     </article>

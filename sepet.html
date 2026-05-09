@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sepetim | Rawlabs</title>
+  <meta name="description" content="Rawlabs alışveriş sepeti.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .cart-container { padding: 40px 0 80px; min-height: 50vh; }
+    .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .cart-header h1 { font-size: 2rem; }
+    
+    .cart-layout { display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start; }
+    .cart-items { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 16px; }
+    .cart-summary { width: 320px; background: #f9f9f9; border-radius: 12px; padding: 24px; position: sticky; top: 100px; }
+    
+    .cart-item { display: flex; gap: 16px; padding: 16px; border: 1px solid #eee; border-radius: 12px; align-items: center; background: #fff; position: relative; }
+    .cart-item img { width: 80px; height: 80px; object-fit: contain; border-radius: 8px; background: #f5f5f5; }
+    .cart-item-details { flex: 1; }
+    .cart-item-name { font-weight: 600; font-size: 1.1rem; margin-bottom: 4px; display: block; color: var(--text-dark); text-decoration: none; }
+    .cart-item-weight { font-size: 0.9rem; color: var(--text-light); }
+    .cart-item-price { font-weight: 700; color: var(--secondary-dark); font-size: 1.1rem; margin-top: 8px; }
+    
+    .cart-qty-controls { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; height: 36px; }
+    .cart-qty-controls button { width: 32px; height: 100%; border: none; background: #f0f0f0; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+    .cart-qty-controls input { width: 40px; height: 100%; text-align: center; border: none; border-left: 1px solid #ddd; border-right: 1px solid #ddd; -moz-appearance: textfield; font-size: 14px; }
+    .cart-qty-controls input::-webkit-outer-spin-button, .cart-qty-controls input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    
+    .cart-item-remove { background: none; border: none; color: #ff4d4f; cursor: pointer; padding: 8px; font-size: 1.2rem; }
+    
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; color: var(--text); }
+    .summary-total { display: flex; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 2px solid #ddd; font-weight: 700; font-size: 1.3rem; color: var(--text-dark); }
+    
+    .btn-checkout-wa { display: block; width: 100%; text-align: center; background: #25D366; color: white; padding: 14px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 24px; transition: background 0.2s; }
+    .btn-checkout-wa:hover { background: #128C7E; color: white; }
+    
+    .empty-cart { text-align: center; padding: 60px 20px; background: #f9f9f9; border-radius: 12px; }
+    .empty-cart-icon { font-size: 4rem; margin-bottom: 16px; }
+    .empty-cart h2 { margin-bottom: 12px; }
+    
+    @media (max-width: 768px) {
+      .cart-summary { width: 100%; position: static; }
+      .cart-item { flex-direction: column; align-items: flex-start; }
+      .cart-item-actions { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+      .cart-item-remove { position: absolute; top: 10px; right: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header scrolled" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo" onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
+      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
+      <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+
+  <main style="padding-top: 80px;">
+    <section class="cart-container container">
+      <div class="cart-header">
+        <h1>Alışveriş Sepetim</h1>
+        <a href="magaza.html" class="btn btn-outline" style="padding: 8px 16px;">Alışverişe Devam Et</a>
+      </div>
+
+      <div id="cart-content">
+        <!-- JS ile render edilecek -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-text" style="color:var(--primary-light)">Rawlabs</span></a><p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p></div>
+        <div><h4>Hızlı Erişim</h4><div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div></div>
+        <div><h4>Araçlar</h4><div class="footer-links"><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a></div></div>
+        <div><h4>İletişim</h4><div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:info@rawlabs.com.tr">📧 info@rawlabs.com.tr</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Rawlabs. Tüm hakları saklıdır.</span></div>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    const WHATSAPP_PHONE = "905XXXXXXXXX";
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCartPage();
+    });
+
+    const formatPrice = (p) => p.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function renderCartPage() {
+      const cartContainer = document.getElementById('cart-content');
+      let cart = getCart();
+      
+      // Geçersiz ürünleri filtrele
+      const validCartItems = [];
+      let totalAmount = 0;
+      
+      cart.forEach(item => {
+        const product = getProductBySlug(item.slug);
+        if (product) {
+          const currentPrice = product.salePrice ? product.salePrice : product.price;
+          validCartItems.push({
+            ...item,
+            product: product,
+            currentPrice: currentPrice
+          });
+          totalAmount += currentPrice * item.quantity;
+        }
+      });
+      
+      // Sepet temizleme/senkronizasyon (Eğer kaldırılmış ürün varsa sepetten uçar)
+      if (validCartItems.length !== cart.length) {
+        saveCart(validCartItems.map(i => ({slug: i.slug, quantity: i.quantity})));
+      }
+
+      if (validCartItems.length === 0) {
+        cartContainer.innerHTML = `
+          <div class="empty-cart">
+            <div class="empty-cart-icon">🛒</div>
+            <h2>Sepetiniz şu an boş.</h2>
+            <p style="color:var(--text-light); margin-bottom:24px;">Sepetinizde ürün bulunmamaktadır. Alışverişe başlamak için mağazayı ziyaret edin.</p>
+            <a href="magaza.html" class="btn btn-primary">Alışverişe Devam Et</a>
+          </div>
+        `;
+        return;
+      }
+
+      let itemsHtml = validCartItems.map((item, index) => `
+        <div class="cart-item">
+          <a href="urun.html?slug=${item.product.slug}"><img src="${item.product.image}" alt="${item.product.name}"></a>
+          <div class="cart-item-details">
+            <a href="urun.html?slug=${item.product.slug}" class="cart-item-name">${item.product.name}</a>
+            <span class="cart-item-weight">📦 ${item.product.weight}</span>
+            <div class="cart-item-price">₺${formatPrice(item.currentPrice)}</div>
+          </div>
+          <div class="cart-item-actions">
+            <div class="cart-qty-controls">
+              <button type="button" onclick="updateItemQuantity('${item.slug}', -1)">-</button>
+              <input type="number" value="${item.quantity}" readonly>
+              <button type="button" onclick="updateItemQuantity('${item.slug}', 1)">+</button>
+            </div>
+          </div>
+          <button class="cart-item-remove" onclick="removeCartItem('${item.slug}')" title="Ürünü Sil">🗑️</button>
+        </div>
+      `).join('');
+
+      let summaryHtml = `
+        <div class="cart-summary">
+          <h3 style="margin-bottom: 20px; font-size: 1.2rem;">Sipariş Özeti</h3>
+          <div class="summary-row">
+            <span>Ara Toplam</span>
+            <span>₺${formatPrice(totalAmount)}</span>
+          </div>
+          <div class="summary-row">
+            <span>Kargo</span>
+            <span style="color:var(--primary); font-weight:500;">Alıcı Öder</span>
+          </div>
+          <div class="summary-total">
+            <span>Genel Toplam</span>
+            <span>₺${formatPrice(totalAmount)}</span>
+          </div>
+          <button class="btn-checkout-wa" onclick="checkoutWithWhatsApp()">
+            💬 WhatsApp İle Siparişi Tamamla
+          </button>
+          <p style="font-size:0.8rem; color:#777; margin-top:16px; text-align:center;">Siparişiniz WhatsApp üzerinden onaylanacaktır.</p>
+        </div>
+      `;
+
+      cartContainer.innerHTML = `
+        <div class="cart-layout">
+          <div class="cart-items">${itemsHtml}</div>
+          ${summaryHtml}
+        </div>
+      `;
+    }
+
+    window.updateItemQuantity = function(slug, change) {
+      let cart = getCart();
+      let item = cart.find(i => i.slug === slug);
+      if (item) {
+        item.quantity += change;
+        if (item.quantity < 1) item.quantity = 1; // En az 1
+        saveCart(cart);
+        renderCartPage();
+      }
+    };
+
+    window.removeCartItem = function(slug) {
+      let cart = getCart();
+      cart = cart.filter(i => i.slug !== slug);
+      saveCart(cart);
+      renderCartPage();
+    };
+
+    window.checkoutWithWhatsApp = function() {
+      let cart = getCart();
+      if(cart.length === 0) return;
+      
+      let message = "Merhaba Rawlabs, web sitenizden aşağıdaki ürünleri sipariş vermek istiyorum:\n\n";
+      let total = 0;
+      
+      cart.forEach(item => {
+        const product = getProductBySlug(item.slug);
+        if(product) {
+          const price = product.salePrice ? product.salePrice : product.price;
+          const itemTotal = price * item.quantity;
+          message += ${"`${item.quantity} x ${product.name} - ₺${formatPrice(itemTotal)}\n`"};
+          total += itemTotal;
+        }
+      });
+      
+      message += ${"`\nToplam Tutar: ₺${formatPrice(total)}\n\nLütfen siparişimi işleme alır mısınız?`"};
+      
+      const encodedMessage = encodeURIComponent(message);
+      const url = ${"`https://wa.me/${WHATSAPP_PHONE}?text=${encodedMessage}`"};
+      
+      window.open(url, '_blank');
+    };
+  </script>
+</body>
+</html>

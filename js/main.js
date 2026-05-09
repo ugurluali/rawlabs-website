@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileNav();
   initScrollAnimations();
   initBestSellers();
+  initCartBadge();
 });
 
 /* ---------- Sticky Header ---------- */
@@ -103,4 +104,62 @@ function initTestimonials() {
     position = Math.min(position + cardWidth, 0);
     track.style.transform = `translateX(${position}px)`;
   });
+}
+
+/* ---------- Cart / Sepet Logic ---------- */
+function getCart() {
+  try {
+    return JSON.parse(localStorage.getItem('rawlabs_cart')) || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveCart(cart) {
+  localStorage.setItem('rawlabs_cart', JSON.stringify(cart));
+  updateCartBadge();
+}
+
+function addToCart(slug, quantity = 1) {
+  // Orijinal veriden güncel bilgiyi al
+  const product = typeof getProductBySlug === 'function' ? getProductBySlug(slug) : null;
+  if (!product) return;
+  
+  const cart = getCart();
+  const existing = cart.find(item => item.slug === slug);
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    cart.push({ slug: slug, quantity: quantity });
+  }
+  saveCart(cart);
+}
+
+function addToCartAndRedirect(slug, quantity = 1) {
+  addToCart(slug, quantity);
+  window.location.href = 'sepet.html';
+}
+
+function updateCartBadge() {
+  const badge = document.getElementById('cart-badge');
+  if (!badge) return;
+  const cart = getCart();
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  if (totalItems > 0) {
+    badge.textContent = totalItems;
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function initCartBadge() {
+  // HTML değiştirmeden navbar'daki Alışveriş ikonunu Sepete çeviriyoruz
+  const navCta = document.querySelector('.nav-cta');
+  if (navCta && navCta.textContent.includes('Alışveriş')) {
+    navCta.href = 'sepet.html';
+    navCta.style.position = 'relative';
+    navCta.innerHTML = '🛒 Sepetim <span id="cart-badge" style="position:absolute; top:-8px; right:-12px; background:var(--primary); color:white; border-radius:50%; padding:2px 6px; font-size:12px; font-weight:bold; display:none; line-height:1;">0</span>';
+  }
+  updateCartBadge();
 }
