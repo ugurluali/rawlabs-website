@@ -214,15 +214,15 @@
         if(product) {
           const price = product.salePrice ? product.salePrice : product.price;
           const itemTotal = price * item.quantity;
-          message += ${"`${item.quantity} x ${product.name} - ₺${formatPrice(itemTotal)}\n`"};
+          message += `${item.quantity} x ${product.name} - ₺${formatPrice(itemTotal)}\n`;
           total += itemTotal;
         }
       });
       
-      message += ${"`\nToplam Tutar: ₺${formatPrice(total)}\n\nLütfen siparişimi işleme alır mısınız?`"};
+      message += `\nToplam Tutar: ₺${formatPrice(total)}\n\nLütfen siparişimi işleme alır mısınız?`;
       
       const encodedMessage = encodeURIComponent(message);
-      const url = ${"`https://wa.me/${WHATSAPP_PHONE}?text=${encodedMessage}`"};
+      const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodedMessage}`;
       
       window.open(url, '_blank');
     };
