@@ -12,6 +12,7 @@ const POSTS = [
     date: "8 Mayıs 2026",
     readTime: "8 dk okuma",
     image: "🧊",
+    imageUrl: "img/blog/freeze-dry-mama-nedir.webp",
     excerpt: "Freeze dry teknolojisinin evcil hayvan beslenmesinde devrim yaratan avantajlarını, geleneksel kuru ve yaş mamalarla karşılaştırmalı olarak keşfedin.",
     content: `
       <h2>Evcil Hayvan Beslenmesinde Yeni Nesil: Freeze Drying</h2>
@@ -43,6 +44,7 @@ const POSTS = [
     date: "5 Mayıs 2026",
     readTime: "7 dk okuma",
     image: "🐱",
+    imageUrl: "img/blog/kedinizin-beslenme-ihtiyaclari.webp",
     excerpt: "Yavru, yetişkin ve yaşlı kediler için doğru beslenme programı nasıl oluşturulur? Yaşa göre değişen ihtiyaçları keşfedin.",
     content: `
       <h2>Kedilerde Yaş Dönemlerine Göre Beslenme</h2>
@@ -72,6 +74,7 @@ const POSTS = [
     date: "2 Mayıs 2026",
     readTime: "6 dk okuma",
     image: "🐶",
+    imageUrl: "img/blog/kopeklerde-dogal-beslenmenin-5-faydasi.webp",
     excerpt: "Doğal ve katkısız beslenmenin köpeğinizin sağlığına olan olumlu etkilerini keşfedin. Daha parlak tüyler ve daha yüksek enerji!",
     content: `
       <h2>Neden Doğal Köpek Maması?</h2>
@@ -104,6 +107,7 @@ const POSTS = [
     date: "28 Nisan 2026",
     readTime: "5 dk okuma",
     image: "🥩",
+    imageUrl: "img/blog/mama-etiketi-nasil-okunur.webp",
     excerpt: "Mama etiketindeki içerik listesini anlamak ve sağlıklı seçim yapmak için bilmeniz gereken kritik noktalar.",
     content: `
       <h2>Etiketlerin Dilini Çözmek</h2>
@@ -134,6 +138,7 @@ const POSTS = [
     date: "24 Nisan 2026",
     readTime: "6 dk okuma",
     image: "💊",
+    imageUrl: "img/blog/kedilerde-taurin-eksikligi.webp",
     excerpt: "Taurin kediler için neden hayati önemde? Eksikliği nasıl anlaşılır ve sağlıklı bir beslenmeyle nasıl önlenir?",
     content: `
       <h2>Hayati Bir Amino Asit: Taurin</h2>
@@ -165,6 +170,7 @@ const POSTS = [
     date: "20 Nisan 2026",
     readTime: "4 dk okuma",
     image: "📋",
+    imageUrl: "img/blog/yeni-mama-gecisi.webp",
     excerpt: "Evcil dostunuzun mamasını değiştirirken sindirim sorunlarını önlemek için izlenecek adımlar. Sabır ve doğru oranlar!",
     content: `
       <h2>Sağlıklı Bir Geçiş Süreci</h2>
@@ -193,6 +199,7 @@ const POSTS = [
     date: "15 Nisan 2026",
     readTime: "5 dk okuma",
     image: "⚖️",
+    imageUrl: "img/blog/kopeginiz-ideal-kiloda-mi.webp",
     excerpt: "Köpeğinizin kilosunu değerlendirmek ve ideal kilosuna ulaşmasını sağlamak için pratik ipuçları. Sağlıklı bir yaşam için formda kalın!",
     content: `
       <h2>Obezite ve Köpek Sağlığı</h2>

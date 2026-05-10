@@ -60,6 +60,9 @@
                 </div>
               </header>
 
+              <div class="blog-detail-cover" id="post-cover-container" style="display:none; margin-bottom:40px; border-radius:var(--radius-lg); overflow:hidden;">
+                <img id="post-cover-img" src="" alt="" loading="lazy" decoding="async" width="1200" height="675" style="width:100%; height:auto; display:block; object-fit:cover; aspect-ratio:16/9;">
+              </div>
               <div class="blog-featured-image" id="post-image" style="margin-bottom:40px; border-radius:var(--radius-lg);">
                 🧊
               </div>
@@ -161,7 +164,19 @@
       document.getElementById('post-category').textContent = post.category;
       document.getElementById('post-title').textContent = post.title;
       document.getElementById('post-meta').innerHTML = `<span>📅 ${post.date}</span><span>⏱️ ${post.readTime}</span>`;
-      document.getElementById('post-image').textContent = post.image;
+      // Image handling
+      if (post.imageUrl) {
+        const coverImg = document.getElementById('post-cover-img');
+        coverImg.src = post.imageUrl;
+        coverImg.alt = post.title;
+        document.getElementById('post-cover-container').style.display = 'block';
+        document.getElementById('post-image').style.display = 'none';
+      } else {
+        document.getElementById('post-cover-container').style.display = 'none';
+        document.getElementById('post-image').style.display = 'flex';
+        document.getElementById('post-image').textContent = post.image || '📝';
+      }
+
       document.getElementById('post-content').innerHTML = post.content;
 
       // Sidebar - Diğer yazılar (kendisi hariç 4 tane)
