@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog | Rawlabs</title>
+  <meta name="description" content="Rawlabs evcil hayvan beslenme rehberi ve sağlık ipuçları.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header class="header scrolled" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo"
+          onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
+      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a
+          href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a
+          href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a
+          href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
+      <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Yazı bulunamadı görünümü -->
+    <div class="blog-not-found" id="blog-not-found" style="display:none; text-align:center; padding:120px 20px;">
+      <span style="font-size:4rem; margin-bottom:20px; display:block;">📝</span>
+      <h1>Yazı Bulunamadı</h1>
+      <p style="color:var(--text-light); margin-bottom:30px;">Aradığınız blog yazısı mevcut değil veya kaldırılmış olabilir.</p>
+      <a href="blog.html" class="btn btn-primary">Blog'a Dön →</a>
+    </div>
+
+    <!-- Blog detay içeriği -->
+    <div id="blog-page" style="display:none">
+      <section style="padding-top:100px; padding-bottom:0;">
+        <div class="container">
+          <div class="breadcrumb">
+            <a href="index.html">Ana Sayfa</a><span>›</span>
+            <a href="blog.html">Blog</a><span>›</span>
+            <strong id="breadcrumb-title">Yazı Başlığı</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="section blog-detail">
+        <div class="container">
+          <div class="blog-layout">
+            <div class="blog-detail-main">
+              <header class="blog-detail-header">
+                <span class="blog-card-tag" id="post-category">Kategori</span>
+                <h1 id="post-title">Yazı Başlığı</h1>
+                <div class="blog-detail-meta" id="post-meta">
+                  <span>📅 8 Mayıs 2026</span>
+                  <span>⏱️ 5 dk okuma</span>
+                </div>
+              </header>
+
+              <div class="blog-featured-image" id="post-image" style="margin-bottom:40px; border-radius:var(--radius-lg);">
+                🧊
+              </div>
+
+              <div class="blog-content-body" id="post-content">
+                <!-- İçerik JS ile buraya gelecek -->
+              </div>
+
+              <div style="margin-top:60px; padding:30px; background:var(--gradient-soft); border-radius:var(--radius-md); text-align:center;">
+                <h3 style="margin-bottom:15px;">Dostunuz İçin En Doğalını Keşfedin</h3>
+                <p style="margin-bottom:25px;">Rawlabs freeze-dried mamalar ile tanışmak ve köpeğinizin/kedinizin beslenmesini bir üst seviyeye taşımak için mağazamıza göz atın.</p>
+                <a href="magaza.html" class="btn btn-primary">Mağazayı Gez →</a>
+              </div>
+            </div>
+
+            <aside class="blog-sidebar">
+              <div class="sidebar-widget">
+                <h3>🔥 Diğer Yazılar</h3>
+                <div id="other-posts"></div>
+              </div>
+              <div class="sidebar-widget sidebar-cta">
+                <h3>💡 Mama Önerisi</h3>
+                <p>Dostunuzun yaşına ve ihtiyaçlarına göre en uygun mamayı bulun.</p>
+                <a href="mama-onerisi.html" class="btn btn-sm btn-outline" style="width:100%;justify-content:center">Öneri Al →</a>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-text"
+              style="color:var(--primary-light)">Rawlabs</span></a>
+          <p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p>
+        </div>
+        <div>
+          <h4>Hızlı Erişim</h4>
+          <div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a
+              href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div>
+        </div>
+        <div>
+          <h4>Araçlar</h4>
+          <div class="footer-links"><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne
+              Kadar Mama Yer?</a></div>
+        </div>
+        <div>
+          <h4>İletişim</h4>
+          <div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:info@rawlabs.com.tr">📧
+              info@rawlabs.com.tr</a></div>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Rawlabs. Tüm hakları saklıdır.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/posts.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const slug = urlParams.get('slug');
+
+      if (!slug) {
+        showNotFound();
+        return;
+      }
+
+      const post = typeof getPostBySlug === 'function' ? getPostBySlug(slug) : null;
+
+      if (!post) {
+        showNotFound();
+        return;
+      }
+
+      renderPost(post);
+    });
+
+    function showNotFound() {
+      document.getElementById('blog-not-found').style.display = 'block';
+      document.getElementById('blog-page').style.display = 'none';
+      document.title = 'Yazı Bulunamadı | Rawlabs';
+    }
+
+    function renderPost(post) {
+      document.getElementById('blog-page').style.display = 'block';
+      
+      // SEO
+      document.title = post.title + ' | Rawlabs';
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute('content', post.excerpt);
+
+      // Content
+      document.getElementById('breadcrumb-title').textContent = post.title;
+      document.getElementById('post-category').textContent = post.category;
+      document.getElementById('post-title').textContent = post.title;
+      document.getElementById('post-meta').innerHTML = `<span>📅 ${post.date}</span><span>⏱️ ${post.readTime}</span>`;
+      document.getElementById('post-image').textContent = post.image;
+      document.getElementById('post-content').innerHTML = post.content;
+
+      // Sidebar - Diğer yazılar (kendisi hariç 4 tane)
+      if (window.POSTS) {
+        const others = window.POSTS
+          .filter(p => p.slug !== post.slug)
+          .sort(() => 0.5 - Math.random())
+          .slice(0, 4);
+        
+        document.getElementById('other-posts').innerHTML = others.map(p => `
+          <a class="sidebar-link" href="blog-detay.html?slug=${p.slug}">${p.title}</a>
+        `).join('');
+      }
+    }
+  </script>
+</body>
+
+</html>
