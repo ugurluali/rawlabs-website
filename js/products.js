@@ -1,4 +1,4 @@
-/* ============================================
+﻿/* ============================================
    RAWLABS - Gerçek Ürün Verileri (17 Ürün)
    5 Tam Mama + 12 Ödül Maması
    ============================================ */
@@ -455,6 +455,18 @@ function getProductsByPetType(petType) {
   return PRODUCTS.filter(p => p.petType === petType || p.petType === "kedi-kopek");
 }
 
+// Kategori etiketini formatla
+function formatCategoryLabel(label) {
+  if (!label) return "";
+  // Kategori etiketlerini daha sade ve premium formatta dondurur
+  return label
+    .replace('Kedi Tam Mama', 'Kedi \u00b7 Tam Mama')
+    .replace('K\u00f6pek Tam Mama', 'K\u00f6pek \u00b7 Tam Mama')
+    .replace('Kedi \u00d6d\u00fcl', 'Kedi \u00b7 \u00d6d\u00fcl')
+    .replace('K\u00f6pek \u00d6d\u00fcl', 'K\u00f6pek \u00b7 \u00d6d\u00fcl')
+    .replace('Kedi & K\u00f6pek \u00d6d\u00fcl', 'Kedi & K\u00f6pek \u00b7 \u00d6d\u00fcl');
+}
+
 // Ürün kartı HTML render
 function renderProductCard(product) {
   const formatPrice = (p) => p.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -494,7 +506,7 @@ function renderProductCard(product) {
         </a>
       </div>
       <div class="product-info">
-        <span class="product-category">${product.categoryLabel}</span>
+        <span class="product-category">${formatCategoryLabel(product.categoryLabel)}</span>
         <a href="urun.html?slug=${product.slug}" style="text-decoration:none; color:inherit;">
           <h3 class="product-name">${product.name}</h3>
         </a>
@@ -530,4 +542,5 @@ if (typeof window !== 'undefined') {
   window.getProductsByCategory = getProductsByCategory;
   window.getProductsByPetType = getProductsByPetType;
   window.getBestSellers = getBestSellers;
+  window.formatCategoryLabel = formatCategoryLabel;
 }

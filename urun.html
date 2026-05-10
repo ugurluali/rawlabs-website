@@ -200,7 +200,7 @@
       // Ürün bilgileri
       document.getElementById('detail-img').src = p.image;
       document.getElementById('detail-img').alt = p.name;
-      document.getElementById('detail-category').textContent = p.categoryLabel;
+      document.getElementById('detail-category').textContent = formatCategoryLabel(p.categoryLabel);
       document.getElementById('detail-name').textContent = p.name;
       const starsHtml = '★'.repeat(Math.floor(p.rating)) + (p.rating % 1 >= 0.5 ? '½' : '');
       document.getElementById('detail-stars').textContent = starsHtml;
