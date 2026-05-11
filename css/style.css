@@ -992,3 +992,11 @@ p { color: var(--text-light); line-height: 1.8; }
   color: #fff !important;
   transform: translateY(-2px);
 }
+
+
+/* Desktop Layout Shift Fix - Blog Detail */
+@media (min-width: 769px) {
+  .blog-detail {
+    min-height: 800px;
+  }
+}
