@@ -6,6 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blog | Rawlabs</title>
   <meta name="description" content="Rawlabs evcil hayvan beslenme rehberi ve sağlık ipuçları.">
+  <link rel="canonical" id="canonical-url" href="https://rawlabs.com.tr/blog.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Rawlabs">
+  <meta property="og:url" id="og-url" content="https://rawlabs.com.tr/blog.html">
+  <meta property="og:title" id="og-title" content="Blog | Rawlabs">
+  <meta property="og:description" id="og-desc" content="Rawlabs evcil hayvan beslenme rehberi ve sağlık ipuçları.">
+  <meta property="og:image" id="og-img" content="https://rawlabs.com.tr/img/logo.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -158,6 +166,26 @@
       document.title = post.title + ' | Rawlabs';
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) metaDesc.setAttribute('content', post.excerpt);
+
+      // Dinamik SEO
+      const baseUrl = 'https://rawlabs.com.tr';
+      const postUrl = `${baseUrl}/blog-detay.html?slug=${post.slug}`;
+      const postImage = post.imageUrl ? `${baseUrl}/${post.imageUrl}` : `${baseUrl}/img/logo.png`;
+
+      const canonical = document.getElementById('canonical-url');
+      if (canonical) canonical.href = postUrl;
+
+      const ogUrl = document.getElementById('og-url');
+      if (ogUrl) ogUrl.setAttribute('content', postUrl);
+
+      const ogTitle = document.getElementById('og-title');
+      if (ogTitle) ogTitle.setAttribute('content', document.title);
+
+      const ogDesc = document.getElementById('og-desc');
+      if (ogDesc) ogDesc.setAttribute('content', post.excerpt);
+
+      const ogImg = document.getElementById('og-img');
+      if (ogImg) ogImg.setAttribute('content', postImage);
 
       // Content
       document.getElementById('breadcrumb-title').textContent = post.title;
