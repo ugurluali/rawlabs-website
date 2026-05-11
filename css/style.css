@@ -974,3 +974,21 @@ p { color: var(--text-light); line-height: 1.8; }
 
 /* Küçük düzenleme: Emojili görsel alan� gizleme kurallar� */
 .blog-card-emoji { display: flex; align-items: center; justify-content: center; font-size: 3rem; background: var(--gradient-soft); aspect-ratio: 16 / 9; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+
+
+/* Sidebar CTA Button Visibility Fix */
+.sidebar-cta .btn-outline {
+  background: var(--gradient);
+  color: #fff !important;
+  border-color: transparent;
+  text-decoration: none;
+  width: 100%;
+  justify-content: center;
+  border-radius: 50px;
+  box-shadow: var(--shadow-md);
+}
+
+.sidebar-cta .btn-outline:hover {
+  color: #fff !important;
+  transform: translateY(-2px);
+}
