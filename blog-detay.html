@@ -14,6 +14,7 @@
   <meta property="og:description" id="og-desc" content="Rawlabs evcil hayvan beslenme rehberi ve sağlık ipuçları.">
   <meta property="og:image" id="og-img" content="https://rawlabs.com.tr/img/logo.png">
   <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json" id="article-schema"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -186,6 +187,37 @@
 
       const ogImg = document.getElementById('og-img');
       if (ogImg) ogImg.setAttribute('content', postImage);
+
+      // JSON-LD Article Schema
+      const schemaData = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": postUrl
+        },
+        "headline": post.title,
+        "description": post.excerpt,
+        "image": postImage,
+        "author": {
+          "@type": "Organization",
+          "name": "Rawlabs"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Rawlabs",
+          "logo": {
+            "@type": "ImageObject",
+            "url": `${baseUrl}/img/logo.png`
+          }
+        },
+        "datePublished": post.date,
+        "dateModified": post.date
+      };
+      const articleSchema = document.getElementById('article-schema');
+      if (articleSchema) {
+        articleSchema.textContent = JSON.stringify(schemaData);
+      }
 
       // Content
       document.getElementById('breadcrumb-title').textContent = post.title;
