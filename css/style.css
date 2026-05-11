@@ -1,4 +1,4 @@
-/* ============================================
+﻿/* ============================================
    RAWLABS - CSS Design System
    Freeze Dry Doğal Kedi & Köpek Mamaları
    ============================================ */
@@ -591,7 +591,7 @@ p { color: var(--text-light); line-height: 1.8; }
 }
 .footer-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
   gap: 40px;
   margin-bottom: 50px;
 }
@@ -972,7 +972,7 @@ p { color: var(--text-light); line-height: 1.8; }
 .blog-detail-cover { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-lg); background: var(--gradient-soft); margin-bottom: 40px; }
 .blog-detail-cover img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Küçük düzenleme: Emojili görsel alan� gizleme kurallar� */
+/* Küçük düzenleme: Emojili görsel alanı gizleme kuralları */
 .blog-card-emoji { display: flex; align-items: center; justify-content: center; font-size: 3rem; background: var(--gradient-soft); aspect-ratio: 16 / 9; border-radius: var(--radius-md) var(--radius-md) 0 0; }
 
 
