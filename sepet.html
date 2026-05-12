@@ -108,6 +108,7 @@
       // Geçersiz ürünleri filtrele
       const validCartItems = [];
       let totalAmount = 0;
+      let subtotalAmount = 0;
       
       cart.forEach(item => {
         const product = getProductBySlug(item.slug);
@@ -119,8 +120,11 @@
             currentPrice: currentPrice
           });
           totalAmount += currentPrice * item.quantity;
+          subtotalAmount += product.price * item.quantity;
         }
       });
+
+      const discountAmount = subtotalAmount - totalAmount;
       
       // Sepet temizleme/senkronizasyon (Eğer kaldırılmış ürün varsa sepetten uçar)
       if (validCartItems.length !== cart.length) {
@@ -158,13 +162,24 @@
         </div>
       `).join('');
 
+      let discountHtml = '';
+      if (discountAmount > 0) {
+        discountHtml = `
+          <div class="summary-row" style="color: var(--primary); font-weight: 600;">
+            <span>İndirim</span>
+            <span>-₺${formatPrice(discountAmount)}</span>
+          </div>
+        `;
+      }
+
       let summaryHtml = `
         <div class="cart-summary">
           <h3 style="margin-bottom: 20px; font-size: 1.2rem;">Sipariş Özeti</h3>
           <div class="summary-row">
             <span>Ara Toplam</span>
-            <span>₺${formatPrice(totalAmount)}</span>
+            <span>${discountAmount > 0 ? '<del style="color:var(--text-lighter); font-size:0.92rem;">₺' + formatPrice(subtotalAmount) + '</del>' : '₺' + formatPrice(subtotalAmount)}</span>
           </div>
+          ${discountHtml}
           <div class="summary-row">
             <span>Kargo</span>
             <span style="color:var(--primary); font-weight:500;">Alıcı Öder</span>

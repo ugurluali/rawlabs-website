@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollAnimations();
   initBestSellers();
   initCartBadge();
+  initMiniCart();
   initScrollToTop();
   initChatbot();
 });
@@ -145,7 +146,109 @@ function addToCart(slug, quantity = 1) {
 
 function addToCartAndRedirect(slug, quantity = 1) {
   addToCart(slug, quantity);
-  window.location.href = 'sepet.html';
+  openMiniCart(slug);
+}
+
+/* ---------- Mini Cart Drawer ---------- */
+function initMiniCart() {
+  // Overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'mini-cart-overlay';
+  overlay.addEventListener('click', closeMiniCart);
+  document.body.appendChild(overlay);
+
+  // Determine path prefix for blog subdirectory support
+  const isBlogDir = window.location.pathname.includes('/blog/');
+  const prefix = isBlogDir ? '../' : '';
+
+  // Drawer
+  const drawer = document.createElement('div');
+  drawer.className = 'mini-cart-drawer';
+  drawer.setAttribute('role', 'dialog');
+  drawer.setAttribute('aria-label', 'Sepet Özeti');
+  drawer.innerHTML = `
+    <div class="mini-cart-header">
+      <h3>🛒 Sepet Özeti</h3>
+      <button type="button" class="mini-cart-close" aria-label="Kapat">×</button>
+    </div>
+    <div class="mini-cart-body">
+      <div class="mini-cart-message">✅ Ürün sepete eklendi!</div>
+      <div class="mini-cart-product" id="mini-cart-product"></div>
+      <div class="mini-cart-summary" id="mini-cart-summary"></div>
+    </div>
+    <div class="mini-cart-footer">
+      <button type="button" class="btn-mini-continue" id="mini-cart-continue">Alışverişe Devam Et</button>
+      <a href="${prefix}sepet.html" class="btn-mini-goto">Sepete Git →</a>
+    </div>
+  `;
+  document.body.appendChild(drawer);
+
+  drawer.querySelector('.mini-cart-close').addEventListener('click', closeMiniCart);
+  document.getElementById('mini-cart-continue').addEventListener('click', closeMiniCart);
+}
+
+function openMiniCart(addedSlug) {
+  const drawer = document.querySelector('.mini-cart-drawer');
+  const overlay = document.querySelector('.mini-cart-overlay');
+  if (!drawer || !overlay) return;
+
+  const product = typeof getProductBySlug === 'function' ? getProductBySlug(addedSlug) : null;
+  const cart = getCart();
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Calculate total from product data
+  let totalAmount = 0;
+  cart.forEach(item => {
+    const p = typeof getProductBySlug === 'function' ? getProductBySlug(item.slug) : null;
+    if (p) {
+      const price = p.salePrice ? p.salePrice : p.price;
+      totalAmount += price * item.quantity;
+    }
+  });
+
+  const formatPrice = (n) => n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // Product info
+  const productEl = document.getElementById('mini-cart-product');
+  if (productEl && product) {
+    productEl.innerHTML = `
+      <div class="mini-cart-item">
+        <img src="${product.image}" alt="${product.name}">
+        <div class="mini-cart-item-info">
+          <span class="mini-cart-item-name">${product.name}</span>
+          <span class="mini-cart-item-weight">📦 ${product.weight}</span>
+          <span class="mini-cart-item-price">₺${formatPrice(product.salePrice || product.price)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Summary
+  const summaryEl = document.getElementById('mini-cart-summary');
+  if (summaryEl) {
+    summaryEl.innerHTML = `
+      <div class="mini-cart-row">
+        <span>Sepetteki Ürün</span>
+        <span><strong>${totalItems} adet</strong></span>
+      </div>
+      <div class="mini-cart-row mini-cart-total">
+        <span>Sepet Toplamı</span>
+        <span><strong>₺${formatPrice(totalAmount)}</strong></span>
+      </div>
+    `;
+  }
+
+  overlay.classList.add('active');
+  drawer.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMiniCart() {
+  const drawer = document.querySelector('.mini-cart-drawer');
+  const overlay = document.querySelector('.mini-cart-overlay');
+  if (drawer) drawer.classList.remove('active');
+  if (overlay) overlay.classList.remove('active');
+  document.body.style.overflow = '';
 }
 
 function updateCartBadge() {
