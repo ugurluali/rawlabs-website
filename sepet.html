@@ -180,13 +180,13 @@
             <span>${discountAmount > 0 ? '<del style="color:var(--text-lighter); font-size:0.92rem;">₺' + formatPrice(subtotalAmount) + '</del>' : '₺' + formatPrice(subtotalAmount)}</span>
           </div>
           ${discountHtml}
-          <div class="summary-row">
-            <span>Kargo</span>
-            <span style="color:var(--primary); font-weight:500;">Alıcı Öder</span>
-          </div>
           <div class="summary-total">
             <span>Genel Toplam</span>
             <span>₺${formatPrice(totalAmount)}</span>
+          </div>
+          <div class="summary-row" style="border-bottom: none; padding-top: 8px;">
+            <span>Kargo</span>
+            <span style="color:var(--primary); font-weight:500;">Alıcı Öder</span>
           </div>
           <button class="btn-checkout-wa" onclick="checkoutWithWhatsApp()">
             💬 WhatsApp İle Siparişi Tamamla
