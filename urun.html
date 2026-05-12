@@ -254,13 +254,13 @@
       benefitsHtml += '</div>';
       document.getElementById('benefits-area').innerHTML = benefitsHtml;
 
+      // JSON-LD Product Schema Güncellemesi
+      updateProductSchema(p);
+
       // Benzer ürünler
       const similar = PRODUCTS.filter(function (sp) { return sp.petType === p.petType && sp.id !== p.id; }).slice(0, 4);
       renderProducts(similar, 'similar-grid');
       document.querySelectorAll('#similar-grid .animate-on-scroll').forEach(function (el) { el.classList.add('visible'); });
-
-      // JSON-LD Product Schema Güncellemesi
-      updateProductSchema(p);
     }
 
     function switchTab(tabId, btn) {
@@ -287,7 +287,7 @@
       }
 
       const finalPrice = p.salePrice ? p.salePrice : p.price;
-      const absImage = new URL(p.image, window.location.origin + window.location.pathname).href;
+      const absImage = new URL(p.image, window.location.href).href;
       const absUrl = window.location.href;
 
       const schema = {
