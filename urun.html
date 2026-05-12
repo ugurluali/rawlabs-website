@@ -174,13 +174,7 @@
       document.getElementById('product-page').style.display = 'none';
       document.title = 'Ürün Bulunamadı | Rawlabs';
       if (reason) {
-        const p = document.createElement('p');
-        p.style.color = 'red';
-        p.style.fontSize = '0.9rem';
-        p.style.marginTop = '20px';
-        p.style.fontWeight = 'bold';
-        p.textContent = 'Hata Detayı: ' + reason;
-        document.getElementById('not-found').appendChild(p);
+        console.warn('Hata Detayı: ' + reason);
       }
     }
 
