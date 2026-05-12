@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollAnimations();
   initBestSellers();
   initCartBadge();
+  initScrollToTop();
 });
 
 /* ---------- Sticky Header ---------- */
@@ -168,4 +169,29 @@ function initCartBadge() {
     navCta.innerHTML = '🛒 Sepetim <span id="cart-badge" style="position:absolute; top:-8px; right:-12px; background:var(--primary); color:white; border-radius:50%; padding:2px 6px; font-size:12px; font-weight:bold; display:none; line-height:1;">0</span>';
   }
   updateCartBadge();
+}
+
+/* ---------- Scroll to Top Button ---------- */
+function initScrollToTop() {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn-scroll-top';
+  btn.setAttribute('aria-label', 'Yukarı çık');
+  btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>';
+  document.body.appendChild(btn);
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  const onScroll = () => {
+    if (window.scrollY > 300) {
+      btn.classList.add('visible');
+    } else {
+      btn.classList.remove('visible');
+    }
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 }

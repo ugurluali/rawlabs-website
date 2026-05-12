@@ -1036,3 +1036,47 @@ p { color: var(--text-light); line-height: 1.8; }
   padding-left: 6px;
   text-decoration: none;
 }
+
+/* ---------- Scroll to Top Button ---------- */
+.btn-scroll-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gradient);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, box-shadow 0.2s ease;
+  border: none;
+  outline: none;
+}
+.btn-scroll-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.btn-scroll-top:hover,
+.btn-scroll-top:focus {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  background: var(--primary);
+}
+
+@media (max-width: 768px) {
+  .btn-scroll-top {
+    right: 16px;
+    bottom: 84px; /* Mobilde alt gezinme veya CTA alanlarını kapatmaması için yukarıda */
+    width: 42px;
+    height: 42px;
+  }
+}
