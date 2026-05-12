@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initBestSellers();
   initCartBadge();
   initScrollToTop();
+  initChatbot();
 });
 
 /* ---------- Sticky Header ---------- */
@@ -194,4 +195,116 @@ function initScrollToTop() {
 
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+}
+
+/* ---------- AI-Ready Live Support / Chatbot ---------- */
+function initChatbot() {
+  const isBlogDir = window.location.pathname.includes('/blog/');
+  const resolveUrl = (path) => isBlogDir ? '../' + path : path;
+
+  // Trigger Button
+  const triggerBtn = document.createElement('button');
+  triggerBtn.type = 'button';
+  triggerBtn.className = 'btn-live-support';
+  triggerBtn.setAttribute('aria-label', 'Canlı Destek');
+  triggerBtn.innerHTML = '<span style="font-size:1.2rem">💬</span> Canlı Destek';
+  document.body.appendChild(triggerBtn);
+
+  // Chat Window Container
+  const chatWindow = document.createElement('div');
+  chatWindow.className = 'chatbot-window';
+  chatWindow.innerHTML = `
+    <div class="chatbot-header">
+      <div>
+        <h4 style="color:#fff; font-size:1.05rem; margin-bottom:2px;">💬 Rawlabs Canlı Destek</h4>
+        <span style="font-size:0.78rem; color:rgba(255,255,255,0.8); display:block;">Mama önerisi ve sipariş desteği</span>
+      </div>
+      <button type="button" class="chatbot-close" aria-label="Kapat">×</button>
+    </div>
+    <div class="chatbot-messages" id="chatbot-messages">
+      <div class="chatbot-msg bot">
+        Merhaba 👋 Rawlabs’a hoş geldiniz. Size nasıl yardımcı olabiliriz?
+      </div>
+      <div class="chatbot-options">
+        <button type="button" class="chatbot-option-btn" data-opt="mama">Mama önerisi al</button>
+        <button type="button" class="chatbot-option-btn" data-opt="urun">Ürünleri incele</button>
+        <button type="button" class="chatbot-option-btn" data-opt="nedir">Freeze-dried mama nedir?</button>
+        <button type="button" class="chatbot-option-btn" data-opt="kargo">Kargo ve teslimat</button>
+        <button type="button" class="chatbot-option-btn" data-opt="wp">WhatsApp’a bağlan</button>
+      </div>
+    </div>
+    <form class="chatbot-input-area" id="chatbot-form">
+      <input type="text" id="chatbot-input" placeholder="Mesajınızı yazın..." aria-label="Mesaj yazın" required>
+      <button type="submit" aria-label="Gönder">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </form>
+  `;
+  document.body.appendChild(chatWindow);
+
+  const messagesContainer = chatWindow.querySelector('#chatbot-messages');
+  const chatForm = chatWindow.querySelector('#chatbot-form');
+  const chatInput = chatWindow.querySelector('#chatbot-input');
+
+  // Toggle open/close
+  triggerBtn.addEventListener('click', () => {
+    chatWindow.classList.toggle('active');
+    if (chatWindow.classList.contains('active')) {
+      chatInput.focus();
+    }
+  });
+
+  chatWindow.querySelector('.chatbot-close').addEventListener('click', () => {
+    chatWindow.classList.remove('active');
+  });
+
+  // Helper to append message
+  function appendMessage(sender, text) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `chatbot-msg ${sender}`;
+    msgDiv.innerHTML = text;
+    messagesContainer.appendChild(msgDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  // Placeholder AI function for future integration
+  function handleChatMessage(userText) {
+    appendMessage('user', userText);
+    
+    // Simulate thinking delay
+    setTimeout(() => {
+      appendMessage('bot', 'Yapay zeka destekli asistanımız yakında aktif olacak. Şimdilik hızlı seçenekleri kullanabilir veya WhatsApp üzerinden bize ulaşabilirsiniz.');
+    }, 400);
+  }
+
+  // Submit custom message
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = chatInput.value.trim();
+    if (!text) return;
+    chatInput.value = '';
+    handleChatMessage(text);
+  });
+
+  // Quick replies actions
+  chatWindow.querySelectorAll('.chatbot-option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const opt = btn.getAttribute('data-opt');
+      appendMessage('user', btn.textContent);
+
+      setTimeout(() => {
+        if (opt === 'mama') {
+          appendMessage('bot', `Patili dostunuza en uygun mamayı ve porsiyonu bulmak için testimizi çözebilirsiniz:<br><a href="${resolveUrl('mama-onerisi.html')}" style="color:var(--primary); font-weight:bold; text-decoration:underline; display:inline-block; margin-top:4px;">Mama Önerisi Testine Git →</a>`);
+        } else if (opt === 'urun') {
+          appendMessage('bot', `Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamalarımızı inceleyebilirsiniz:<br><a href="${resolveUrl('magaza.html')}" style="color:var(--primary); font-weight:bold; text-decoration:underline; display:inline-block; margin-top:4px;">Mağazaya Göz At →</a>`);
+        } else if (opt === 'nedir') {
+          appendMessage('bot', `Freeze dry, besin değerlerini %97 oranında koruyan en sağlıklı saklama yöntemidir. Pişirme yapılmadığı için etin doğallığı korunur.<br><a href="${resolveUrl('blog/freeze-dry-mama-nedir.html')}" style="color:var(--primary); font-weight:bold; text-decoration:underline; display:inline-block; margin-top:4px;">Detaylı Yazımızı Okuyun →</a>`);
+        } else if (opt === 'kargo') {
+          appendMessage('bot', `Siparişleriniz özenle hazırlanıp en kısa sürede teslim edilmektedir. Teslimat koşullarımız için:<br><a href="${resolveUrl('teslimat-kosullari.html')}" style="color:var(--primary); font-weight:bold; text-decoration:underline; display:inline-block; margin-top:4px;">Teslimat Koşulları →</a>`);
+        } else if (opt === 'wp') {
+          appendMessage('bot', `WhatsApp destek hattımız üzerinden uzman ekibimizle anında görüşebilirsiniz:<br><a href="https://wa.me/905324206635" target="_blank" style="color:var(--primary); font-weight:bold; text-decoration:underline; display:inline-block; margin-top:4px;">WhatsApp'a Bağlan →</a>`);
+        }
+      }, 300);
+    });
+  });
 }
