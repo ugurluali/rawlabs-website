@@ -1367,6 +1367,16 @@ p { color: var(--text-light); line-height: 1.8; }
   font-weight: 700;
   display: inline-flex;
 }
+.campaign-btn.btn-outline {
+  color: var(--secondary);
+  border-color: var(--secondary-lighter);
+}
+.campaign-card:hover .campaign-btn.btn-outline,
+.campaign-card:focus-visible .campaign-btn.btn-outline {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-lighter);
+}
 .campaigns-disclaimer {
   text-align: center;
   font-size: 0.8rem;
