@@ -1291,15 +1291,24 @@ p { color: var(--text-light); line-height: 1.8; }
   flex-direction: column;
   height: 100%;
   position: relative;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  cursor: pointer;
 }
 .campaign-card-featured {
   background: var(--white);
   border: 2px solid var(--primary-lighter);
 }
-.campaign-card:hover {
+.campaign-card:hover,
+.campaign-card:focus-visible {
   transform: translateY(-5px);
   box-shadow: var(--shadow-lg);
   border-color: var(--primary-light);
+}
+.campaign-card:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
 }
 .campaign-card-inner {
   flex-grow: 1;
@@ -1332,15 +1341,10 @@ p { color: var(--text-light); line-height: 1.8; }
   margin-bottom: 14px;
   font-weight: 800;
   line-height: 1.35;
-}
-.campaign-title-link {
-  color: inherit;
-  text-decoration: none;
   transition: color 0.2s ease;
-  outline: none;
 }
-.campaign-title-link:hover,
-.campaign-title-link:focus {
+.campaign-card:hover h3,
+.campaign-card:focus-visible h3 {
   color: var(--primary);
 }
 .campaign-card p {
