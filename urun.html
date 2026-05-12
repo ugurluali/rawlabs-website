@@ -258,6 +258,9 @@
       const similar = PRODUCTS.filter(function (sp) { return sp.petType === p.petType && sp.id !== p.id; }).slice(0, 4);
       renderProducts(similar, 'similar-grid');
       document.querySelectorAll('#similar-grid .animate-on-scroll').forEach(function (el) { el.classList.add('visible'); });
+
+      // JSON-LD Product Schema Güncellemesi
+      updateProductSchema(p);
     }
 
     function switchTab(tabId, btn) {
@@ -275,6 +278,44 @@
       if (typeof addToCartAndRedirect === 'function') {
         addToCartAndRedirect(currentProduct.slug, qty);
       }
+    }
+
+    function updateProductSchema(p) {
+      const existingSchema = document.getElementById('product-json-ld');
+      if (existingSchema) {
+        existingSchema.remove();
+      }
+
+      const finalPrice = p.salePrice ? p.salePrice : p.price;
+      const absImage = new URL(p.image, window.location.origin + window.location.pathname).href;
+      const absUrl = window.location.href;
+
+      const schema = {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": p.name,
+        "image": absImage,
+        "description": p.shortDescription || p.longDescription || p.name,
+        "sku": p.slug,
+        "brand": {
+          "@type": "Brand",
+          "name": "Rawlabs"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": absUrl,
+          "priceCurrency": "TRY",
+          "price": finalPrice.toString(),
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      };
+
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.id = 'product-json-ld';
+      script.text = JSON.stringify(schema);
+      document.head.appendChild(script);
     }
   </script>
 </body>
