@@ -228,7 +228,7 @@ function openMiniCart(addedSlug) {
   if (summaryEl) {
     summaryEl.innerHTML = `
       <div class="mini-cart-row">
-        <span>Sepetteki Ürün</span>
+        <span>Toplam Ürün Adedi</span>
         <span><strong>${totalItems} adet</strong></span>
       </div>
       <div class="mini-cart-row mini-cart-total">

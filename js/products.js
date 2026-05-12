@@ -514,7 +514,7 @@ function renderProductCard(product) {
         <span class="product-weight">${product.weight}</span>
         <div class="product-bottom">
           ${priceHtml}
-          <button class="btn-incele" onclick="addToCartAndRedirect('${product.slug}')" style="cursor:pointer; border:none; font-family:inherit;">Satın Al</button>
+          <button class="btn-incele" onclick="addToCartAndRedirect('${product.slug}')" style="cursor:pointer; border:none; font-family:inherit;">Sepete Ekle</button>
         </div>
       </div>
     </article>
