@@ -125,6 +125,10 @@
       });
 
       const discountAmount = subtotalAmount - totalAmount;
+      const FREE_SHIPPING_THRESHOLD = 3000;
+      const SHIPPING_COST = 300;
+      const shippingFee = totalAmount >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+      const grandTotal = totalAmount + shippingFee;
       
       // Sepet temizleme/senkronizasyon (Eğer kaldırılmış ürün varsa sepetten uçar)
       if (validCartItems.length !== cart.length) {
@@ -172,6 +176,10 @@
         `;
       }
 
+      const shippingLabel = shippingFee === 0
+        ? '<span style="color:#25D366; font-weight:600;">Ücretsiz Kargo 🎉</span>'
+        : '<span>₺' + formatPrice(shippingFee) + '</span>';
+
       let summaryHtml = `
         <div class="cart-summary">
           <h3 style="margin-bottom: 20px; font-size: 1.2rem;">Sipariş Özeti</h3>
@@ -180,14 +188,15 @@
             <span>${discountAmount > 0 ? '<del style="color:var(--text-lighter); font-size:0.92rem;">₺' + formatPrice(subtotalAmount) + '</del>' : '₺' + formatPrice(subtotalAmount)}</span>
           </div>
           ${discountHtml}
+          <div class="summary-row">
+            <span>Kargo</span>
+            ${shippingLabel}
+          </div>
           <div class="summary-total">
             <span>Genel Toplam</span>
-            <span>₺${formatPrice(totalAmount)}</span>
+            <span>₺${formatPrice(grandTotal)}</span>
           </div>
-          <div class="summary-row" style="border-bottom: none; padding-top: 8px;">
-            <span>Kargo</span>
-            <span style="color:var(--primary); font-weight:500;">Alıcı Öder</span>
-          </div>
+          ${shippingFee === 0 ? '' : '<p style="font-size:0.78rem; color:var(--text-lighter); margin-top:8px; text-align:center;">3.000 TL ve üzeri siparişlerde kargo ücretsiz!</p>'}
           <button class="btn-checkout-wa" onclick="checkoutWithWhatsApp()">
             💬 WhatsApp İle Siparişi Tamamla
           </button>
@@ -232,6 +241,9 @@
       let cart = getCart();
       if(cart.length === 0) return;
       
+      const FREE_SHIPPING_THRESHOLD = 3000;
+      const SHIPPING_COST = 300;
+
       let message = "Merhaba Rawlabs, web sitenizden aşağıdaki ürünleri sipariş vermek istiyorum:\n\n";
       let total = 0;
       
@@ -244,8 +256,14 @@
           total += itemTotal;
         }
       });
-      
-      message += `\nToplam Tutar: ₺${formatPrice(total)}\n\nLütfen siparişimi işleme alır mısınız?`;
+
+      const shippingFee = total >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+      const grandTotal = total + shippingFee;
+
+      message += `\nÜrün Toplamı: ₺${formatPrice(total)}`;
+      message += `\nKargo: ${shippingFee === 0 ? 'Ücretsiz' : '₺' + formatPrice(shippingFee)}`;
+      message += `\nGenel Toplam: ₺${formatPrice(grandTotal)}`;
+      message += `\n\nLütfen siparişimi işleme alır mısınız?`;
       
       const encodedMessage = encodeURIComponent(message);
       const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodedMessage}`;
