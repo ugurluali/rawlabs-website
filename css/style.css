@@ -678,6 +678,31 @@ p { color: var(--text-light); line-height: 1.8; }
 .testimonial-name { font-weight: 600; font-size: 0.9rem; color: var(--secondary-dark); }
 .testimonial-pet { font-size: 0.8rem; color: var(--text-lighter); }
 
+/* Testimonial CTA Button */
+.testimonial-cta-container {
+  margin-top: 40px;
+  text-align: center;
+}
+.btn-testimonial-cta {
+  background: var(--gradient) !important;
+  color: var(--white) !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  padding: 14px 36px !important;
+  border-radius: var(--radius-full) !important;
+  box-shadow: 0 4px 16px rgba(170, 49, 131, 0.3) !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: var(--transition) !important;
+}
+.btn-testimonial-cta:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 24px rgba(170, 49, 131, 0.45) !important;
+}
+
 /* ---------- 15. Footer ---------- */
 .footer {
   background: var(--secondary-dark);
