@@ -281,6 +281,7 @@ p { color: var(--text-light); line-height: 1.8; }
 .hero h1 { color: var(--white); margin-bottom: 20px; font-size: clamp(2.2rem, 5vw, 3.5rem); }
 .hero p { color: rgba(255,255,255,0.85); font-size: 1.1rem; margin-bottom: 36px; max-width: 520px; }
 .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+.hero-mobile-trust { display: none; }
 .hero-image { position: relative; }
 .hero-image img {
   border-radius: var(--radius-lg);
@@ -824,17 +825,72 @@ p { color: var(--text-light); line-height: 1.8; }
   .hamburger { display: flex; }
 
   /* Hero */
-  .hero { min-height: auto; padding: 100px 0 50px; }
-  .hero h1 { font-size: 1.9rem; margin-bottom: 16px; }
-  .hero p { font-size: 0.95rem; margin-bottom: 28px; }
-  .hero-badge { font-size: 0.78rem; padding: 6px 16px; margin-bottom: 18px; }
+  .hero { min-height: auto; padding: 100px 0 40px; }
+  .hero h1 { font-size: 1.9rem; margin-bottom: 14px; }
+  .hero p { font-size: 0.95rem; margin-bottom: 24px; }
+  .hero-badge { font-size: 0.78rem; padding: 6px 16px; margin-bottom: 16px; }
+  .hero-mobile-trust {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 24px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 10px 6px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .hm-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    text-align: left;
+  }
+  .hm-icon { font-size: 1.2rem; flex-shrink: 0; }
+  .hm-info { display: flex; flex-direction: column; line-height: 1.15; }
+  .hm-info strong { font-size: 0.75rem; color: var(--white); font-weight: 700; }
+  .hm-info span { font-size: 0.62rem; color: rgba(255, 255, 255, 0.8); white-space: nowrap; }
 
-  /* Trust Bar */
-  .trust-bar { padding: 20px 0; }
-  .trust-bar-inner { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-  .trust-item { gap: 8px; }
-  .trust-icon { font-size: 1.3rem; }
-  .trust-text { font-size: 0.78rem; }
+  /* Trust Bar - Premium 2x2 Grid Cards */
+  .trust-bar {
+    background: #faf6f9;
+    padding: 20px 0;
+    border-top: 1px solid rgba(170, 49, 131, 0.08);
+    border-bottom: 1px solid rgba(170, 49, 131, 0.08);
+  }
+  .trust-bar-inner { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .trust-item {
+    background: var(--white);
+    padding: 12px 10px;
+    border-radius: var(--radius-md);
+    box-shadow: 0 2px 8px rgba(170, 49, 131, 0.06);
+    border: 1px solid rgba(170, 49, 131, 0.1);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    text-align: left;
+  }
+  .trust-icon {
+    font-size: 1.3rem;
+    background: var(--primary-lighter);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .trust-text {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--secondary-dark);
+    line-height: 1.25;
+  }
 
   /* Sections */
   .section { padding: 50px 0; }
