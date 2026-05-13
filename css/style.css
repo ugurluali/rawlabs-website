@@ -1593,12 +1593,36 @@ p { color: var(--text-light); line-height: 1.8; }
 }
 
 .nav-auth {
-  font-weight: 600;
-  color: var(--primary);
-  cursor: pointer;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--primary-lighter) !important;
+  color: var(--primary-dark) !important;
+  font-weight: 600 !important;
+  padding: 8px 18px !important;
+  border-radius: var(--radius-full) !important;
+  white-space: nowrap !important;
+  border: 1px solid rgba(170, 49, 131, 0.2) !important;
+  transition: var(--transition);
+}
+.header.scrolled .nav-auth {
+  background: var(--primary-lighter) !important;
+  color: var(--primary-dark) !important;
 }
 .nav-auth:hover {
-  color: var(--primary-dark);
+  background: var(--primary) !important;
+  color: var(--white) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(170, 49, 131, 0.25);
+}
+@media (max-width: 768px) {
+  .nav-auth {
+    width: 80% !important;
+    padding: 12px 24px !important;
+    font-size: 1.1rem !important;
+    margin-top: 4px;
+  }
 }
 
 /* ========== 25. AUTH MODAL ========== */
