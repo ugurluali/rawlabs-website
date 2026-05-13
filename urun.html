@@ -26,7 +26,7 @@
       <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a
           href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a
           href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a
-          href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
+          href="iletisim.html">İletişim</a><a href="#" onclick="openAuthModal(event)" class="nav-auth">👤 Giriş Yap</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
       <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
     </div>
   </header>
@@ -133,6 +133,70 @@
       </div>
     </div>
   </footer>
+
+  <!-- ========== AUTH MODAL ========== -->
+  <div class="auth-modal" id="auth-modal" onclick="closeAuthModalOnOutside(event)">
+    <div class="auth-modal-content">
+      <button class="auth-modal-close" onclick="closeAuthModal()">×</button>
+      
+      <!-- Login View -->
+      <div id="auth-login-view">
+        <div class="auth-modal-header">
+          <h3>Giriş Yap</h3>
+          <p>Rawlabs dünyasına hoş geldiniz.</p>
+        </div>
+        <form onsubmit="handleAuthSubmit(event, 'login')">
+          <div class="auth-form-group">
+            <label for="login-email">E-posta</label>
+            <input type="email" id="login-email" required placeholder="ornek@mail.com">
+          </div>
+          <div class="auth-form-group">
+            <label for="login-pass">Şifre</label>
+            <input type="password" id="login-pass" required placeholder="••••••••">
+          </div>
+          <div class="auth-form-action">
+            <button type="submit" class="btn btn-primary">Giriş Yap</button>
+          </div>
+          <div class="auth-switch">
+            Hesabın yok mu? <a onclick="switchAuthView('register')">Hesap oluştur</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Register View -->
+      <div id="auth-register-view">
+        <div class="auth-modal-header">
+          <h3>Hesap Oluştur</h3>
+          <p>Aramıza katılın, dostunuz için en iyisini seçin.</p>
+        </div>
+        <form onsubmit="handleAuthSubmit(event, 'register')">
+          <div class="auth-form-group">
+            <label for="reg-name">Ad Soyad</label>
+            <input type="text" id="reg-name" required placeholder="Adınız Soyadınız">
+          </div>
+          <div class="auth-form-group">
+            <label for="reg-email">E-posta</label>
+            <input type="email" id="reg-email" required placeholder="ornek@mail.com">
+          </div>
+          <div class="auth-form-group">
+            <label for="reg-pass">Şifre</label>
+            <input type="password" id="reg-pass" required placeholder="••••••••">
+          </div>
+          <div class="auth-form-group">
+            <label for="reg-pass2">Şifre Tekrar</label>
+            <input type="password" id="reg-pass2" required placeholder="••••••••">
+          </div>
+          <div class="auth-form-action">
+            <button type="submit" class="btn btn-primary">Hesap Oluştur</button>
+          </div>
+          <div class="auth-switch">
+            Zaten hesabın var mı? <a onclick="switchAuthView('login')">Giriş yap</a>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
 
   <script src="js/products.js"></script>
   <script src="js/main.js"></script>
