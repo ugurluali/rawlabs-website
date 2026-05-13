@@ -734,19 +734,30 @@ p { color: var(--text-light); line-height: 1.8; }
   font-size: 0.82rem;
   color: rgba(255,255,255,0.4);
 }
-.footer-social { display: flex; gap: 14px; }
-.footer-social a {
-  width: 38px;
-  height: 38px;
+.footer-social { display: flex; gap: 12px; align-items: center; }
+.social-btn {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.15);
-  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  color: var(--white);
   transition: var(--transition);
 }
-.footer-social a:hover { background: var(--primary); border-color: var(--primary); }
+a.social-btn { cursor: pointer; }
+a.social-btn:hover {
+  background: var(--primary);
+  border-color: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(170, 49, 131, 0.3);
+}
+span.social-btn {
+  cursor: default;
+  opacity: 0.5;
+}
 
 /* ---------- 16. Animations ---------- */
 @keyframes float {
