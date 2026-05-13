@@ -734,7 +734,7 @@ p { color: var(--text-light); line-height: 1.8; }
   font-size: 0.82rem;
   color: rgba(255,255,255,0.4);
 }
-.footer-social { display: flex; gap: 12px; align-items: center; }
+.footer-social { display: flex; gap: 12px; align-items: center; margin-right: 90px; }
 .social-btn {
   width: 40px;
   height: 40px;
@@ -1031,6 +1031,7 @@ span.social-btn {
   .footer-grid { grid-template-columns: 1fr; gap: 28px; margin-bottom: 32px; }
   .footer h4 { margin-bottom: 14px; }
   .footer-bottom { flex-direction: column; gap: 14px; text-align: center; }
+  .footer-social { margin-right: 0; justify-content: center; }
 
   /* Buttons — bigger touch target */
   .btn { padding: 14px 28px; min-height: 48px; font-size: 0.9rem; }
