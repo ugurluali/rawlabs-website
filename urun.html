@@ -186,10 +186,11 @@
       if (metaDesc) metaDesc.setAttribute('content', p.shortDescription || p.name);
 
       // Breadcrumb
+      const petLabel = p.petType === 'kedi-kopek' ? 'Kedi & Köpek' : (p.petType === 'kedi' ? 'Kedi' : 'Köpek');
       document.getElementById('breadcrumb').innerHTML =
         '<a href="index.html">Ana Sayfa</a><span>›</span>' +
         '<a href="magaza.html">Mağaza</a><span>›</span>' +
-        '<a href="magaza.html?tur=' + p.petType + '">' + (p.petType === 'kedi' ? 'Kedi' : 'Köpek') + '</a><span>›</span>' +
+        '<a href="magaza.html?tur=' + p.petType + '">' + petLabel + '</a><span>›</span>' +
         '<strong>' + p.shortName + '</strong>';
 
       // Ürün bilgileri
