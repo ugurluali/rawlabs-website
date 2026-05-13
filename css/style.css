@@ -169,48 +169,43 @@ p { color: var(--text-light); line-height: 1.8; }
 .header.scrolled .nav a:hover { color: var(--primary); background: var(--primary-lighter); }
 
 /* --- Premium Pill Design Family (Sepetim & Hesabım) --- */
-.nav-cta {
+.nav-cta,
+.nav-auth {
   display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: var(--white) !important;
-  color: var(--primary-dark) !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
   font-weight: 600 !important;
   font-size: 0.86rem !important;
-  padding: 7px 16px !important;
+  padding: 0 16px !important;
+  height: 36px !important;
   border-radius: var(--radius-full) !important;
   white-space: nowrap !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
-  transition: var(--transition);
-  border: 1px solid rgba(255,255,255,0.8) !important;
+  word-break: keep-all !important;
+  box-sizing: border-box !important;
+  transition: var(--transition) !important;
+  text-decoration: none !important;
 }
-.header.scrolled .nav-cta {
+
+/* Sepetim: Daha güçlü fuşya/mor pill */
+.nav-cta {
   background: var(--gradient) !important;
   color: var(--white) !important;
-  border-color: transparent !important;
-  box-shadow: 0 3px 10px rgba(170,49,131,0.2) !important;
+  box-shadow: 0 2px 8px rgba(170,49,131,0.25) !important;
+  border: none !important;
 }
 .nav-cta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(170,49,131,0.25) !important;
+  box-shadow: 0 4px 12px rgba(170,49,131,0.35) !important;
 }
 
+/* Hesabım: Soft açık pembe pill */
 .nav-auth {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: rgba(245, 224, 238, 0.85) !important;
+  background: rgba(245, 224, 238, 0.9) !important;
   color: var(--primary) !important;
-  font-weight: 600 !important;
-  font-size: 0.86rem !important;
-  padding: 7px 15px !important;
-  border-radius: var(--radius-full) !important;
-  white-space: nowrap !important;
   border: 1px solid rgba(170, 49, 131, 0.15) !important;
-  backdrop-filter: blur(4px);
-  transition: var(--transition);
+  box-shadow: none !important;
 }
 .header.scrolled .nav-auth {
   background: var(--primary-lighter) !important;
@@ -221,7 +216,7 @@ p { color: var(--text-light); line-height: 1.8; }
   color: var(--white) !important;
   border-color: var(--primary) !important;
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(170, 49, 131, 0.15);
+  box-shadow: 0 3px 10px rgba(170, 49, 131, 0.2) !important;
 }
 .hamburger {
   display: none;
@@ -818,6 +813,7 @@ p { color: var(--text-light); line-height: 1.8; }
     justify-content: center;
     border-radius: var(--radius-full) !important;
     min-height: 48px !important;
+    height: auto !important;
     font-size: 1.15rem !important;
   }
   .nav-auth {
