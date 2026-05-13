@@ -643,16 +643,20 @@ p { color: var(--text-light); line-height: 1.8; }
   font-size: 0.95rem;
 }
 .testimonial-tag {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--primary-dark);
-  background: var(--primary-lighter);
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  margin-left: 8px;
-  border: 1px solid rgba(170, 49, 131, 0.12);
-  line-height: 1.2;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-dark) !important;
+  background: var(--primary-lighter) !important;
+  padding: 4px 10px !important;
+  border-radius: var(--radius-full) !important;
+  margin-left: 10px !important;
+  border: 1px solid rgba(170, 49, 131, 0.2) !important;
+  line-height: 1 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 .testimonial-text { font-size: 0.92rem; color: var(--text); margin-bottom: 18px; font-style: italic; flex-grow: 1; }
 .testimonial-author { display: flex; align-items: center; gap: 12px; }
