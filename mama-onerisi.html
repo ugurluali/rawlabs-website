@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mama Önerisi - Rawlabs | Evcil Dostunuza Uygun Mama Bulun</title>
-  <meta name="description" content="Kedi veya köpeğinizin yaşına, kilosuna ve ihtiyaçlarına göre en uygun Rawlabs freeze dry mamasını bulun. Akıllı mama önerisi aracı.">
+  <title>Beslenme Asistanı - Rawlabs | Günlük Mama Miktarı ve Ürün Önerisi</title>
+  <meta name="description" content="Rawlabs Beslenme Asistanı ile kedi ve köpeğinizin günlük mama miktarını hesaplayın, yaşına ve hedeflerine en uygun doğal ürün önerisini alın.">
   <link rel="canonical" href="https://rawlabs.com.tr/mama-onerisi">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +18,58 @@
     .page-hero{background:var(--gradient);padding:120px 0 50px;text-align:center;color:#fff;position:relative;overflow:hidden}
     .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 70%,rgba(170,49,131,0.3),transparent 60%)}
     .page-hero h1,.page-hero p{position:relative;z-index:1}.page-hero h1{color:#fff;margin-bottom:12px}.page-hero p{color:rgba(255,255,255,0.8);max-width:550px;margin:0 auto}
+    
+    /* Beslenme Asistanı Özel Stilleri */
+    .assistant-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+    .assistant-card {
+      background: var(--white);
+      padding: 36px 28px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 2px solid var(--border);
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .assistant-card:hover {
+      border-color: var(--primary-lighter);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .assistant-card.active {
+      border-color: var(--primary);
+      background: var(--gradient-soft);
+    }
+    .assistant-card .emoji {
+      font-size: 2.8rem;
+      margin-bottom: 16px;
+    }
+    .assistant-card h3 {
+      font-size: 1.25rem;
+      color: var(--secondary-dark);
+      margin-bottom: 12px;
+    }
+    .assistant-card p {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .assistant-card .card-btn {
+      width: 100%;
+      justify-content: center;
+      pointer-events: none;
+    }
+
     .tool-layout{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
     .tool-form{background:var(--white);padding:40px;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);border:1px solid var(--border)}
     .form-group{margin-bottom:22px}
@@ -45,41 +97,89 @@
     .tip-card .emoji{font-size:1.8rem;margin-bottom:10px;display:block}
     .tip-card h4{font-size:0.92rem;margin-bottom:6px}
     .tip-card p{font-size:0.82rem}
-    @media(max-width:768px){.tool-layout{grid-template-columns:1fr}.tool-form,.result-panel{padding:28px 20px}.tip-cards{grid-template-columns:1fr}.page-hero{padding:100px 0 40px}}
+    @media(max-width:768px){
+      .assistant-cards { grid-template-columns: 1fr; gap: 20px; }
+      .assistant-card { padding: 28px 20px; }
+      .tool-layout{grid-template-columns:1fr}
+      .tool-form,.result-panel{padding:28px 20px}
+      .tip-cards{grid-template-columns:1fr}
+      .page-hero{padding:100px 0 40px}
+    }
   </style>
 </head>
 <body>
   <header class="header scrolled" id="header">
     <div class="header-inner">
       <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo" onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
-      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a><a href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
+      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Beslenme Asistanı</a><a href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
       <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
     </div>
   </header>
   <main>
-    <section class="page-hero"><div class="container"><span class="section-badge" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.2)">💡 Mama Önerisi</span><h1>Dostunuza En Uygun Mamayı Bulun</h1><p>Birkaç soruyu yanıtlayın, evcil dostunuzun ihtiyaçlarına göre en uygun Rawlabs mamasını önerelim.</p></div></section>
+    <section class="page-hero">
+      <div class="container">
+        <span class="section-badge" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.2)">🧠 Akıllı Asistan</span>
+        <h1>Beslenme Asistanı</h1>
+        <p>Dostunuzun günlük kalori ihtiyacını hesaplayın ve ona en uygun Rawlabs mamalarını saniyeler içinde keşfedin.</p>
+      </div>
+    </section>
     <section class="section">
       <div class="container">
-        <div class="tool-layout">
-          <div class="tool-form">
-            <h2 style="margin-bottom:24px;font-size:1.3rem">🐾 Dostunuzu Tanıyalım</h2>
-            <div class="pet-type-toggle">
-              <div class="pet-type-btn active" onclick="setPetType('kedi',this)"><span class="emoji">🐱</span>Kedi</div>
-              <div class="pet-type-btn" onclick="setPetType('kopek',this)"><span class="emoji">🐶</span>Köpek</div>
-            </div>
-            <div class="form-group"><label>Yaş</label><select id="age"><option value="yavru">Yavru (0-1 yaş)</option><option value="yetiskin" selected>Yetişkin (1-7 yaş)</option><option value="yasli">Yaşlı (7+ yaş)</option></select></div>
-            <div class="form-group"><label>Kilo (kg)</label><input type="number" id="weight" placeholder="Örn: 5" min="0.5" max="80" step="0.5" value="5"></div>
-            <div class="form-group"><label>Aktivite Düzeyi</label><select id="activity"><option value="dusuk">Düşük (ev içi, sakin)</option><option value="orta" selected>Orta (normal aktivite)</option><option value="yuksek">Yüksek (çok aktif, sporcu)</option></select></div>
-            <div class="form-group"><label>Özel Durum</label><select id="condition"><option value="yok" selected>Özel durum yok</option><option value="hassas-mide">Hassas sindirim</option><option value="tuy-saglik">Tüy/deri sağlığı</option><option value="eklem">Eklem sağlığı</option><option value="kilo-kontrol">Kilo kontrolü</option></select></div>
-            <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="getRecommendation()">Mama Önerisi Al →</button>
+        
+        <!-- İki Ana Modül Seçim Kartları -->
+        <div class="assistant-cards">
+          <div class="assistant-card" onclick="switchAssistantTab('calc')">
+            <span class="emoji">📊</span>
+            <h3>Mama Miktarı Hesapla</h3>
+            <p>Evcil dostunuzun günlük yaklaşık kalori, gram ve parça ihtiyacını hesaplayın.</p>
+            <span class="btn btn-sm btn-outline card-btn" style="border-color:var(--primary);color:var(--primary);">Hesaplayıcıyı Aç →</span>
           </div>
-          <div class="result-panel" id="result-panel">
-            <div class="result-empty" id="result-empty"><span class="emoji">💡</span><h3>Formu Doldurun</h3><p style="margin-top:8px">Evcil dostunuzun bilgilerini girdiğinizde, ona en uygun mamaları önereceğiz.</p></div>
-            <div id="result-content" style="display:none"></div>
+          <div class="assistant-card active" onclick="switchAssistantTab('rec')">
+            <span class="emoji">💡</span>
+            <h3>Ürün Önerisi Al</h3>
+            <p>Dostunuzun türüne, yaşına ve beslenme hedeflerine göre uygun Rawlabs ürün grubunu keşfedin.</p>
+            <span class="btn btn-sm btn-primary card-btn">Öneri Aracını Aç →</span>
           </div>
         </div>
+
+        <!-- Modül 1: Hesaplama Motoru Görünümü (Mimari Hazırlık) -->
+        <div id="view-calc" style="display:none;" class="assistant-view">
+          <div class="result-panel" style="max-width: 650px; margin: 0 auto; text-align: center;">
+            <span class="emoji" style="font-size:3.5rem;display:block;margin-bottom:16px;">⚙️</span>
+            <h3 style="margin-bottom: 12px; font-size: 1.35rem; color: var(--secondary-dark);">Hesaplama Motoru Hazırlanıyor</h3>
+            <p style="color:var(--text-light); font-size:0.95rem; line-height:1.6; margin-bottom: 24px;">
+              Dostunuzun ideal kilo, kalori ve parça miktarını gramı gramına ölçecek gelişmiş algoritmamız Beslenme Asistanı çatısı altında çok yakında devreye girecektir.
+            </p>
+            <div style="padding: 16px; background: var(--bg); border-radius: var(--radius-sm); border: 1px dashed var(--border); font-size: 0.85rem; color: var(--text-lighter);">
+              Modül: Günlük Kalori, Porsiyon ve Su Tüketimi Analiz Motoru
+            </div>
+          </div>
+        </div>
+
+        <!-- Modül 2: Ürün Önerisi Alma Görünümü (Aktif Modül) -->
+        <div id="view-rec" class="assistant-view">
+          <div class="tool-layout">
+            <div class="tool-form">
+              <h2 style="margin-bottom:24px;font-size:1.3rem">🐾 Dostunuzu Tanıyalım</h2>
+              <div class="pet-type-toggle">
+                <div class="pet-type-btn active" onclick="setPetType('kedi',this)"><span class="emoji">🐱</span>Kedi</div>
+                <div class="pet-type-btn" onclick="setPetType('kopek',this)"><span class="emoji">🐶</span>Köpek</div>
+              </div>
+              <div class="form-group"><label>Yaş</label><select id="age"><option value="yavru">Yavru (0-1 yaş)</option><option value="yetiskin" selected>Yetişkin (1-7 yaş)</option><option value="yasli">Yaşlı (7+ yaş)</option></select></div>
+              <div class="form-group"><label>Kilo (kg)</label><input type="number" id="weight" placeholder="Örn: 5" min="0.5" max="80" step="0.5" value="5"></div>
+              <div class="form-group"><label>Aktivite Düzeyi</label><select id="activity"><option value="dusuk">Düşük (ev içi, sakin)</option><option value="orta" selected>Orta (normal aktivite)</option><option value="yuksek">Yüksek (çok aktif, sporcu)</option></select></div>
+              <div class="form-group"><label>Özel Durum</label><select id="condition"><option value="yok" selected>Özel durum yok</option><option value="hassas-mide">Hassas sindirim</option><option value="tuy-saglik">Tüy/deri sağlığı</option><option value="eklem">Eklem sağlığı</option><option value="kilo-kontrol">Kilo kontrolü</option></select></div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="getRecommendation()">Ürün Önerisi Al →</button>
+            </div>
+            <div class="result-panel" id="result-panel">
+              <div class="result-empty" id="result-empty"><span class="emoji">💡</span><h3>Formu Doldurun</h3><p style="margin-top:8px">Evcil dostunuzun bilgilerini girdiğinizde, ona en uygun mamaları önereceğiz.</p></div>
+              <div id="result-content" style="display:none"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="tip-cards">
-          <div class="tip-card animate-on-scroll"><span class="emoji">📏</span><h4>Doğru Porsiyon</h4><p>Ne kadar mama vermeniz gerektiğini <a href="ne-kadar-mama-yer.html" style="color:var(--primary)">hesaplayın</a>.</p></div>
+          <div class="tip-card animate-on-scroll"><span class="emoji">🧊</span><h4>%100 Doğal</h4><p>Ürünlerimiz hiçbir yapay katkı ve koruyucu madde içermez.</p></div>
           <div class="tip-card animate-on-scroll"><span class="emoji">🔄</span><h4>Mama Geçişi</h4><p>Yeni mamaya 7-10 gün içinde kademeli geçiş yapın.</p></div>
           <div class="tip-card animate-on-scroll"><span class="emoji">💧</span><h4>Taze Su</h4><p>Freeze dry mama ile birlikte her zaman taze su bulundurun.</p></div>
         </div>
@@ -91,7 +191,7 @@
       <div class="footer-grid">
         <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-text" style="color:var(--primary-light)">Rawlabs</span></a><p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p></div>
         <div><h4>Hızlı Erişim</h4><div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div></div>
-        <div><h4>Araçlar</h4><div class="footer-links"><a href="mama-onerisi.html">Mama Önerisi</a><a href="ne-kadar-mama-yer.html">Ne Kadar Mama Yer?</a></div></div>
+        <div><h4>Araçlar</h4><div class="footer-links"><a href="mama-onerisi.html">Beslenme Asistanı</a></div></div>
         <div><h4>Kurumsal</h4><div class="footer-links"><a href="mesafeli-satis-sozlesmesi.html">Mesafeli Satış Sözleşmesi</a><a href="iade-ve-geri-odeme-politikasi.html">İade ve Geri Ödeme Politikası</a><a href="teslimat-kosullari.html">Teslimat Koşulları</a><a href="gizlilik-politikasi.html">Gizlilik Politikası</a><a href="cerez-politikasi.html">Çerez Politikası</a></div></div>
         <div><h4>İletişim</h4><div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:bilgi@rawlabs.com.tr">📧 bilgi@rawlabs.com.tr</a><a href="tel:+905324206635">📱 0532 420 66 35</a></div></div>
       </div>
@@ -111,6 +211,20 @@
   <script src="js/products.js"></script>
   <script src="js/main.js"></script>
   <script>
+    function switchAssistantTab(tab) {
+      const cards = document.querySelectorAll('.assistant-card');
+      cards.forEach(c => c.classList.remove('active'));
+      if (tab === 'calc') {
+        cards[0].classList.add('active');
+        document.getElementById('view-calc').style.display = 'block';
+        document.getElementById('view-rec').style.display = 'none';
+      } else {
+        cards[1].classList.add('active');
+        document.getElementById('view-calc').style.display = 'none';
+        document.getElementById('view-rec').style.display = 'block';
+      }
+    }
+
     let selectedPetType = 'kedi';
     function setPetType(type, el) {
       selectedPetType = type;
