@@ -248,10 +248,10 @@
                 <div class="pet-type-btn active" onclick="setPetType('kedi',this)"><span class="emoji">🐱</span>Kedi</div>
                 <div class="pet-type-btn" onclick="setPetType('kopek',this)"><span class="emoji">🐶</span>Köpek</div>
               </div>
-              <div class="form-group"><label>Yaş</label><select id="age"><option value="yavru">Yavru (0-1 yaş)</option><option value="yetiskin" selected>Yetişkin (1-7 yaş)</option><option value="yasli">Yaşlı (7+ yaş)</option></select></div>
-              <div class="form-group"><label>Kilo (kg)</label><input type="number" id="weight" placeholder="Örn: 5" min="0.5" max="80" step="0.5" value="5"></div>
-              <div class="form-group"><label>Aktivite Düzeyi</label><select id="activity"><option value="dusuk">Düşük (ev içi, sakin)</option><option value="orta" selected>Orta (normal aktivite)</option><option value="yuksek">Yüksek (çok aktif, sporcu)</option></select></div>
-              <div class="form-group"><label>Özel Durum</label><select id="condition"><option value="yok" selected>Özel durum yok</option><option value="hassas-mide">Hassas sindirim</option><option value="tuy-saglik">Tüy/deri sağlığı</option><option value="eklem">Eklem sağlığı</option><option value="kilo-kontrol">Kilo kontrolü</option></select></div>
+              <div class="form-group"><label>Yaş Dönemi</label><select id="rec-age"><option value="yavru">Yavru</option><option value="yetiskin" selected>Yetişkin</option><option value="yasli">Yaşlı</option></select></div>
+              <div class="form-group"><label>Kilo (kg)</label><input type="number" id="rec-weight" placeholder="Örn: 5" min="0.5" max="90" step="0.5" value="5"></div>
+              <div class="form-group"><label>Beslenme Hedefi</label><select id="rec-target"><option value="tam" selected>Günlük tam mama</option><option value="odul">Ödül / eğitim desteği</option><option value="secici">Seçici dostlar için lezzetli alternatif</option></select></div>
+              <div class="form-group"><label>İçerik Tercihi</label><select id="rec-flavor"><option value="tavuk" selected>Tavuk & Balık</option><option value="hindi">Hindi & Balık</option><option value="dana">Dana & Balık</option><option value="hepsi">Farketmez / Tümü</option></select></div>
               <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="getRecommendation()">Ürün Önerisi Al →</button>
             </div>
             <div class="result-panel" id="result-panel">
@@ -312,34 +312,108 @@
     let selectedPetType = 'kedi';
     function setPetType(type, el) {
       selectedPetType = type;
-      document.querySelectorAll('.pet-type-btn').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
+      const container = el.closest('.pet-type-toggle');
+      if (container) {
+        container.querySelectorAll('.pet-type-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+      }
     }
     function getRecommendation() {
-      const weight = parseFloat(document.getElementById('weight').value) || 5;
-      const condition = document.getElementById('condition').value;
-      let recommended = PRODUCTS.filter(p => p.petType === selectedPetType);
-      // Tam mama öncelik
-      let tamMama = recommended.filter(p => p.category === 'tam-mama');
-      let odul = recommended.filter(p => p.category === 'odul');
-      // Condition-based sorting
-      if (condition === 'hassas-mide') { tamMama.sort((a,b) => (a.name.includes('Kuzu')||a.name.includes('Hindi')?-1:1)); }
-      if (condition === 'tuy-saglik' || condition === 'eklem') { tamMama.sort((a,b) => (a.name.includes('Somon')?-1:1)); odul.sort((a,b) => (a.name.includes('Somon')?-1:1)); }
-      let html = `<div class="result-title"><span class="emoji">✅</span><h3>Önerilen Mamalar</h3></div>`;
+      const weightInput = document.getElementById('rec-weight');
+      const weightVal = weightInput ? weightInput.value.trim() : '5';
+      const weight = parseFloat(weightVal) || 5;
+      const ageSelect = document.getElementById('rec-age');
+      const ageText = ageSelect ? ageSelect.selectedOptions[0].text : 'Yetişkin';
+      
+      const target = document.getElementById('rec-target').value;
+      const flavor = document.getElementById('rec-flavor').value;
+
+      let allProducts = typeof window !== 'undefined' && window.PRODUCTS ? window.PRODUCTS : [];
+      
+      let suitableTam = allProducts.filter(p => p.category === 'tam-mama' && p.petType === selectedPetType);
+      let suitableOdul = allProducts.filter(p => p.category === 'odul' && (p.petType === selectedPetType || p.petType === 'kedi-kopek' || p.petType === 'all'));
+
+      if (flavor !== 'hepsi') {
+        const flavorLower = flavor.toLowerCase();
+        const sortByFlavor = (a, b) => {
+          const aHas = a.name.toLowerCase().includes(flavorLower);
+          const bHas = b.name.toLowerCase().includes(flavorLower);
+          return (aHas === bHas) ? 0 : (aHas ? -1 : 1);
+        };
+        suitableTam.sort(sortByFlavor);
+        suitableOdul.sort(sortByFlavor);
+      }
+
+      let html = `<div class="result-title"><span class="emoji">✅</span><h3>Önerilen Ürünler</h3></div>`;
       html += `<p style="color:var(--text-light);font-size:0.88rem;margin-bottom:20px">
-        <strong>${selectedPetType === 'kedi' ? '🐱 Kedi' : '🐶 Köpek'}</strong> · ${weight} kg · ${document.getElementById('age').selectedOptions[0].text}
+        <strong>${selectedPetType === 'kedi' ? '🐱 Kedi' : '🐶 Köpek'}</strong> · ${weight} kg · ${ageText}
       </p>`;
-      html += `<h4 style="font-size:0.85rem;color:var(--primary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">Ana Öğün (Tam Mama)</h4>`;
-      tamMama.forEach(p => { html += renderRecommended(p); });
-      html += `<h4 style="font-size:0.85rem;color:var(--primary);margin:20px 0 12px;text-transform:uppercase;letter-spacing:0.5px">Ödül / Atıştırmalık</h4>`;
-      odul.slice(0, 3).forEach(p => { html += renderRecommended(p); });
-      html += `<a href="magaza.html?tur=${selectedPetType}" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-top:20px">Tüm ${selectedPetType === 'kedi' ? 'Kedi' : 'Köpek'} Mamalarını Gör →</a>`;
+
+      const renderEmptySafeMessage = () => {
+        return `<p style="font-size:0.9rem; color:var(--text-light); margin:16px 0;">Bu tercihe uygun ürünleri mağazada birlikte inceleyebilirsiniz.</p>`;
+      };
+
+      if (target === 'tam') {
+        html += `<h4 style="font-size:0.85rem;color:var(--primary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">Ana Öğün (Tam Mama Önerileri)</h4>`;
+        if (suitableTam.length > 0) {
+          suitableTam.slice(0, 3).forEach(p => { html += renderRecommended(p); });
+        } else {
+          html += renderEmptySafeMessage();
+        }
+      } else if (target === 'odul') {
+        html += `<h4 style="font-size:0.85rem;color:var(--primary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">Ödül / Eğitim Desteği Önerileri</h4>`;
+        if (suitableOdul.length > 0) {
+          suitableOdul.slice(0, 4).forEach(p => { html += renderRecommended(p); });
+        } else {
+          html += renderEmptySafeMessage();
+        }
+        html += `
+          <div style="background:#fff5f5; border:1px solid #feb2b2; padding:10px 14px; border-radius:var(--radius-sm); margin:16px 0 8px; font-size:0.82rem; color:#c53030; text-align:left; line-height:1.4;">
+            ⚠️ <strong>Önemli:</strong> Ödül maması günlük ana beslenmenin yerine geçmez; kontrollü destek olarak kullanılmalıdır.
+          </div>
+        `;
+      } else if (target === 'secici') {
+        html += `<h4 style="font-size:0.85rem;color:var(--primary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">Ana Öneri (Tam Mama)</h4>`;
+        if (suitableTam.length > 0) {
+          html += renderRecommended(suitableTam[0]);
+        } else {
+          html += renderEmptySafeMessage();
+        }
+        
+        html += `<h4 style="font-size:0.85rem;color:var(--primary);margin:20px 0 12px;text-transform:uppercase;letter-spacing:0.5px">Ek Destek (Lezzetli Ödül Alternatifi)</h4>`;
+        if (suitableOdul.length > 0) {
+          suitableOdul.slice(0, 2).forEach(p => { html += renderRecommended(p); });
+        } else {
+          html += renderEmptySafeMessage();
+        }
+        html += `
+          <div style="background:#fff5f5; border:1px solid #feb2b2; padding:10px 14px; border-radius:var(--radius-sm); margin:16px 0 8px; font-size:0.82rem; color:#c53030; text-align:left; line-height:1.4;">
+            ⚠️ <strong>Önemli:</strong> Ödül maması günlük ana beslenmenin yerine geçmez; kontrollü destek olarak kullanılmalıdır.
+          </div>
+        `;
+      }
+
+      html += `<a href="magaza.html?tur=${selectedPetType}" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-top:20px">Tüm ${selectedPetType === 'kedi' ? 'Kedi' : 'Köpek'} Ürünlerini Mağazada İncele →</a>`;
+      
       document.getElementById('result-empty').style.display = 'none';
       document.getElementById('result-content').style.display = 'block';
       document.getElementById('result-content').innerHTML = html;
     }
     function renderRecommended(p) {
-      return `<div class="recommended-product"><img src="${p.image}" alt="${p.name}"><div class="rec-info"><h4>${p.name}</h4><p>${p.weight} · ★${p.rating} (${p.reviewCount})</p></div><div class="rec-price">₺${p.price}</div></div>`;
+      const priceFormatted = p.salePrice 
+        ? p.salePrice.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})
+        : p.price.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        
+      return `<div class="recommended-product" style="flex-wrap:wrap;">
+        <img src="${p.image}" alt="${p.name}">
+        <div class="rec-info">
+          <h4>${p.name}</h4>
+          <p>${p.weight} · ₺${priceFormatted}</p>
+        </div>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:12px;">
+          <a href="urun.html?slug=${p.slug}" class="btn btn-sm btn-outline" style="border-color:var(--primary); color:var(--primary); text-decoration:none; padding:5px 10px; font-size:0.78rem;">Ürünü Gör →</a>
+        </div>
+      </div>`;
     }
   </script>
 </body>
