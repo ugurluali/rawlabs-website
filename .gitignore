@@ -1,0 +1,3 @@
+# Local payment secrets and generated orders
+api/config.php
+api/orders/*.json

@@ -48,16 +48,7 @@ function createOrder() {
     return;
   }
 
-  // 3. Sipariş Numarası Üretimi (Tarih/Saat bazlı güvenli kısa format)
-  // Örnek: RAW-20260515-XXXX
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-  const orderId = `RAW-${year}${month}${day}-${randomSuffix}`;
-
-  // 4. Sepetteki Ürünleri ve Hesaplamaları Hazırlama
+  // 3. Sepetteki Ürünleri ve Hesaplamaları Hazırlama
   const orderItems = [];
   let totalAmount = 0;
   let subtotalAmount = 0;
@@ -88,10 +79,9 @@ function createOrder() {
   const grandTotal = totalAmount + shippingFee;
   const discountAmount = subtotalAmount - totalAmount;
 
-  // 5. Sipariş Veri Yapısını (JSON Payload) Oluşturma
+  // 4. Sipariş Veri Yapısını (JSON Payload) Oluşturma
+  // NOT: Sipariş numarası güvenlik gereği artık Backend'de (PHP) üretilmektedir.
   const orderPayload = {
-    orderId: orderId,
-    createdAt: now.toISOString(),
     customer: {
       fullName: fullName,
       phone: phone,
@@ -108,34 +98,46 @@ function createOrder() {
       shippingFee: shippingFee,
       grandTotal: grandTotal,
       currency: "TRY"
-    },
-    status: "DRAFT"
+    }
   };
 
-  // 6. Console.log ile okunabilir JSON olarak gösterme
-  console.log("📦 [RAWLABS SİPARİŞ DATASI OLUŞTURULDU]:");
-  console.log(JSON.stringify(orderPayload, null, 2));
-
-  // 7. Kullanıcıya geçici başarı mesajı gösterme
-  const successBox = document.getElementById('order-success-message');
-  if (successBox) {
-    successBox.innerHTML = `
-      <div style="background:#edf7ed; border:1px solid #c3e6cb; color:#155724; padding:24px; border-radius:12px; margin-top:24px; text-align:left; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
-        <h4 style="font-size:1.15rem; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
-          <span>✅</span> Sipariş Taslağı Başarıyla Oluşturuldu!
-        </h4>
-        <p style="margin-bottom:12px; font-size:0.95rem; color:#2d1e44;"><strong>Sipariş No:</strong> ${orderId}</p>
-        <p style="font-size:0.9rem; line-height:1.6; color:#4a5568;">
-          Sipariş taslağı oluşturuldu. Mail ve PDF entegrasyonu bir sonraki adımda eklenecektir.<br>
-          Oluşturulan veri yapısını tarayıcınızın Geliştirici Konsolundan (F12 -&gt; Console) inceleyebilirsiniz.
-        </p>
-      </div>
-    `;
-    successBox.style.display = 'block';
-    successBox.scrollIntoView({ behavior: 'smooth' });
-  } else {
-    alert(`✅ Sipariş taslağı oluşturuldu. Mail ve PDF entegrasyonu bir sonraki adımda eklenecektir.\n\nSipariş No: ${orderId}\n\n(Sipariş verisi Console üzerine yazdırılmıştır.)`);
+  // 5. Backend'e Fetch API ile gönderme ve Yönlendirme
+  const btn = document.querySelector('#rawlabs-order-form button[type="submit"]');
+  const originalBtnText = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '🔄 İşleniyor...';
   }
+
+  fetch('api/create-order.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(orderPayload)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success && data.paymentUrl) {
+      console.log("📦 [RAWLABS SİPARİŞ DATASI BACKEND'E İLETİLDİ]");
+      // Başarılıysa güvenlikli ödeme ekranına yönlendir
+      window.location.href = data.paymentUrl;
+    } else {
+      alert("Sipariş oluşturulamadı: " + (data.message || "Bilinmeyen sunucu hatası."));
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+      }
+    }
+  })
+  .catch(err => {
+    console.error("Fetch API Hatası:", err);
+    alert("Sunucuya bağlanılamadı veya sistemde bir hata oluştu (Örn: config.php yok). Lütfen bağlantınızı kontrol edip tekrar deneyin.");
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalBtnText;
+    }
+  });
 }
 
 if (typeof window !== 'undefined') {
