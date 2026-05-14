@@ -3,23 +3,73 @@
  * Sadece mama-onerisi.html içinde çağrılmak üzere izole edilmiştir.
  */
 
-// Bu değerler geçici hesaplama değerleridir. Ürün etiketlerindeki net kcal ve parça gramajı bilgileriyle güncellenmelidir.
+// Tam mama kcal/g değerleri ürün etiketlerindeki metabolik enerji kcal/kg bilgilerinden hesaplanmıştır. Ortalama parça ağırlığı 2g kabul edilmiştir.
 const CALCULATOR_CONFIG = {
-  completeFood300g: {
-    label: "Tam Mama 300g",
-    kcalPerGram: 4.2,
-    averagePieceGram: 2.5,
-    packageGram: 300
+  // Köpek Tam Mamaları
+  kopek_dana_balik: {
+    label: "Dana & Balık Köpek Maması 300g",
+    kcalPerGram: 4.850,
+    averagePieceGram: 2,
+    packageGram: 300,
+    petType: "kopek"
   },
+  kopek_hindi_balik: {
+    label: "Hindi & Balık Köpek Maması 300g",
+    kcalPerGram: 4.158,
+    averagePieceGram: 2,
+    packageGram: 300,
+    petType: "kopek"
+  },
+  kopek_tavuk_balik: {
+    label: "Tavuk & Balık Köpek Maması 300g",
+    kcalPerGram: 4.932,
+    averagePieceGram: 2,
+    packageGram: 300,
+    petType: "kopek"
+  },
+  // Kedi Tam Mamaları
+  kedi_hindi_balik: {
+    label: "Hindi & Balık Kedi Maması 300g",
+    kcalPerGram: 4.613,
+    averagePieceGram: 2,
+    packageGram: 300,
+    petType: "kedi"
+  },
+  kedi_tavuk_balik: {
+    label: "Tavuk & Balık Kedi Maması 300g",
+    kcalPerGram: 4.769,
+    averagePieceGram: 2,
+    packageGram: 300,
+    petType: "kedi"
+  },
+  // Ödül Maması (Fallback)
   treat40g: {
     label: "Ödül Maması 40g",
     kcalPerGram: 4.5,
     averagePieceGram: 1.2,
-    packageGram: 40
+    packageGram: 40,
+    petType: "all"
   }
 };
 
 let calcPetType = 'kedi';
+
+function updateCalcProductDropdown() {
+  const select = document.getElementById('calc-product');
+  if (!select) return;
+
+  select.innerHTML = '';
+
+  for (const key in CALCULATOR_CONFIG) {
+    const item = CALCULATOR_CONFIG[key];
+    if (item.petType === calcPetType || item.petType === 'all') {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = item.label;
+      select.appendChild(opt);
+    }
+  }
+}
 
 function setCalcPetType(type, el) {
   calcPetType = type;
@@ -28,6 +78,7 @@ function setCalcPetType(type, el) {
     container.querySelectorAll('.pet-type-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
   }
+  updateCalcProductDropdown();
 }
 
 function runCalculation() {
@@ -49,7 +100,6 @@ function runCalculation() {
   }
 
   if (weight < 0.5 || weight > 90) {
-    // Aşırı düşük veya yüksek kilolarda kullanıcıyı uyaran ama işleme izin veren kontrol
     console.warn(`Sıra dışı kilo girişi tespit edildi: ${weight} kg`);
   }
 
@@ -97,7 +147,7 @@ function runCalculation() {
 
   // 4. İhtiyaç Duyulan Değerlerin Hesaplanması
   const dailyCal = rer * factor;
-  const config = CALCULATOR_CONFIG[productKey];
+  const config = CALCULATOR_CONFIG[productKey] || CALCULATOR_CONFIG.treat40g;
 
   const dailyGrams = dailyCal / config.kcalPerGram;
   const dailyPieces = dailyGrams / config.averagePieceGram;
@@ -116,7 +166,7 @@ function runCalculation() {
   const noticeContainer = document.getElementById('calc-notices');
   let noticesHtml = `
     <p style="font-size:0.85rem; color:var(--text-light); line-height:1.5; margin-top:16px;">
-      ℹ️ Bu hesaplama genel bilgilendirme amaçlıdır. Evcil dostunuzun yaşı, sağlık durumu, aktivitesi ve özel ihtiyaçlarına göre porsiyon değişebilir.
+      ℹ️ Bu hesaplama genel bilgilendirme amaçlıdır. Başlangıç porsiyonunu temsil eder. Evcil dostunuzun yaşı, sağlık durumu, aktivitesi ve özel ihtiyaçlarına göre porsiyon değişebilir.
     </p>
   `;
 
@@ -137,5 +187,5 @@ function runCalculation() {
   // Sonuç başlığını dinamik güncelleyelim
   const titlePet = calcPetType === 'kedi' ? '🐱 Kedi' : '🐶 Köpek';
   const selectedAgeText = document.getElementById('calc-age').selectedOptions[0].text;
-  document.getElementById('calc-result-subtitle').textContent = `${titlePet} · ${weight} kg · ${selectedAgeText}`;
+  document.getElementById('calc-result-subtitle').textContent = `${titlePet} · ${weight} kg · ${selectedAgeText} · ${config.label}`;
 }
