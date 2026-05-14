@@ -1876,3 +1876,46 @@ span.social-btn {
 #auth-register-view {
   display: none;
 }
+
+/* Beslenme Asistanı Hesaplayıcı Çıktı Kartları */
+.calc-output-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+  margin-bottom: 24px;
+}
+.calc-output-card {
+  background: linear-gradient(135deg, rgba(170,49,131,0.05), rgba(170,49,131,0.12));
+  border: 1px solid rgba(170,49,131,0.2);
+  padding: 20px 16px;
+  border-radius: var(--radius-md);
+  text-align: center;
+  transition: var(--transition);
+}
+.calc-output-card:hover {
+  border-color: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+.calc-output-card .emoji {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  display: block;
+}
+.calc-output-card .label {
+  font-size: 0.82rem;
+  color: var(--secondary-dark);
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.calc-output-card .value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+@media(max-width: 480px) {
+  .calc-output-grid { grid-template-columns: 1fr; }
+}

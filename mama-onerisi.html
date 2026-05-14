@@ -142,16 +142,98 @@
           </div>
         </div>
 
-        <!-- Modül 1: Hesaplama Motoru Görünümü (Mimari Hazırlık) -->
+        <!-- Modül 1: Mama Miktarı Hesapla Görünümü (Aktif Modül) -->
         <div id="view-calc" style="display:none;" class="assistant-view">
-          <div class="result-panel" style="max-width: 650px; margin: 0 auto; text-align: center;">
-            <span class="emoji" style="font-size:3.5rem;display:block;margin-bottom:16px;">⚙️</span>
-            <h3 style="margin-bottom: 12px; font-size: 1.35rem; color: var(--secondary-dark);">Hesaplama Motoru Hazırlanıyor</h3>
-            <p style="color:var(--text-light); font-size:0.95rem; line-height:1.6; margin-bottom: 24px;">
-              Dostunuzun ideal kilo, kalori ve parça miktarını gramı gramına ölçecek gelişmiş algoritmamız Beslenme Asistanı çatısı altında çok yakında devreye girecektir.
-            </p>
-            <div style="padding: 16px; background: var(--bg); border-radius: var(--radius-sm); border: 1px dashed var(--border); font-size: 0.85rem; color: var(--text-lighter);">
-              Modül: Günlük Kalori, Porsiyon ve Su Tüketimi Analiz Motoru
+          <div class="tool-layout">
+            <div class="tool-form">
+              <h2 style="margin-bottom:24px;font-size:1.3rem">📊 İhtiyaç Analizi</h2>
+              <div class="pet-type-toggle">
+                <div class="pet-type-btn active" onclick="setCalcPetType('kedi',this)"><span class="emoji">🐱</span>Kedi</div>
+                <div class="pet-type-btn" onclick="setCalcPetType('kopek',this)"><span class="emoji">🐶</span>Köpek</div>
+              </div>
+              <div class="form-group">
+                <label>Kilo (kg)</label>
+                <input type="number" id="calc-weight" placeholder="Örn: 4" min="0.5" max="90" step="0.5" value="4">
+              </div>
+              <div class="form-group">
+                <label>Yaş Dönemi</label>
+                <select id="calc-age">
+                  <option value="yavru">Yavru</option>
+                  <option value="yetiskin" selected>Yetişkin</option>
+                  <option value="yasli">Yaşlı</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Aktivite Seviyesi</label>
+                <select id="calc-activity">
+                  <option value="dusuk">Düşük</option>
+                  <option value="normal" selected>Normal</option>
+                  <option value="yuksek">Yüksek</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Kısırlaştırma Durumu</label>
+                <select id="calc-neutered">
+                  <option value="hayir" selected>Kısır değil</option>
+                  <option value="evet">Kısır</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Hedef</label>
+                <select id="calc-goal">
+                  <option value="koruma" selected>Kilo koruma</option>
+                  <option value="alma">Kilo alma</option>
+                  <option value="verme">Kilo verme</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Ürün Tipi</label>
+                <select id="calc-product">
+                  <option value="completeFood300g" selected>Tam mama 300g</option>
+                  <option value="treat40g">Ödül maması 40g</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="runCalculation()">Hesapla →</button>
+            </div>
+            <div class="result-panel">
+              <div class="result-empty" id="calc-empty">
+                <span class="emoji">📊</span>
+                <h3>Porsiyon Hesaplayıcı</h3>
+                <p style="margin-top:8px">Dostunuzun beslenme ihtiyaçlarını görmek için formu doldurup "Hesapla" butonuna tıklayın.</p>
+              </div>
+              <div id="calc-result-content" style="display:none;">
+                <div class="result-title">
+                  <span class="emoji">✨</span>
+                  <h3>Günlük Beslenme Tablosu</h3>
+                </div>
+                <p style="color:var(--text-light);font-size:0.88rem;margin-bottom:12px;" id="calc-result-subtitle"></p>
+                
+                <!-- Özel Fuşya/Mor Tonlu Premium Çıktı Kartları -->
+                <div class="calc-output-grid">
+                  <div class="calc-output-card">
+                    <span class="emoji">🔥</span>
+                    <div class="label">Günlük Kalori İhtiyacı</div>
+                    <div class="value" id="out-cal">0 kcal / gün</div>
+                  </div>
+                  <div class="calc-output-card">
+                    <span class="emoji">⚖️</span>
+                    <div class="label">Günlük Mama Miktarı</div>
+                    <div class="value" id="out-gram">0 g / gün</div>
+                  </div>
+                  <div class="calc-output-card">
+                    <span class="emoji">🧩</span>
+                    <div class="label">Günlük Parça Adedi</div>
+                    <div class="value" id="out-piece">0 parça / gün</div>
+                  </div>
+                  <div class="calc-output-card">
+                    <span class="emoji">📦</span>
+                    <div class="label">Paket Kullanım Süresi</div>
+                    <div class="value" id="out-duration">-</div>
+                  </div>
+                </div>
+
+                <div id="calc-notices"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -210,6 +292,7 @@
   </footer>
   <script src="js/products.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/calculator.js"></script>
   <script>
     function switchAssistantTab(tab) {
       const cards = document.querySelectorAll('.assistant-card');
