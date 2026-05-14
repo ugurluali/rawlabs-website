@@ -83,6 +83,7 @@ function setCalcPetType(type, el) {
 
 function runCalculation() {
   const weightInput = document.getElementById('calc-weight');
+  if (!weightInput) return;
   const weightVal = weightInput.value.trim();
 
   // 1. Validasyonlar
@@ -99,93 +100,101 @@ function runCalculation() {
     return;
   }
 
-  if (weight < 0.5 || weight > 90) {
-    console.warn(`Sıra dışı kilo girişi tespit edildi: ${weight} kg`);
-  }
+  const lifeStageSelect = document.getElementById('calc-life-stage');
+  const feedingStatusSelect = document.getElementById('calc-feeding-status');
+  const productKeySelect = document.getElementById('calc-product');
 
-  const age = document.getElementById('calc-age').value;
-  const activity = document.getElementById('calc-activity').value;
-  const neutered = document.getElementById('calc-neutered').value;
-  const goal = document.getElementById('calc-goal').value;
-  const productKey = document.getElementById('calc-product').value;
+  const lifeStage = lifeStageSelect ? lifeStageSelect.value : 'yetiskin';
+  const feedingStatus = feedingStatusSelect ? feedingStatusSelect.value : 'sabit';
+  const productKey = productKeySelect ? productKeySelect.value : 'kedi_hindi_balik';
 
-  // 2. RER Hesaplaması (Resting Energy Requirement)
-  const rer = 70 * Math.pow(weight, 0.75);
+  // 2. Parça Katsayısı Belirleme Mantığı (Rawlabs Porsiyon Tablosu)
+  let pieceFactorPerKg = 3.0;
 
-  // 3. Katsayı Belirleme Mantığı
-  let factor = 1.0;
-
-  if (calcPetType === 'kedi') {
-    if (age === 'yavru') factor = 2.2;
-    else if (age === 'yetiskin') factor = 1.2;
-    else if (age === 'yasli') factor = 1.0;
-
-    if (neutered === 'evet') factor -= 0.2;
-
-    if (activity === 'dusuk') factor -= 0.15;
-    else if (activity === 'yuksek') factor += 0.25;
-
-    if (goal === 'alma') factor += 0.20;
-    else if (goal === 'verme') factor -= 0.20;
+  if (lifeStage === 'yavru_kucuk') {
+    // 2–6 ay yavru
+    pieceFactorPerKg = 8.4;
+  } else if (lifeStage === 'yavru_buyuk') {
+    // 6–11 ay yavru
+    pieceFactorPerKg = 6.0;
   } else {
-    // Köpek
-    if (age === 'yavru') factor = 2.0;
-    else if (age === 'yetiskin') factor = 1.6;
-    else if (age === 'yasli') factor = 1.3;
-
-    if (neutered === 'evet') factor -= 0.2;
-
-    if (activity === 'dusuk') factor -= 0.20;
-    else if (activity === 'yuksek') factor += 0.30;
-
-    if (goal === 'alma') factor += 0.25;
-    else if (goal === 'verme') factor -= 0.25;
+    // Yetişkin / yaşlı -> Beslenme durumuna göre katsayı
+    if (feedingStatus === 'sabit') pieceFactorPerKg = 3.0;
+    else if (feedingStatus === 'alma') pieceFactorPerKg = 3.5;
+    else if (feedingStatus === 'hareketsiz') pieceFactorPerKg = 2.4;
+    else if (feedingStatus === 'hareketli') pieceFactorPerKg = 3.5;
+    else if (feedingStatus === 'verme') pieceFactorPerKg = 2.0;
   }
 
-  // Güvenlik: Nihai katsayı hiçbir zaman 0.8'in altına düşmesin
-  factor = Math.max(0.8, factor);
+  // 3. Değerlerin Hesaplanması
+  // Ana formül: Günlük Parça Sayısı = Vücut Ağırlığı × Duruma Göre Parça Katsayısı
+  const dailyPieces = weight * pieceFactorPerKg;
+  
+  // Günlük gram: Günlük Gram = Günlük Parça Sayısı × 2
+  const dailyGrams = dailyPieces * 2;
 
-  // 4. İhtiyaç Duyulan Değerlerin Hesaplanması
-  const dailyCal = rer * factor;
   const config = CALCULATOR_CONFIG[productKey] || CALCULATOR_CONFIG.treat40g;
+  const isTreat = productKey === 'treat40g';
 
-  const dailyGrams = dailyCal / config.kcalPerGram;
-  const dailyPieces = dailyGrams / config.averagePieceGram;
-  const durationDays = config.packageGram / dailyGrams;
+  // Aylık paket ihtiyacı: Günlük Gram × 30 / Paket Gramajı
+  const monthlyPackage = (dailyGrams * 30) / config.packageGram;
 
-  // 5. Ekran Çıktılarının Hazırlanması
-  const minPieces = Math.max(1, Math.floor(dailyPieces * 0.88));
-  const maxPieces = Math.ceil(dailyPieces * 1.12);
+  // Yaklaşık Kalori Karşılığı (İkincil Bilgi)
+  const dailyCal = dailyGrams * config.kcalPerGram;
 
-  document.getElementById('out-cal').textContent = `${Math.round(dailyCal)} kcal / gün`;
-  document.getElementById('out-gram').textContent = `${Math.round(dailyGrams)} g / gün`;
-  document.getElementById('out-piece').textContent = `${minPieces}–${maxPieces} parça / gün`;
-  document.getElementById('out-duration').textContent = `${config.packageGram}g paket yaklaşık ${Math.max(1, Math.round(durationDays))} gün gider`;
+  // 4. Ekran Çıktılarının Hazırlanması
+  const formatTr = (num, maxDecimals = 2) => num.toLocaleString('tr-TR', {maximumFractionDigits: maxDecimals});
+
+  const outPieceEl = document.getElementById('out-piece');
+  if (outPieceEl) outPieceEl.textContent = `${formatTr(dailyPieces)} parça / gün`;
+  
+  const outGramEl = document.getElementById('out-gram');
+  if (outGramEl) outGramEl.textContent = `${formatTr(dailyGrams)} g / gün`;
+  
+  const outPackageEl = document.getElementById('out-monthly-package');
+  if (outPackageEl) {
+    if (isTreat) {
+      outPackageEl.textContent = `${formatTr(monthlyPackage)} paket / ay (Kontrollü Destek)`;
+    } else {
+      outPackageEl.textContent = `${formatTr(monthlyPackage)} paket / ay`;
+    }
+  }
+  
+  const outCalEl = document.getElementById('out-cal');
+  if (outCalEl) outCalEl.textContent = `${Math.round(dailyCal)} kcal / gün`;
 
   // Uyarılar ve Destekleyici Bilgiler
   const noticeContainer = document.getElementById('calc-notices');
-  let noticesHtml = `
-    <p style="font-size:0.85rem; color:var(--text-light); line-height:1.5; margin-top:16px;">
-      ℹ️ Bu hesaplama genel bilgilendirme amaçlıdır. Başlangıç porsiyonunu temsil eder. Evcil dostunuzun yaşı, sağlık durumu, aktivitesi ve özel ihtiyaçlarına göre porsiyon değişebilir.
-    </p>
-  `;
-
-  if (productKey === 'treat40g') {
-    noticesHtml += `
-      <div style="background:#fff5f5; border:1px solid #feb2b2; padding:12px; border-radius:var(--radius-sm); margin-top:12px; font-size:0.85rem; color:#c53030; text-align:left;">
-        ⚠️ <strong>Önemli Not:</strong> Ödül mamaları günlük ana beslenmenin yerine geçmez; kontrollü miktarda destek olarak kullanılmalıdır.
-      </div>
+  if (noticeContainer) {
+    let noticesHtml = `
+      <p style="font-size:0.85rem; color:var(--text-light); line-height:1.5; margin-top:16px;">
+        ℹ️ Bu hesaplama Rawlabs başlangıç porsiyon tablosuna göre hazırlanmıştır. Evcil dostunuzun vücut kondisyonu, aktivitesi ve özel ihtiyaçlarına göre porsiyon zamanla ayarlanabilir.
+      </p>
     `;
+
+    if (isTreat) {
+      noticesHtml += `
+        <div style="background:#fff5f5; border:1px solid #feb2b2; padding:12px; border-radius:var(--radius-sm); margin-top:12px; font-size:0.85rem; color:#c53030; text-align:left;">
+          ⚠️ <strong>Önemli Not:</strong> Ödül mamaları günlük ana beslenmenin yerine geçmez; kontrollü miktarda destek olarak kullanılmalıdır.
+        </div>
+      `;
+    }
+
+    noticeContainer.innerHTML = noticesHtml;
   }
 
-  noticeContainer.innerHTML = noticesHtml;
-
   // Paneli görünür yapalım
-  document.getElementById('calc-empty').style.display = 'none';
-  document.getElementById('calc-result-content').style.display = 'block';
+  const emptyPanel = document.getElementById('calc-empty');
+  if (emptyPanel) emptyPanel.style.display = 'none';
+  
+  const contentPanel = document.getElementById('calc-result-content');
+  if (contentPanel) contentPanel.style.display = 'block';
 
   // Sonuç başlığını dinamik güncelleyelim
   const titlePet = calcPetType === 'kedi' ? '🐱 Kedi' : '🐶 Köpek';
-  const selectedAgeText = document.getElementById('calc-age').selectedOptions[0].text;
-  document.getElementById('calc-result-subtitle').textContent = `${titlePet} · ${weight} kg · ${selectedAgeText} · ${config.label}`;
+  const selectedLifeStageText = lifeStageSelect && lifeStageSelect.selectedOptions[0] ? lifeStageSelect.selectedOptions[0].text : '';
+  const subtitleEl = document.getElementById('calc-result-subtitle');
+  if (subtitleEl) {
+    subtitleEl.textContent = `${titlePet} · ${weight} kg · ${selectedLifeStageText} · ${config.label}`;
+  }
 }
