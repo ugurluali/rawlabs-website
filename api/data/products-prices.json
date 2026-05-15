@@ -1,0 +1,155 @@
+[
+  {
+    "id": 1,
+    "slug": "tavuk-balik-kedi-mamasi-300g",
+    "name": "Tavuk & Balık Kedi Maması 300g",
+    "price": 1165,
+    "originalPrice": 1294.44,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 2,
+    "slug": "hindi-balik-kedi-mamasi-300g",
+    "name": "Hindi & Balık Kedi Maması 300g",
+    "price": 1520,
+    "originalPrice": 1688.89,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 3,
+    "slug": "tavuk-balik-kopek-mamasi-300g",
+    "name": "Tavuk & Balık Köpek Maması 300g",
+    "price": 1250,
+    "originalPrice": 1388.89,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 4,
+    "slug": "hindi-balik-kopek-mamasi-300g",
+    "name": "Hindi & Balık Köpek Maması 300g",
+    "price": 1625,
+    "originalPrice": 1805.56,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 5,
+    "slug": "dana-balik-kopek-mamasi-300g",
+    "name": "Dana & Balık Köpek Maması 300g",
+    "price": 1650,
+    "originalPrice": 1833.33,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 6,
+    "slug": "dana-dalak-odulu-40g",
+    "name": "Dana Dalak Ödülü 40g",
+    "price": 424,
+    "originalPrice": 471.11,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 7,
+    "slug": "dana-yurek-odulu-40g",
+    "name": "Dana Yürek Ödülü 40g",
+    "price": 490,
+    "originalPrice": 544.44,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 8,
+    "slug": "dana-ciger-odulu-40g",
+    "name": "Dana Ciğer Ödülü 40g",
+    "price": 498,
+    "originalPrice": 553.33,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 9,
+    "slug": "dana-girtlak-odulu-40g",
+    "name": "Dana Gırtlak Ödülü 40g",
+    "price": 376,
+    "originalPrice": 417.78,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 10,
+    "slug": "dana-billur-odulu-40g",
+    "name": "Dana Billur Ödülü 40g",
+    "price": 405,
+    "originalPrice": 450,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 11,
+    "slug": "hindi-gogus-odulu-40g",
+    "name": "Freeze Dried Hindi Göğüs Ödülü 40g",
+    "price": 435,
+    "originalPrice": 483.33,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 12,
+    "slug": "hindi-yurek-odulu-40g",
+    "name": "Hindi Yürek Ödülü 40g",
+    "price": 395,
+    "originalPrice": 438.89,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 13,
+    "slug": "hindi-ciger-odulu-40g",
+    "name": "Hindi Ciğer Ödülü 40g",
+    "price": 495,
+    "originalPrice": 550,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 14,
+    "slug": "kuzu-girtlak-odulu-40g",
+    "name": "Kuzu Gırtlak Ödülü 40g",
+    "price": 389,
+    "originalPrice": 432.22,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 15,
+    "slug": "tavuk-gogus-odulu-40g",
+    "name": "Tavuk Göğüs Ödülü 40g",
+    "price": 425,
+    "originalPrice": 472.22,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 16,
+    "slug": "tavuk-ciger-odulu-40g",
+    "name": "Tavuk Ciğer Ödülü 40g",
+    "price": 358,
+    "originalPrice": 397.78,
+    "currency": "TRY",
+    "active": true
+  },
+  {
+    "id": 17,
+    "slug": "hamsi-odulu-40g",
+    "name": "Freeze Dried Hamsi Ödülü 40g",
+    "price": 436,
+    "originalPrice": 484.44,
+    "currency": "TRY",
+    "active": true
+  }
+]

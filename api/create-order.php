@@ -57,12 +57,83 @@ try {
     }
 
     $summary = isset($data['summary']) && is_array($data['summary']) ? $data['summary'] : [];
-    $totals = isset($data['totals']) && is_array($data['totals']) ? $data['totals'] : [];
-    $grandTotal = $summary['grandTotal'] ?? $totals['grandTotal'] ?? $data['total'] ?? null;
+    $frontendGrandTotal = $summary['grandTotal'] ?? $data['total'] ?? null;
     
-    if ($grandTotal === null) {
+    if ($frontendGrandTotal === null) {
         throw new Exception('Sipariş tutarı doğrulanamadı.');
     }
+
+    // --- Backend Fiyat Doğrulama (Faz 3A) ---
+    $pricesFilePath = __DIR__ . '/data/products-prices.json';
+    if (!file_exists($pricesFilePath)) {
+        error_log("Rawlabs Error: products-prices.json bulunamadı.");
+        throw new Exception('Fiyat sisteminde geçici bir sorun var, lütfen daha sonra tekrar deneyin.');
+    }
+    
+    $productsPrices = json_decode(file_get_contents($pricesFilePath), true);
+    if (!is_array($productsPrices)) {
+        error_log("Rawlabs Error: products-prices.json bozuk.");
+        throw new Exception('Sistem fiyat listesi okunamadı.');
+    }
+
+    $priceMap = [];
+    foreach ($productsPrices as $p) {
+        if (!empty($p['slug'])) {
+            $priceMap[$p['slug']] = $p;
+        }
+    }
+
+    $backendSubtotal = 0;
+    $backendItems = [];
+
+    foreach ($items as $item) {
+        $slug = $item['slug'] ?? '';
+        $qty = $item['quantity'] ?? 0;
+
+        if (!isset($priceMap[$slug])) {
+            throw new Exception("Bilinmeyen veya kaldırılmış ürün sepette bulundu.");
+        }
+
+        $pData = $priceMap[$slug];
+        if (empty($pData['active'])) {
+            throw new Exception("Şu an satışta olmayan bir ürün sepetinizde: " . $pData['name']);
+        }
+
+        if (!is_numeric($qty) || $qty <= 0 || intval($qty) != $qty) {
+            throw new Exception("Geçersiz ürün adedi: " . $pData['name']);
+        }
+
+        $qty = intval($qty);
+        $backendUnitPrice = (float)$pData['price'];
+        $backendLineTotal = $backendUnitPrice * $qty;
+
+        $backendSubtotal += $backendLineTotal;
+
+        $backendItems[] = [
+            'slug' => $slug,
+            'name' => $pData['name'],
+            'quantity' => $qty,
+            'unitPrice' => $backendUnitPrice,
+            'lineTotal' => $backendLineTotal,
+            'weight' => $item['weight'] ?? ''
+        ];
+    }
+
+    // Kargo hesaplama (Frontend'deki kural: 3000 TL üzeri bedava, altı 300 TL)
+    $FREE_SHIPPING_THRESHOLD = 3000;
+    $SHIPPING_COST = 300;
+    $backendShippingFee = $backendSubtotal >= $FREE_SHIPPING_THRESHOLD ? 0 : $SHIPPING_COST;
+    $backendGrandTotal = $backendSubtotal + $backendShippingFee;
+
+    // Frontend vs Backend Karşılaştırması
+    if (abs((float)$frontendGrandTotal - $backendGrandTotal) > 0.01) {
+        error_log("Rawlabs Security: Fiyat manipülasyonu şüphesi. Gelen: $frontendGrandTotal, Hesaplanan: $backendGrandTotal. Müşteri: $email");
+        throw new Exception("Sepet toplamı doğrulanamadı. Lütfen sepetinizi yenileyip tekrar deneyin.");
+    }
+
+    // Güvenilir backend değerlerini kullanarak kayıt dizisini oluştur
+    $items = $backendItems;
+    $grandTotal = $backendGrandTotal;
 
     // --- Sipariş No Üretimi ---
     $orderNumber = 'RAW-' . date('Ymd') . '-' . mt_rand(1000, 9999);
@@ -88,8 +159,11 @@ try {
         ],
         'items' => $items,
         'summary' => [
-            'grandTotal' => (float)$grandTotal,
-            'currency' => $summary['currency'] ?? $totals['currency'] ?? 'TRY'
+            'subtotal' => (float)$backendSubtotal,
+            'shippingFee' => (float)$backendShippingFee,
+            'discount' => 0,
+            'grandTotal' => (float)$backendGrandTotal,
+            'currency' => 'TRY'
         ]
     ];
 
