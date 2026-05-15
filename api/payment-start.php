@@ -19,7 +19,7 @@ try {
         throw new Exception('Geçersiz sipariş numarası.');
     }
 
-    $orderFilePath = $storagePath . $orderNumber . '.json';
+    $orderFilePath = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . $orderNumber . '.json';
     if (!file_exists($orderFilePath)) {
         throw new Exception('Sipariş dosyası bulunamadı.');
     }
