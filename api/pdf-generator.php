@@ -144,7 +144,7 @@ function generateOrderPdf($orderData, $orderNumber, $pdfStoragePath) {
         <body>
             <div class='container'>
                 <div class='header'>
-                    <img src='{$logoBase64}' style='height: 35px; vertical-align: middle;'>
+                    <img src='{$logoBase64}' style='height: 65px; vertical-align: middle;'>
                     <span class='title'>SİPARİŞ FORMU</span>
                 </div>
 
