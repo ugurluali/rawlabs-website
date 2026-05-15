@@ -23,6 +23,19 @@ try {
     $orderData['status'] = 'paid_test_success';
     file_put_contents($orderFilePath, json_encode($orderData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 
+    // PDF Sipariş Formunu Oluştur
+    $pdfStoragePath = __DIR__ . '/order-pdfs/';
+    if (!is_dir($pdfStoragePath)) {
+        @mkdir($pdfStoragePath, 0755, true);
+    }
+
+    $pdfGenFile = __DIR__ . '/pdf-generator.php';
+    if (file_exists($pdfGenFile)) {
+        require_once $pdfGenFile;
+        // PDF üretimini dene, hata olsa bile (örneğin vendor yoksa) akış devam eder
+        generateOrderPdf($orderData, $orderNumber, $pdfStoragePath);
+    }
+
     $safeOrderNumber = htmlspecialchars($orderNumber, ENT_QUOTES, 'UTF-8');
 
 } catch (Throwable $e) {

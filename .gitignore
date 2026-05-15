@@ -1,3 +1,5 @@
 # Local payment secrets and generated orders
 api/config.php
 api/orders/*.json
+api/order-pdfs/*.pdf
+api/vendor/
