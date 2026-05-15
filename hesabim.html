@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hesabım | Rawlabs</title>
+  <meta name="description" content="Rawlabs hesabınıza giriş yapın, kayıt olun veya siparişlerinizi takip edin.">
+  <link rel="canonical" href="https://rawlabs.com.tr/hesabim">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="img/favicon/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero{background:var(--gradient);padding:120px 0 50px;text-align:center;color:#fff;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 70%,rgba(170,49,131,0.3),transparent 60%)}
+    .page-hero h1,.page-hero p{position:relative;z-index:1}
+    .page-hero h1{color:#fff;margin-bottom:12px}
+    .page-hero p{color:rgba(255,255,255,0.8);max-width:500px;margin:0 auto}
+
+    .auth-container{max-width:460px;margin:0 auto;padding:40px 0 80px}
+    .auth-tabs{display:flex;gap:4px;margin-bottom:32px;background:var(--bg);border-radius:var(--radius-md);padding:4px;border:1px solid var(--border)}
+    .auth-tab{flex:1;padding:12px;text-align:center;border:none;background:none;cursor:pointer;font-size:0.92rem;font-weight:600;color:var(--text-light);border-radius:var(--radius-sm);transition:var(--transition)}
+    .auth-tab.active{background:var(--white);color:var(--secondary-dark);box-shadow:var(--shadow-sm)}
+    .auth-tab:hover:not(.active){color:var(--secondary)}
+
+    .auth-view{display:none}
+    .auth-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px;box-shadow:var(--shadow-md)}
+    .auth-card h2{font-size:1.3rem;margin-bottom:8px;color:var(--secondary-dark)}
+    .auth-card .auth-subtitle{font-size:0.88rem;color:var(--text-light);margin-bottom:28px}
+
+    .auth-field{margin-bottom:20px}
+    .auth-field label{display:block;font-size:0.88rem;font-weight:600;color:var(--secondary-dark);margin-bottom:6px}
+    .auth-field input{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.95rem;transition:var(--transition);background:var(--bg)}
+    .auth-field input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(170,49,131,0.1);outline:none}
+
+    .auth-btn{width:100%;padding:14px;background:var(--gradient);color:#fff;border:none;border-radius:var(--radius-sm);font-size:1rem;font-weight:600;cursor:pointer;transition:var(--transition)}
+    .auth-btn:hover{opacity:0.92}
+    .auth-btn:disabled{opacity:0.6;cursor:not-allowed}
+
+    .auth-link{display:inline;background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.88rem;font-weight:500;padding:0;text-decoration:underline}
+    .auth-link:hover{color:var(--primary-dark)}
+
+    .auth-footer{text-align:center;margin-top:20px;font-size:0.88rem;color:var(--text-light)}
+
+    .auth-message{display:none;padding:12px 16px;border-radius:var(--radius-sm);font-size:0.88rem;margin-bottom:20px}
+    .auth-message-success{background:#f0fff4;color:#276749;border:1px solid #c6f6d5}
+    .auth-message-error{background:#fff5f5;color:#c53030;border:1px solid #fed7d7}
+
+    /* Profil View */
+    .profile-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:40px;box-shadow:var(--shadow-md);text-align:center}
+    .profile-avatar{width:80px;height:80px;background:var(--gradient);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2rem;color:#fff}
+    .profile-name{font-size:1.4rem;font-weight:700;color:var(--secondary-dark);margin-bottom:4px}
+    .profile-email{font-size:0.92rem;color:var(--text-light);margin-bottom:28px}
+    .profile-info{background:var(--bg);border-radius:var(--radius-md);padding:20px;margin-bottom:24px;text-align:left}
+    .profile-info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.9rem}
+    .profile-info-row:last-child{border-bottom:none}
+    .profile-info-row .label{color:var(--text-light);font-weight:500}
+    .profile-info-row .value{color:var(--secondary-dark);font-weight:600}
+    .profile-logout{width:100%;padding:14px;background:none;border:2px solid #e53e3e;color:#e53e3e;border-radius:var(--radius-sm);font-size:0.95rem;font-weight:600;cursor:pointer;transition:var(--transition)}
+    .profile-logout:hover{background:#e53e3e;color:#fff}
+
+    @media(max-width:768px){
+      .auth-container{padding:24px 16px 60px}
+      .auth-card{padding:24px 20px}
+      .profile-card{padding:28px 20px}
+      .page-hero{padding:100px 0 40px}
+    }
+  </style>
+</head>
+<body>
+  <header class="header scrolled" id="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo" onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
+      <nav class="nav" id="nav">
+        <a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Beslenme Asistanı</a><a href="iletisim.html">İletişim</a><a href="hesabim.html" class="nav-auth">👤 Hesabım</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a>
+      </nav>
+      <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <span class="section-badge" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.2)">👤 Hesabım</span>
+        <h1>Hesap Yönetimi</h1>
+        <p>Giriş yapın, hesap oluşturun veya siparişlerinizi takip edin.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="auth-container" id="auth-page-container">
+
+          <!-- Tab Butonları -->
+          <div class="auth-tabs" id="auth-tabs">
+            <button class="auth-tab active" data-auth-tab="login">Giriş Yap</button>
+            <button class="auth-tab" data-auth-tab="register">Hesap Oluştur</button>
+          </div>
+
+          <!-- Giriş Yap View -->
+          <div class="auth-view" id="login-view" style="display:block">
+            <div class="auth-card">
+              <h2>Giriş Yap</h2>
+              <p class="auth-subtitle">Rawlabs hesabınızla giriş yapın.</p>
+              <div id="login-message" class="auth-message"></div>
+              <form id="login-form">
+                <div class="auth-field">
+                  <label for="login-email">E-posta Adresi</label>
+                  <input type="email" id="login-email" placeholder="ornek@email.com" required>
+                </div>
+                <div class="auth-field">
+                  <label for="login-password">Şifre</label>
+                  <input type="password" id="login-password" placeholder="••••••••" required minlength="6">
+                </div>
+                <button type="submit" class="auth-btn">Giriş Yap</button>
+              </form>
+              <div class="auth-footer">
+                <button class="auth-link" data-auth-tab="forgot">Şifremi Unuttum</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hesap Oluştur View -->
+          <div class="auth-view" id="register-view">
+            <div class="auth-card">
+              <h2>Hesap Oluştur</h2>
+              <p class="auth-subtitle">Hızlıca bir Rawlabs hesabı oluşturun.</p>
+              <div id="register-message" class="auth-message"></div>
+              <form id="register-form">
+                <div class="auth-field">
+                  <label for="register-fullname">Ad Soyad</label>
+                  <input type="text" id="register-fullname" placeholder="Ad Soyad" required minlength="2">
+                </div>
+                <div class="auth-field">
+                  <label for="register-email">E-posta Adresi</label>
+                  <input type="email" id="register-email" placeholder="ornek@email.com" required>
+                </div>
+                <div class="auth-field">
+                  <label for="register-password">Şifre</label>
+                  <input type="password" id="register-password" placeholder="En az 6 karakter" required minlength="6">
+                </div>
+                <div class="auth-field">
+                  <label for="register-password-confirm">Şifre Tekrar</label>
+                  <input type="password" id="register-password-confirm" placeholder="Şifrenizi tekrar girin" required minlength="6">
+                </div>
+                <button type="submit" class="auth-btn">Hesap Oluştur</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Şifremi Unuttum View -->
+          <div class="auth-view" id="forgot-view">
+            <div class="auth-card">
+              <h2>Şifremi Unuttum</h2>
+              <p class="auth-subtitle">Kayıtlı e-posta adresinizi girin, size sıfırlama bağlantısı gönderelim.</p>
+              <div id="forgot-message" class="auth-message"></div>
+              <form id="forgot-form">
+                <div class="auth-field">
+                  <label for="forgot-email">E-posta Adresi</label>
+                  <input type="email" id="forgot-email" placeholder="ornek@email.com" required>
+                </div>
+                <button type="submit" class="auth-btn">Sıfırlama Bağlantısı Gönder</button>
+              </form>
+              <div class="auth-footer">
+                <button class="auth-link" data-auth-tab="login">← Giriş sayfasına dön</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Şifre Sıfırlama View -->
+          <div class="auth-view" id="reset-view">
+            <div class="auth-card">
+              <h2>Yeni Şifre Belirle</h2>
+              <p class="auth-subtitle">Yeni şifrenizi aşağıya girin.</p>
+              <div id="reset-message" class="auth-message"></div>
+              <form id="reset-form">
+                <input type="hidden" id="reset-token">
+                <input type="hidden" id="reset-email">
+                <div class="auth-field">
+                  <label for="reset-password">Yeni Şifre</label>
+                  <input type="password" id="reset-password" placeholder="En az 6 karakter" required minlength="6">
+                </div>
+                <div class="auth-field">
+                  <label for="reset-password-confirm">Yeni Şifre Tekrar</label>
+                  <input type="password" id="reset-password-confirm" placeholder="Şifrenizi tekrar girin" required minlength="6">
+                </div>
+                <button type="submit" class="auth-btn">Şifremi Güncelle</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Profil View (Giriş yapıldığında) -->
+          <div class="auth-view" id="profile-view">
+            <div class="profile-card">
+              <div class="profile-avatar">👤</div>
+              <div class="profile-name" id="profile-name"></div>
+              <div class="profile-email" id="profile-email"></div>
+              <div class="profile-info">
+                <div class="profile-info-row">
+                  <span class="label">Hesap Durumu</span>
+                  <span class="value" style="color:#276749">✅ Aktif</span>
+                </div>
+              </div>
+              <button class="profile-logout" id="logout-btn">Çıkış Yap</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-text" style="color:var(--primary-light)">Rawlabs</span></a><p>Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamaları.</p></div>
+        <div><h4>Hızlı Erişim</h4><div class="footer-links"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a></div></div>
+        <div><h4>Araçlar</h4><div class="footer-links"><a href="mama-onerisi.html">Beslenme Asistanı</a></div></div>
+        <div><h4>Kurumsal</h4><div class="footer-links"><a href="mesafeli-satis-sozlesmesi.html">Mesafeli Satış Sözleşmesi</a><a href="iade-ve-geri-odeme-politikasi.html">İade ve Geri Ödeme Politikası</a><a href="teslimat-kosullari.html">Teslimat Koşulları</a><a href="gizlilik-politikasi.html">Gizlilik Politikası</a><a href="cerez-politikasi.html">Çerez Politikası</a></div></div>
+        <div><h4>İletişim</h4><div class="footer-links"><a href="iletisim.html">📞 İletişim Formu</a><a href="mailto:bilgi@rawlabs.com.tr">📧 bilgi@rawlabs.com.tr</a><a href="tel:+905324206635">📱 0532 420 66 35</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Rawlabs. Tüm hakları saklıdır.</span>
+        <div class="footer-social">
+          <a href="https://www.instagram.com/rawlabss/" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+          </a>
+          <span class="social-btn" aria-label="Twitter / X" title="Çok yakında">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </span>
+          <span class="social-btn" aria-label="YouTube" title="Çok yakında">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 0 0-2.122 2.136C0 8.07 0 12 0 12s0 3.93.501 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.55 9.377.55 9.377.55s7.505 0 9.377-.55a3.016 3.016 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

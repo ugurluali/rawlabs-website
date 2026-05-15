@@ -25,3 +25,6 @@ define('POS_STORE_KEY', 'STORE_KEY_HERE');
 define('POS_API_URL', 'https://api.examplebank.com/pos');
 define('POS_SUCCESS_URL', SITE_URL . '/api/payment-callback.php?status=success');
 define('POS_FAIL_URL', SITE_URL . '/api/payment-callback.php?status=fail');
+
+// Kullanıcı Auth Ayarları
+define('USER_STORAGE_PATH', __DIR__ . '/users/users.json');

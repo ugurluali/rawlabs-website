@@ -3,3 +3,6 @@ api/config.php
 api/orders/*.json
 api/order-pdfs/*.pdf
 api/vendor/
+
+# User data (auth)
+api/users/users.json

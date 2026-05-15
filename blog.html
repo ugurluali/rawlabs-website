@@ -102,7 +102,7 @@
   <header class="header scrolled" id="header">
     <div class="header-inner">
       <a href="index.html" class="logo"><img src="img/logo.png" alt="Rawlabs Logo" onerror="this.style.display='none'"><span class="logo-text">Rawlabs</span></a>
-      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Beslenme Asistanı</a><a href="iletisim.html">İletişim</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
+      <nav class="nav" id="nav"><a href="index.html">Ana Sayfa</a><a href="magaza.html">Mağaza</a><a href="hakkimizda.html">Hakkımızda</a><a href="blog.html">Blog</a><a href="sss.html">S.S.S</a><a href="mama-onerisi.html">Beslenme Asistanı</a><a href="iletisim.html">İletişim</a><a href="hesabim.html" class="nav-auth">👤 Hesabım</a><a href="magaza.html" class="nav-cta">🛒 Alışveriş</a></nav>
       <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
     </div>
   </header>
@@ -225,6 +225,7 @@
     </div>
   </footer>
   <script src="js/main.js"></script>
+  <script src="js/auth.js"></script>
   <script>
     function filterBlog(cat,el){document.querySelectorAll('.blog-tab').forEach(t=>t.classList.remove('active'));if(el&&el.classList.contains('blog-tab'))el.classList.add('active');document.querySelectorAll('#blog-grid .blog-card-link').forEach(link=>{const card = link.querySelector('.blog-card'); link.style.display=(cat==='all'||card.dataset.cat===cat)?'block':'none'})}
   </script>
