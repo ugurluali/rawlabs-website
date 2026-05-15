@@ -53,6 +53,8 @@ async function checkAuthStatus() {
         }
       }
     }
+    // Auth kontrolü tamamlandı, diğer modülleri bilgilendir
+    document.dispatchEvent(new CustomEvent('rawlabs:auth-ready', { detail: data }));
   } catch (e) {
     // API erişilemezse (örn: local geliştirme) sessizce devam et
   }
@@ -99,6 +101,7 @@ function initAuthPage() {
           setTimeout(() => {
             showProfileView(data.user);
             checkAuthStatus(); // Nav'ı güncelle
+            document.dispatchEvent(new CustomEvent('rawlabs:auth-changed', { detail: data }));
           }, 800);
         } else {
           showMessage('login-message', data.message, 'error');
@@ -148,6 +151,7 @@ function initAuthPage() {
           setTimeout(() => {
             showProfileView(data.user);
             checkAuthStatus();
+            document.dispatchEvent(new CustomEvent('rawlabs:auth-changed', { detail: data }));
           }, 800);
         } else {
           showMessage('register-message', data.message, 'error');
@@ -266,8 +270,12 @@ function showProfileView(user) {
           method: 'POST',
           credentials: 'same-origin'
         });
-      } catch (e) {}
-      window.location.reload();
+        // Dinamik çıkış
+        checkAuthStatus();
+        document.dispatchEvent(new CustomEvent('rawlabs:auth-changed', { detail: { loggedIn: false } }));
+      } catch (e) {
+        window.location.reload();
+      }
     };
   }
 }

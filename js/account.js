@@ -3,19 +3,15 @@
  * hesabim.html yüklendiğinde siparişleri çeker ve ekrana basar.
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Profil view'ın görünürlüğünü dinleyip veya direkt sayfa yüklendiğinde kontrol et
-  // auth.js zaten DOMContentLoaded'da checkAuthStatus çağırıyor.
-  // Siparişleri çekmek için kısa bir gecikme ekleyelim veya MutationObserver ile profil görünür olduğunda çekelim.
-  // En basiti, kullanıcı auth olmuşsa direkt fetch etmek.
-
-  // setTimeout ile auth.js'in login kontrolünü bitirmesini bekliyoruz
-  setTimeout(loadMyOrders, 500);
-});
+document.addEventListener('rawlabs:auth-ready', loadMyOrders);
+document.addEventListener('rawlabs:auth-changed', loadMyOrders);
 
 async function loadMyOrders() {
   const container = document.getElementById('orders-container');
   if (!container) return;
+
+  // Başlangıçta nötr yükleme mesajı göster
+  container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-light);">Siparişleriniz kontrol ediliyor...</div>';
 
   try {
     const res = await fetch('api/auth-my-orders.php', {
