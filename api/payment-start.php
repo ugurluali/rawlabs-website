@@ -54,20 +54,53 @@ try {
     .btn-success { background: #48bb78; color: white; }
     .btn-danger { background: #f56565; color: white; }
   </style>
+  <script>
+    async function simulateCallback(status, redirectUrl) {
+      const orderId = "<?= $safeOrderNumber ?>";
+      const btn = event.target;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = "İşleniyor...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('payment-callback.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: orderId,
+            status: status,
+            callbackToken: 'TEST_RAWLABS_CALLBACK_TOKEN'
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = redirectUrl;
+        } else {
+          alert('Callback başarısız: ' + data.message);
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      } catch (err) {
+        alert('Sunucuya ulaşılamadı.');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+  </script>
 </head>
 <body>
   <div class="checkout-box">
     <h2>Sanal POS Test Ekranı</h2>
     <div class="warning">
-      Bu ekran banka sanal POS entegrasyonu gelene kadar test amaçlıdır.
+      Bu ekran banka sanal POS entegrasyonu gelene kadar test amaçlıdır. Faz 3B gereği Webhook / Callback simülasyonu ile çalışır.
     </div>
     <div class="details">
       <p><strong>Sipariş No:</strong> <?= $safeOrderNumber ?></p>
       <p><strong>Müşteri:</strong> <?= $safeName ?></p>
       <p style="font-size: 1.2rem; margin-top: 12px; color: #2d3748;"><strong>Tutar:</strong> ₺<?= $safeTotal ?></p>
     </div>
-    <a href="payment-success.php?order=<?= $safeOrderNumber ?>" class="btn btn-success">✅ Test Ödemeyi Başarılı Yap</a>
-    <a href="payment-failed.php?order=<?= $safeOrderNumber ?>" class="btn btn-danger">❌ Test Ödemeyi Başarısız Yap</a>
+    <button onclick="simulateCallback('success', 'payment-success.php?order=<?= $safeOrderNumber ?>')" class="btn btn-success">✅ Test Ödemeyi Başarılı Yap</button>
+    <button onclick="simulateCallback('failed', 'payment-failed.php?order=<?= $safeOrderNumber ?>')" class="btn btn-danger">❌ Test Ödemeyi Başarısız Yap</button>
   </div>
 </body>
 </html>

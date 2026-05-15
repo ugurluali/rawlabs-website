@@ -61,10 +61,12 @@ function renderOrders(orders, container) {
     let statusBadge = '';
     
     // Basit durum çevirileri
-    if (order.status === 'created') {
+    if (order.status === 'created' || order.status === 'payment_pending') {
       statusBadge = '<span style="background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Ödeme Bekliyor</span>';
     } else if (order.status === 'paid_test_success' || order.status === 'paid') {
-      statusBadge = '<span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Onaylandı</span>';
+      statusBadge = '<span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Onaylandı / Ödendi</span>';
+    } else if (order.status === 'payment_failed') {
+      statusBadge = '<span style="background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Ödeme Başarısız</span>';
     } else if (order.status === 'shipped') {
       statusBadge = '<span style="background: #cce5ff; color: #004085; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Kargoya Verildi</span>';
     } else {

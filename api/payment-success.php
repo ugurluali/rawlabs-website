@@ -1,44 +1,12 @@
 <?php
 /**
- * Test Ödeme Başarılı Sayfası
+ * Test Ödeme Başarılı Sayfası (Sadece UI)
+ * DİKKAT: Faz 3B ile statü güncellemesi ve PDF üretimi payment-callback.php'ye taşınmıştır.
  */
 
 try {
-    if (file_exists(__DIR__ . '/config.php')) {
-        $config = require_once __DIR__ . '/config.php';
-    } else {
-        throw new Exception('config.php bulunamadı.');
-    }
-
-    $storagePath = defined('ORDER_STORAGE_PATH') ? ORDER_STORAGE_PATH : (isset($config['ORDER_STORAGE_PATH']) ? $config['ORDER_STORAGE_PATH'] : null);
-    if (!$storagePath) throw new Exception('ORDER_STORAGE_PATH tanımlanmamış.');
-
     $orderNumber = $_GET['order'] ?? '';
     if (!preg_match('/^RAW-\d{8}-\d{4}$/', $orderNumber)) throw new Exception('Geçersiz sipariş.');
-
-    // Daha güvenli dosya yolu oluşturma
-    $orderFilePath = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . $orderNumber . '.json';
-    
-    if (!file_exists($orderFilePath)) {
-        throw new Exception('Sipariş bulunamadı.');
-    }
-
-    $orderData = json_decode(file_get_contents($orderFilePath), true);
-    $orderData['status'] = 'paid_test_success';
-    file_put_contents($orderFilePath, json_encode($orderData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-
-    // PDF Sipariş Formunu Oluştur
-    $pdfStoragePath = __DIR__ . '/order-pdfs/';
-    if (!is_dir($pdfStoragePath)) {
-        @mkdir($pdfStoragePath, 0755, true);
-    }
-
-    $pdfGenFile = __DIR__ . '/pdf-generator.php';
-    if (file_exists($pdfGenFile)) {
-        require_once $pdfGenFile;
-        // PDF üretimini dene, hata olsa bile (örneğin vendor yoksa) akış devam eder
-        generateOrderPdf($orderData, $orderNumber, $pdfStoragePath);
-    }
 
     $safeOrderNumber = htmlspecialchars($orderNumber, ENT_QUOTES, 'UTF-8');
 
@@ -65,7 +33,7 @@ try {
   <div class="success-box">
     <div style="font-size: 4rem;">🎉</div>
     <h2>Siparişiniz Başarıyla Alındı!</h2>
-    <p>Ödemeniz test akışında başarılı olarak işaretlendi.<br><strong>Sipariş No:</strong> <?= $safeOrderNumber ?></p>
+    <p>Ödeme işleminiz alındı ve kontrol ediliyor.<br><strong>Sipariş No:</strong> <?= $safeOrderNumber ?></p>
     <a href="../index.html" class="btn">Ana Sayfaya Dön</a>
   </div>
 </body>
