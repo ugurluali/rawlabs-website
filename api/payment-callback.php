@@ -27,24 +27,92 @@ try {
     if ($isKuveyt && isset($_POST['AuthenticationResponse'])) {
         require_once __DIR__ . '/kuveyt-pos-helpers.php';
         
-        $xmlString = urldecode($_POST['AuthenticationResponse']);
+        $authResponse = $_POST['AuthenticationResponse'] ?? '';
+        
+        // Ham veri güvenli analizi
+        kuveytSafeDebugStringAnalysis($authResponse, 'Ham AuthenticationResponse');
+        
+        $xmlString = kuveytNormalizeAuthenticationResponse($authResponse);
+        
+        // Normalize sonrası veri güvenli analizi
+        kuveytSafeDebugStringAnalysis($xmlString, 'Normalize Sonrası XML');
+
         $response = kuveytParseXml($xmlString);
 
-        if (!$response) die('Geçersiz banka yanıtı.');
+        if (!$response) {
+            error_log("Kuveyt Türk Debug: simplexml parse başarısız.");
+            // Parse başarısızsa kullanıcıyı beyaz ekranda bırakma
+            $merchantOrderId = $_GET['order'] ?? '';
+            
+            // Eğer URL'de order yoksa, ham yanıtın içinden MerchantOrderId bulmaya çalış
+            if (empty($merchantOrderId) && preg_match('/<MerchantOrderId>([^<]+)<\/MerchantOrderId>/i', $xmlString, $matches)) {
+                $merchantOrderId = trim($matches[1]);
+            }
+            
+            if (preg_match('/^RAW-\d{8}-\d{4}$/', $merchantOrderId)) {
+                $orderFilePath = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . $merchantOrderId . '.json';
+                if (file_exists($orderFilePath)) {
+                    $fp = fopen($orderFilePath, 'r+');
+                    if ($fp && flock($fp, LOCK_EX)) {
+                        $filesize = filesize($orderFilePath);
+                        if ($filesize > 0) {
+                            $orderData = json_decode(fread($fp, $filesize), true);
+                            if (isset($orderData['status']) && $orderData['status'] !== 'paid') {
+                                $orderData['status'] = 'payment_failed';
+                                $orderData['paymentStatus'] = 'failed';
+                                $orderData['failReason'] = 'Banka yanıtı okunamadı (Parse Hatası)';
+                                ftruncate($fp, 0);
+                                rewind($fp);
+                                fwrite($fp, json_encode($orderData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                                fflush($fp);
+                            }
+                        }
+                        flock($fp, LOCK_UN);
+                        fclose($fp);
+                    }
+                }
+                header("Location: payment-failed.php?order=" . urlencode($merchantOrderId));
+                exit;
+            }
+            
+            die('Geçersiz banka yanıtı. İşlem doğrulanamadı.');
+        }
+
+        error_log("Kuveyt Türk Debug: simplexml parse başarılı.");
 
         $responseCode = $response['ResponseCode'] ?? '';
         $responseMessage = $response['ResponseMessage'] ?? '';
-        $merchantOrderId = $response['MerchantOrderId'] ?? '';
+        $merchantOrderId = $response['MerchantOrderId'] ?? ($response['VPosMessage']['MerchantOrderId'] ?? '');
         $md = $response['MD'] ?? '';
-        $orderIdFromBank = $response['OrderId'] ?? '';
+        $orderIdFromBank = $response['OrderId'] ?? ($response['VPosMessage']['OrderId'] ?? '');
         $hashDataFromBank = $response['HashData'] ?? '';
+        $bankHashPassword = $response['VPosMessage']['HashPassword'] ?? null;
 
-        if (!preg_match('/^RAW-\d{8}-\d{4}$/', $merchantOrderId)) die('Geçersiz sipariş formatı.');
+        // 2. Base64 '+' karakter normalizasyonu
+        if (strpos($hashDataFromBank, ' ') !== false) {
+            error_log("Kuveyt Türk Debug: HashData içinde boşluk var, '+' ile değiştiriliyor.");
+        }
+        $hashDataFromBank = str_replace(' ', '+', trim($hashDataFromBank));
+        
+        if ($bankHashPassword !== null) {
+            $bankHashPassword = str_replace(' ', '+', trim($bankHashPassword));
+            error_log("Kuveyt Türk Debug: Bank HashPassword bulundu ve normalize edildi.");
+        }
+        
+        $md = str_replace(' ', '+', trim($md));
 
-        // Güvenlik: Bankadan gelen yanıtın gerçekten bankadan geldiğini doğrula (Response 1 Hash kontrolü)
-        if (!kuveytVerifyResponse1Hash($merchantOrderId, $responseCode, $orderIdFromBank, $hashDataFromBank, KUVEYT_PASSWORD)) {
-            error_log("Kuveyt Türk Güvenlik Uyarısı: Sipariş $merchantOrderId için banka imza doğrulaması (Hash) başarısız oldu.");
-            die('Güvenlik ihlali: Geçersiz banka imzası.');
+        // 3. Güvenli Debug Logları
+        error_log("Kuveyt Türk Debug: MerchantOrderId: " . ($merchantOrderId ? 'Var' : 'Yok') . ", MD: " . ($md ? 'Var' : 'Yok') . ", HashData: " . ($hashDataFromBank ? 'Var' : 'Yok') . ", ResponseCode: " . $responseCode);
+
+        if (!preg_match('/^RAW-\d{8}-\d{4}$/', $merchantOrderId)) {
+            die('Geçersiz sipariş formatı.');
+        }
+
+        // Debug için genel log
+        if (!empty($bankHashPassword)) {
+            error_log("Response1 hash source: bank HashPassword");
+        } else {
+            error_log("Response1 hash source: local password hash fallback");
         }
 
         $orderFilePath = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . $merchantOrderId . '.json';
@@ -61,6 +129,47 @@ try {
             flock($fp, LOCK_UN);
             fclose($fp);
             header("Location: payment-success.php?order=" . urlencode($merchantOrderId));
+            exit;
+        }
+
+        // HASH KONTROLÜ ÖNCESİ EKSİK VERİ KONTROLÜ (Transaction Response Contract)
+        if (empty($hashDataFromBank) && empty($md) && empty($bankHashPassword)) {
+            error_log("Kuveyt Türk Debug: Hash doğrulaması atlandı, HashData/MD yok; banka transaction response contract döndü.");
+            
+            $orderData['status'] = 'payment_failed';
+            $orderData['paymentStatus'] = 'failed';
+            $orderData['failReason'] = 'Banka işlem yanıtı başarısız';
+            $orderData['bankResponseCode'] = $responseCode;
+            $orderData['bankResponseMessage'] = $responseMessage;
+
+            ftruncate($fp, 0);
+            rewind($fp);
+            fwrite($fp, json_encode($orderData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+            fflush($fp);
+            flock($fp, LOCK_UN);
+            fclose($fp);
+
+            header("Location: payment-failed.php?order=" . urlencode($merchantOrderId));
+            exit;
+        }
+
+        // Güvenlik: Bankadan gelen yanıtın gerçekten bankadan geldiğini doğrula (Response 1 Hash kontrolü)
+        if (!kuveytVerifyResponse1Hash($merchantOrderId, $responseCode, $orderIdFromBank, $hashDataFromBank, KUVEYT_PASSWORD, $bankHashPassword)) {
+            error_log("Kuveyt Türk Güvenlik Uyarısı: Sipariş $merchantOrderId için banka imza doğrulaması (Hash) başarısız oldu.");
+            
+            // Kullanıcıyı çirkin bir hata sayfasında bırakmamak için payment_failed yap ve yönlendir
+            $orderData['status'] = 'payment_failed';
+            $orderData['paymentStatus'] = 'failed';
+            $orderData['failReason'] = 'Banka yanıt doğrulaması başarısız';
+
+            ftruncate($fp, 0);
+            rewind($fp);
+            fwrite($fp, json_encode($orderData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+            fflush($fp);
+            flock($fp, LOCK_UN);
+            fclose($fp);
+
+            header("Location: payment-failed.php?order=" . urlencode($merchantOrderId));
             exit;
         }
 

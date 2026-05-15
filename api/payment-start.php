@@ -58,7 +58,7 @@ try {
         
         $url = KUVEYT_MODE === 'live' ? KUVEYT_3D_PAY_URL_LIVE : KUVEYT_3D_PAY_URL_TEST;
 
-        $amount = round((float)$orderData['summary']['grandTotal'] * 100);
+        $amount = (string)(int)round((float)$orderData['summary']['grandTotal'] * 100);
         $merchantOrderId = $orderNumber;
 
         $hashData = kuveytHashRequest1($merchantId, $merchantOrderId, $amount, $okUrl, $failUrl, $userName, $password);
@@ -86,7 +86,10 @@ try {
 
         $clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
         
-        if ($cardType === 'Visa') $cardType = 'VISA';
+        // CardType formatı banka tarafından Case-Sensitive bekleniyor: Visa, MasterCard, Troy
+        // "VISA" olarak değiştirmiyoruz!
+        
+        error_log("Kuveyt Türk Debug [XML Request 1]: Amount=$amount, CurrencyCode=0949, TransactionType=Sale, InstallmentCount=0, CardType=$cardType");
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>
 <KuveytTurkVPosMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
