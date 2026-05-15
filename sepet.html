@@ -104,14 +104,18 @@
             </div>
             <div>
               <label for="order-city" style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: var(--secondary-dark);">İl <span style="color: #e53e3e;">*</span></label>
-              <input type="text" id="order-city" placeholder="Örn: İstanbul" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem;">
+              <select id="order-city" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; background: white; cursor: pointer;">
+                <option value="">İl Seçiniz</option>
+              </select>
             </div>
           </div>
 
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
             <div>
               <label for="order-district" style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: var(--secondary-dark);">İlçe <span style="color: #e53e3e;">*</span></label>
-              <input type="text" id="order-district" placeholder="Örn: Kadıköy" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem;">
+              <select id="order-district" required disabled style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; background: #f8f8f8; cursor: not-allowed;">
+                <option value="">İlçe Seçiniz</option>
+              </select>
             </div>
             <div>
               <label for="order-address" style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: var(--secondary-dark);">Açık Adres <span style="color: #e53e3e;">*</span></label>
@@ -164,12 +168,54 @@
   </footer>
 
   <script src="js/products.js"></script>
+  <script src="js/locations.js"></script>
   <script src="js/main.js"></script>
   <script src="js/order.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       renderCartPage();
+      initLocationSelectors();
     });
+
+    function initLocationSelectors() {
+      const citySelect = document.getElementById('order-city');
+      const districtSelect = document.getElementById('order-district');
+
+      if (!citySelect || !districtSelect || typeof TURKEY_LOCATIONS === 'undefined') return;
+
+      // İlleri doldur
+      const cities = Object.keys(TURKEY_LOCATIONS).sort((a, b) => a.localeCompare('tr'));
+      cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
+
+      // İl değiştiğinde ilçeleri güncelle
+      citySelect.addEventListener('change', function() {
+        const selectedCity = this.value;
+        districtSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
+        
+        if (selectedCity) {
+          districtSelect.disabled = false;
+          districtSelect.style.background = 'white';
+          districtSelect.style.cursor = 'pointer';
+          
+          const districts = TURKEY_LOCATIONS[selectedCity].sort((a, b) => a.localeCompare('tr'));
+          districts.forEach(district => {
+            const option = document.createElement('option');
+            option.value = district;
+            option.textContent = district;
+            districtSelect.appendChild(option);
+          });
+        } else {
+          districtSelect.disabled = true;
+          districtSelect.style.background = '#f8f8f8';
+          districtSelect.style.cursor = 'not-allowed';
+        }
+      });
+    }
 
     const formatPrice = (p) => p.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
