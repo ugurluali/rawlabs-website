@@ -67,8 +67,14 @@ try {
     // --- Sipariş No Üretimi ---
     $orderNumber = 'RAW-' . date('Ymd') . '-' . mt_rand(1000, 9999);
 
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    $userId = $_SESSION['user_id'] ?? null;
+
     $orderDataToSave = [
         'orderId' => $orderNumber,
+        'userId' => $userId,
         'status' => 'created',
         'backend_createdAt' => date('c'),
         'customer' => [
@@ -91,9 +97,38 @@ try {
         throw new Exception('Sipariş kayıt dizini bulunamadı.');
     }
 
-    $orderFilePath = $storagePath . $orderNumber . '.json';
+    $orderFilePath = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . $orderNumber . '.json';
     if (@file_put_contents($orderFilePath, json_encode($orderDataToSave, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) === false) {
         throw new Exception('Sipariş dosyası yazılamadı.');
+    }
+
+    // --- Kullanıcı Sipariş İndeksini Güncelle ---
+    if ($userId) {
+        $userOrdersPath = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . 'user-orders.json';
+        $fp = @fopen($userOrdersPath, 'c+');
+        if ($fp) {
+            flock($fp, LOCK_EX);
+            fseek($fp, 0, SEEK_END);
+            $size = ftell($fp);
+            $userOrders = [];
+            if ($size > 0) {
+                rewind($fp);
+                $content = fread($fp, $size);
+                $userOrders = json_decode($content, true) ?: [];
+            }
+            if (!isset($userOrders[$userId])) {
+                $userOrders[$userId] = [];
+            }
+            if (!in_array($orderNumber, $userOrders[$userId])) {
+                $userOrders[$userId][] = $orderNumber;
+            }
+            ftruncate($fp, 0);
+            rewind($fp);
+            fwrite($fp, json_encode($userOrders, JSON_PRETTY_PRINT));
+            fflush($fp);
+            flock($fp, LOCK_UN);
+            fclose($fp);
+        }
     }
 
     echo json_encode([

@@ -6,3 +6,4 @@ api/vendor/
 
 # User data (auth)
 api/users/users.json
+api/orders/user-orders.json
