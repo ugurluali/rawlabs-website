@@ -36,11 +36,36 @@ function generateOrderPdf($orderData, $orderNumber, $pdfStoragePath) {
         $items = $orderData['items'] ?? [];
         $summary = $orderData['summary'] ?? [];
 
+        // Logo Hazırlığı (Base64)
+        $logoPath = __DIR__ . '/../img/logo.png';
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $logoData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+        }
+
         // Güvenli veriler (XSS ve kırılmalara karşı)
         $cName = htmlspecialchars($customer['fullName'] ?? '-', ENT_QUOTES, 'UTF-8');
-        $cPhone = htmlspecialchars($customer['phone'] ?? '-', ENT_QUOTES, 'UTF-8');
+        
+        // Telefon formatlama (+90 5XX XXX XX XX)
+        $rawPhone = $customer['phone'] ?? '';
+        $cleanPhone = preg_replace('/[^0-9]/', '', $rawPhone);
+        $cPhone = $rawPhone;
+        if (strlen($cleanPhone) == 10) {
+            $cPhone = '+90 (' . substr($cleanPhone, 0, 3) . ') ' . substr($cleanPhone, 3, 3) . ' ' . substr($cleanPhone, 6, 2) . ' ' . substr($cleanPhone, 8, 2);
+        } elseif (strlen($cleanPhone) == 11 && $cleanPhone[0] == '0') {
+            $cPhone = '+90 (' . substr($cleanPhone, 1, 3) . ') ' . substr($cleanPhone, 4, 3) . ' ' . substr($cleanPhone, 7, 2) . ' ' . substr($cleanPhone, 9, 2);
+        } elseif (strlen($cleanPhone) == 12 && substr($cleanPhone, 0, 2) == '90') {
+            $cPhone = '+90 (' . substr($cleanPhone, 2, 3) . ') ' . substr($cleanPhone, 5, 3) . ' ' . substr($cleanPhone, 8, 2) . ' ' . substr($cleanPhone, 10, 2);
+        }
+        $cPhone = htmlspecialchars($cPhone, ENT_QUOTES, 'UTF-8');
+
         $cEmail = htmlspecialchars($customer['email'] ?? '-', ENT_QUOTES, 'UTF-8');
-        $cAddress = htmlspecialchars(($customer['address'] ?? '') . ' ' . ($customer['district'] ?? '') . '/' . ($customer['city'] ?? ''), ENT_QUOTES, 'UTF-8');
+        
+        // Adres formatlama (Satır kırılımlı)
+        $cAddress = htmlspecialchars($customer['address'] ?? '-', ENT_QUOTES, 'UTF-8');
+        $cLocation = htmlspecialchars(($customer['district'] ?? '') . ' / ' . ($customer['city'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $cFullAddressHtml = $cAddress . "<br>" . $cLocation;
         
         // --- Matematiksel Tutarlılık Hesaplaması ---
         $discountVal = (float)($summary['discount'] ?? 0);
@@ -119,7 +144,7 @@ function generateOrderPdf($orderData, $orderNumber, $pdfStoragePath) {
         <body>
             <div class='container'>
                 <div class='header'>
-                    <span class='logo'>RAWLABS</span>
+                    <img src='{$logoBase64}' style='height: 35px; vertical-align: middle;'>
                     <span class='title'>SİPARİŞ FORMU</span>
                 </div>
 
@@ -134,7 +159,7 @@ function generateOrderPdf($orderData, $orderNumber, $pdfStoragePath) {
                                 <strong>Müşteri:</strong> {$cName}<br>
                                 <strong>Telefon:</strong> {$cPhone}<br>
                                 <strong>E-posta:</strong> {$cEmail}<br>
-                                <strong>Adres:</strong> {$cAddress}
+                                <strong>Adres:</strong> {$cFullAddressHtml}
                             </td>
                         </tr>
                     </table>
