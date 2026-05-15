@@ -21,6 +21,145 @@ try {
         throw new Exception('Geçersiz istek yöntemi.');
     }
 
+    $isKuveyt = defined('PAYMENT_PROVIDER') && PAYMENT_PROVIDER === 'kuveytturk';
+
+    // --- KUVEYT TÜRK 3D SECURE (REQUEST 2 / PROVISION) AKIŞI ---
+    if ($isKuveyt && isset($_POST['AuthenticationResponse'])) {
+        require_once __DIR__ . '/kuveyt-pos-helpers.php';
+        
+        $xmlString = urldecode($_POST['AuthenticationResponse']);
+        $response = kuveytParseXml($xmlString);
+
+        if (!$response) die('Geçersiz banka yanıtı.');
+
+        $responseCode = $response['ResponseCode'] ?? '';
+        $responseMessage = $response['ResponseMessage'] ?? '';
+        $merchantOrderId = $response['MerchantOrderId'] ?? '';
+        $md = $response['MD'] ?? '';
+        $orderIdFromBank = $response['OrderId'] ?? '';
+        $hashDataFromBank = $response['HashData'] ?? '';
+
+        if (!preg_match('/^RAW-\d{8}-\d{4}$/', $merchantOrderId)) die('Geçersiz sipariş formatı.');
+
+        // Güvenlik: Bankadan gelen yanıtın gerçekten bankadan geldiğini doğrula (Response 1 Hash kontrolü)
+        if (!kuveytVerifyResponse1Hash($merchantOrderId, $responseCode, $orderIdFromBank, $hashDataFromBank, KUVEYT_PASSWORD)) {
+            error_log("Kuveyt Türk Güvenlik Uyarısı: Sipariş $merchantOrderId için banka imza doğrulaması (Hash) başarısız oldu.");
+            die('Güvenlik ihlali: Geçersiz banka imzası.');
+        }
+
+        $orderFilePath = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . $merchantOrderId . '.json';
+        if (!file_exists($orderFilePath)) die('Sipariş bulunamadı.');
+
+        $fp = fopen($orderFilePath, 'r+');
+        if (!$fp || !flock($fp, LOCK_EX)) die('Siparişe erişilemiyor.');
+
+        $filesize = filesize($orderFilePath);
+        $orderData = json_decode(fread($fp, $filesize), true);
+
+        // Idempotency: Zaten paid ise işlem yapma, başarıya yönlendir
+        if ($orderData['status'] === 'paid' || $orderData['status'] === 'paid_test_success') {
+            flock($fp, LOCK_UN);
+            fclose($fp);
+            header("Location: payment-success.php?order=" . urlencode($merchantOrderId));
+            exit;
+        }
+
+        if ($responseCode === '00') {
+            // 3D Doğrulama Başarılı -> Şimdi ProvisionGate (Request 2)
+            $amount = round((float)$orderData['summary']['grandTotal'] * 100);
+            $merchantId = KUVEYT_MERCHANT_ID;
+            $customerId = KUVEYT_CUSTOMER_ID;
+            $userName = KUVEYT_USERNAME;
+            $password = KUVEYT_PASSWORD;
+
+            $hashData = kuveytHashRequest2($merchantId, $merchantOrderId, $amount, $userName, $password);
+
+            $provXml = '<?xml version="1.0" encoding="UTF-8"?>
+<KuveytTurkVPosMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <APIVersion>TDV2.0.0</APIVersion>
+  <HashData>'.kuveytXmlEscape($hashData).'</HashData>
+  <MerchantId>'.kuveytXmlEscape($merchantId).'</MerchantId>
+  <CustomerId>'.kuveytXmlEscape($customerId).'</CustomerId>
+  <UserName>'.kuveytXmlEscape($userName).'</UserName>
+  <TransactionType>Sale</TransactionType>
+  <InstallmentCount>0</InstallmentCount>
+  <Amount>'.$amount.'</Amount>
+  <MerchantOrderId>'.kuveytXmlEscape($merchantOrderId).'</MerchantOrderId>
+  <TransactionSecurity>3</TransactionSecurity>
+  <KuveytTurkVPosAdditionalData>
+    <AdditionalData>
+      <Key>MD</Key>
+      <Data>'.kuveytXmlEscape($md).'</Data>
+    </AdditionalData>
+  </KuveytTurkVPosAdditionalData>
+</KuveytTurkVPosMessage>';
+
+            $provUrl = KUVEYT_MODE === 'live' ? KUVEYT_3D_PROVISION_URL_LIVE : KUVEYT_3D_PROVISION_URL_TEST;
+
+            try {
+                $provResponseXml = kuveytPostXml($provUrl, $provXml);
+                $provResult = kuveytParseXml($provResponseXml);
+
+                if (isset($provResult['ResponseCode']) && $provResult['ResponseCode'] === '00') {
+                    // Provision başarılı, sipariş onaylandı
+                    $orderData['status'] = 'paid';
+                    $orderData['paymentStatus'] = 'success';
+                    $orderData['paidAt'] = date('c');
+                    $orderData['provider'] = 'kuveytturk';
+                    $orderData['providerTransactionId'] = $orderIdFromBank;
+                    $orderData['provisionNumber'] = $provResult['ProvisionNumber'] ?? '';
+                    $orderData['rrn'] = $provResult['RRN'] ?? '';
+                    $orderData['stan'] = $provResult['Stan'] ?? '';
+                    $orderData['businessKey'] = $provResult['BusinessKey'] ?? '';
+
+                    // PDF Üretimi
+                    $pdfStoragePath = __DIR__ . '/order-pdfs/';
+                    if (!is_dir($pdfStoragePath)) @mkdir($pdfStoragePath, 0755, true);
+                    $pdfGenFile = __DIR__ . '/pdf-generator.php';
+                    if (file_exists($pdfGenFile)) {
+                        require_once $pdfGenFile;
+                        try { generateOrderPdf($orderData, $merchantOrderId, $pdfStoragePath); } catch (Exception $e) {}
+                    }
+
+                    ftruncate($fp, 0);
+                    rewind($fp);
+                    fwrite($fp, json_encode($orderData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                    fflush($fp);
+                    flock($fp, LOCK_UN);
+                    fclose($fp);
+
+                    header("Location: payment-success.php?order=" . urlencode($merchantOrderId));
+                    exit;
+                } else {
+                    $orderData['status'] = 'payment_failed';
+                    $orderData['paymentStatus'] = 'failed';
+                    $orderData['failReason'] = $provResult['ResponseMessage'] ?? 'Provizyon reddedildi.';
+                }
+            } catch (Exception $e) {
+                $orderData['status'] = 'payment_failed';
+                $orderData['paymentStatus'] = 'failed';
+                $orderData['failReason'] = 'Banka bağlantı hatası: ' . $e->getMessage();
+            }
+        } else {
+            // 3D Doğrulama Başarısız
+            $orderData['status'] = 'payment_failed';
+            $orderData['paymentStatus'] = 'failed';
+            $orderData['failReason'] = $responseMessage;
+        }
+
+        // Başarısız durumda kaydet ve yönlendir
+        ftruncate($fp, 0);
+        rewind($fp);
+        fwrite($fp, json_encode($orderData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        fflush($fp);
+        flock($fp, LOCK_UN);
+        fclose($fp);
+
+        header("Location: payment-failed.php?order=" . urlencode($merchantOrderId));
+        exit;
+    }
+
+    // --- MOCK TEST AKIŞI (Faz 3B'den kalan) ---
     // JSON veya form-data alabilir
     $inputData = file_get_contents('php://input');
     $data = json_decode($inputData, true);

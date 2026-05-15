@@ -17,14 +17,25 @@ define('SMTP_PASS', 'SMTP_PASSWORD_HERE');
 define('SMTP_FROM_EMAIL', 'bilgi@rawlabs.com.tr');
 define('SMTP_FROM_NAME', 'Rawlabs');
 
-// Banka Sanal POS ayarları (Örnek)
-define('POS_PROVIDER', 'EXAMPLE_BANK');
-define('POS_MERCHANT_ID', 'MERCHANT_ID_HERE');
-define('POS_TERMINAL_ID', 'TERMINAL_ID_HERE');
-define('POS_STORE_KEY', 'STORE_KEY_HERE');
-define('POS_API_URL', 'https://api.examplebank.com/pos');
-define('POS_SUCCESS_URL', SITE_URL . '/api/payment-callback.php?status=success');
-define('POS_FAIL_URL', SITE_URL . '/api/payment-callback.php?status=fail');
+// Ödeme Ayarları
+define('PAYMENT_PROVIDER', 'kuveytturk'); // 'mock' veya 'kuveytturk'
+define('KUVEYT_MODE', 'test'); // 'test' veya 'live'
+define('KUVEYT_MERCHANT_ID', '756009'); // Mağaza No
+define('KUVEYT_CUSTOMER_ID', '95922770'); // Müşteri No
+define('KUVEYT_USERNAME', 'VP755237'); // API Kullanıcı Adı
+define('KUVEYT_PASSWORD', 'BURAYA_GERCEK_SIFRE_GELECEK'); // API Şifresi (Sunucudaki config.php'de doldurun!)
+
+// Kuveyt Türk Uç Noktaları (Endpoints)
+define('KUVEYT_3D_PAY_URL_TEST', 'https://boatest.kuveytturk.com.tr/boa.virtualpos.services/Home/ThreeDModelPayGate');
+define('KUVEYT_3D_PROVISION_URL_TEST', 'https://boatest.kuveytturk.com.tr/boa.virtualpos.services/Home/ThreeDModelProvisionGate');
+define('KUVEYT_3D_PAY_URL_LIVE', 'https://sanalpos.kuveytturk.com.tr/ServiceGateWay/Home/ThreeDModelPayGate');
+define('KUVEYT_3D_PROVISION_URL_LIVE', 'https://sanalpos.kuveytturk.com.tr/ServiceGateWay/Home/ThreeDModelProvisionGate');
+
+// Callback ve Sonuç Sayfaları
+define('KUVEYT_OK_URL', SITE_URL . '/api/payment-callback.php');
+define('KUVEYT_FAIL_URL', SITE_URL . '/api/payment-callback.php');
+define('KUVEYT_SUCCESS_PAGE', SITE_URL . '/api/payment-success.php');
+define('KUVEYT_FAIL_PAGE', SITE_URL . '/api/payment-failed.php');
 
 // Kullanıcı Auth Ayarları
 define('USER_STORAGE_PATH', __DIR__ . '/users/users.json');
