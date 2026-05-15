@@ -39,8 +39,6 @@
     .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; color: var(--text); }
     .summary-total { display: flex; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 2px solid #ddd; font-weight: 700; font-size: 1.3rem; color: var(--text-dark); }
     
-    .btn-checkout-wa { display: block; width: 100%; text-align: center; background: #25D366; color: white; padding: 14px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 24px; transition: background 0.2s; border: none; cursor: pointer; font-size: 0.95rem; }
-    .btn-checkout-wa:hover { background: #128C7E; color: white; }
     
     .btn-checkout-cc { display: block; width: 100%; text-align: center; background: var(--gradient); color: white; padding: 14px; border-radius: 8px; border: none; font-weight: 600; margin-top: 12px; cursor: pointer; transition: opacity 0.2s; font-size: 0.95rem; }
     .btn-checkout-cc:hover { opacity: 0.92; }
@@ -169,8 +167,6 @@
   <script src="js/main.js"></script>
   <script src="js/order.js"></script>
   <script>
-    const WHATSAPP_PHONE = "905324206635";
-    
     document.addEventListener('DOMContentLoaded', () => {
       renderCartPage();
     });
@@ -206,13 +202,13 @@
       const shippingFee = totalAmount >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
       const grandTotal = totalAmount + shippingFee;
       
-      // Sepet temizleme/senkronizasyon (Eğer kaldırılmış ürün varsa sepetten uçar)
+      // Sepet temizleme/senkronizasyon
       if (validCartItems.length !== cart.length) {
         saveCart(validCartItems.map(i => ({slug: i.slug, quantity: i.quantity})));
       }
 
       if (validCartItems.length === 0) {
-        // Sepet boşsa sipariş formunu gizle
+        // Sepet boşsa her şeyi gizle
         const orderSection = document.getElementById('order-checkout-section');
         if (orderSection) orderSection.style.display = 'none';
 
@@ -220,7 +216,7 @@
           <div class="empty-cart">
             <div class="empty-cart-icon">🛒</div>
             <h2>Sepetiniz şu an boş.</h2>
-            <p style="color:var(--text-light); margin-bottom:24px;">Sepetinizde ürün bulunmamaktadır. Alışverişe başlamak için mağazayı ziyaret edin.</p>
+            <p style="color:var(--text-light); margin-bottom:24px;">Sepetinizde ürün bulunmamaktadır.</p>
             <a href="magaza.html" class="btn btn-primary">Alışverişe Devam Et</a>
           </div>
         `;
@@ -276,21 +272,15 @@
             <span>Genel Toplam</span>
             <span>₺${formatPrice(grandTotal)}</span>
           </div>
-          ${shippingFee === 0 ? '' : '<p style="font-size:0.78rem; color:var(--text-lighter); margin-top:8px; text-align:center;">3.000 TL ve üzeri siparişlerde kargo ücretsiz!</p>'}
-          <button type="button" class="btn btn-primary" onclick="scrollToOrderForm()" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.95rem; margin-bottom: 12px; border:none;">
-            🚀 Teslimat Bilgilerini Gir →
+          ${shippingFee === 0 ? '' : '<p style="font-size:0.75rem; color:var(--text-lighter); margin-top:8px; text-align:center;">3.000 TL ve üzeri kargo ücretsiz!</p>'}
+          
+          <button type="button" class="btn btn-primary" id="confirm-cart-btn" onclick="confirmCart()" style="width: 100%; justify-content: center; padding: 16px; font-size: 1.05rem; border:none; margin-top: 12px;">
+            Sepeti Onayla →
           </button>
-          <button class="btn-checkout-wa" onclick="checkoutWithWhatsApp()" style="margin-top: 0; background:#f0f0f0; color:#444; border:1px solid #ddd;">
-            💬 WhatsApp İle Hızlı Sipariş
-          </button>
-          <button type="button" class="btn-checkout-cc" onclick="showCcInfo()" style="margin-top: 10px; background:none; color:var(--text-light); border:1px solid #eee; font-size:0.85rem;">
-            💳 Kredi Kartı (Yakında)
-          </button>
-          <div id="cc-info-box" style="display: none; margin-top: 16px; padding: 14px; background: #fff8f8; border-left: 4px solid var(--primary); border-radius: 6px; font-size: 0.85rem; color: var(--secondary-dark); line-height: 1.5; text-align: left;">
-            <strong>💳 Altyapı Yakında Aktif!</strong><br>
-            Kredi kartı ile güvenli ödeme altyapısı yakında aktif olacaktır. Şimdilik siparişinizi WhatsApp üzerinden tamamlayabilirsiniz.
-          </div>
-          <p style="font-size:0.8rem; color:#777; margin-top:16px; text-align:center;">Siparişiniz WhatsApp üzerinden onaylanacaktır.</p>
+          
+          <p style="font-size:0.75rem; color:#777; margin-top:16px; text-align:center; line-height: 1.4;">
+            Bir sonraki adımda teslimat bilgilerinizi girerek ödemeye geçebilirsiniz.
+          </p>
         </div>
       `;
 
@@ -300,10 +290,12 @@
           ${summaryHtml}
         </div>
       `;
-
-      // Sepet doluysa sipariş formunu göster
+      
+      // Sayfa her render edildiğinde (adet değişimi vb.) formun görünürlüğünü koru veya gizle
       const orderSection = document.getElementById('order-checkout-section');
-      if (orderSection) orderSection.style.display = 'block';
+      if (orderSection && orderSection.style.display !== 'block') {
+        orderSection.style.display = 'none';
+      }
     }
 
     window.updateItemQuantity = function(slug, change) {
@@ -311,7 +303,7 @@
       let item = cart.find(i => i.slug === slug);
       if (item) {
         item.quantity += change;
-        if (item.quantity < 1) item.quantity = 1; // En az 1
+        if (item.quantity < 1) item.quantity = 1;
         saveCart(cart);
         renderCartPage();
       }
@@ -324,53 +316,22 @@
       renderCartPage();
     };
 
-    window.checkoutWithWhatsApp = function() {
-      let cart = getCart();
-      if(cart.length === 0) return;
+    window.confirmCart = function() {
+      const orderSection = document.getElementById('order-checkout-section');
+      const confirmBtn = document.getElementById('confirm-cart-btn');
       
-      const FREE_SHIPPING_THRESHOLD = 3000;
-      const SHIPPING_COST = 300;
-
-      let message = "Merhaba Rawlabs, web sitenizden aşağıdaki ürünleri sipariş vermek istiyorum:\n\n";
-      let total = 0;
-      
-      cart.forEach(item => {
-        const product = getProductBySlug(item.slug);
-        if(product) {
-          const price = product.salePrice ? product.salePrice : product.price;
-          const itemTotal = price * item.quantity;
-          message += `${item.quantity} x ${product.name} - ₺${formatPrice(itemTotal)}\n`;
-          total += itemTotal;
+      if (orderSection) {
+        orderSection.style.display = 'block';
+        orderSection.scrollIntoView({ behavior: 'smooth' });
+        
+        if (confirmBtn) {
+          confirmBtn.innerHTML = '✅ Sepet Onaylandı';
+          confirmBtn.style.opacity = '0.7';
+          confirmBtn.style.pointerEvents = 'none';
         }
-      });
 
-      const shippingFee = total >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-      const grandTotal = total + shippingFee;
-
-      message += `\nÜrün Toplamı: ₺${formatPrice(total)}`;
-      message += `\nKargo: ${shippingFee === 0 ? 'Ücretsiz' : '₺' + formatPrice(shippingFee)}`;
-      message += `\nGenel Toplam: ₺${formatPrice(grandTotal)}`;
-      message += `\n\nLütfen siparişimi işleme alır mısınız?`;
-      
-      const encodedMessage = encodeURIComponent(message);
-      const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodedMessage}`;
-      
-      window.open(url, '_blank');
-    };
-
-    window.showCcInfo = function() {
-      const infoBox = document.getElementById('cc-info-box');
-      if (infoBox) {
-        infoBox.style.display = 'block';
-      }
-    };
-
-    window.scrollToOrderForm = function() {
-      const formEl = document.getElementById('order-checkout-section');
-      if (formEl) {
-        formEl.scrollIntoView({ behavior: 'smooth' });
         const firstInput = document.getElementById('order-fullname');
-        if (firstInput) setTimeout(() => firstInput.focus(), 300);
+        if (firstInput) setTimeout(() => firstInput.focus(), 500);
       }
     };
   </script>
