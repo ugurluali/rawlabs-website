@@ -62,15 +62,15 @@ function renderOrders(orders, container) {
     
     // Basit durum çevirileri
     if (order.status === 'created' || order.status === 'payment_pending') {
-      statusBadge = '<span style="background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Ödeme Bekliyor</span>';
+      statusBadge = '<span style="background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; white-space: nowrap;">Ödeme Bekliyor</span>';
     } else if (order.status === 'paid_test_success' || order.status === 'paid') {
-      statusBadge = '<span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Onaylandı / Ödendi</span>';
-    } else if (order.status === 'payment_failed') {
-      statusBadge = '<span style="background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Ödeme Başarısız</span>';
+      statusBadge = '<span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; white-space: nowrap;">Onaylandı / Ödendi</span>';
+    } else if (order.status === 'payment_failed' || order.status === 'payment_test_failed' || order.status === 'failed') {
+      statusBadge = '<span style="background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; white-space: nowrap;">Ödeme Başarısız</span>';
     } else if (order.status === 'shipped') {
-      statusBadge = '<span style="background: #cce5ff; color: #004085; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Kargoya Verildi</span>';
+      statusBadge = '<span style="background: #cce5ff; color: #004085; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; white-space: nowrap;">Kargoya Verildi</span>';
     } else {
-      statusBadge = `<span style="background: #e2e3e5; color: #383d41; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">${escapeHTML(order.status)}</span>`;
+      statusBadge = `<span style="background: #e2e3e5; color: #383d41; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; white-space: nowrap;">${escapeHTML(order.status)}</span>`;
     }
 
     const price = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: order.currency }).format(order.grandTotal);
