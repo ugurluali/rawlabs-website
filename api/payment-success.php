@@ -16,8 +16,12 @@ try {
     $orderNumber = $_GET['order'] ?? '';
     if (!preg_match('/^RAW-\d{8}-\d{4}$/', $orderNumber)) throw new Exception('Geçersiz sipariş.');
 
-    $orderFilePath = $storagePath . $orderNumber . '.json';
-    if (!file_exists($orderFilePath)) throw new Exception('Sipariş bulunamadı.');
+    // Daha güvenli dosya yolu oluşturma
+    $orderFilePath = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . $orderNumber . '.json';
+    
+    if (!file_exists($orderFilePath)) {
+        throw new Exception('Sipariş bulunamadı.');
+    }
 
     $orderData = json_decode(file_get_contents($orderFilePath), true);
     $orderData['status'] = 'paid_test_success';
