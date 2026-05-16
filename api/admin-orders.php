@@ -363,6 +363,13 @@ function getOrderStatusBadge($status) {
             </table>
         </div>
 
+        <div class="detail-section">
+            <h3>İşlem Geçmişi</h3>
+            <div id="m_history" style="font-size:0.85rem; max-height:200px; overflow-y:auto; background:#f9fafb; padding:10px; border-radius:4px; border:1px solid #e5e7eb;">
+                Henüz işlem geçmişi yok.
+            </div>
+        </div>
+
         <div class="grid-2">
             <div class="detail-section">
                 <h3>Mail Durumu</h3>
@@ -526,6 +533,26 @@ function openModal(btn) {
         document.getElementById('m_mail_cust').innerHTML = mStat.customerSent ? '<span style="color:green;font-weight:bold;">Gönderildi</span>' : '<span style="color:red">Gönderilmedi</span>';
         document.getElementById('m_mail_error').innerText = mStat.error || 'Yok';
     }
+
+    // Durum Geçmişi
+    let historyHtml = '';
+    let history = order.statusHistory || [];
+    if (history.length > 0) {
+        // En yeni üstte
+        [...history].reverse().forEach(h => {
+            let dateStr = h.updatedAt ? new Date(h.updatedAt).toLocaleString('tr-TR') : '-';
+            historyHtml += `<div style="border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:5px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+                    <span style="font-weight:bold; color:#374151;">${escapeHtml(h.label)}</span>
+                    <span class="muted" style="font-size:0.75rem;">${escapeHtml(dateStr)}</span>
+                </div>
+                <div style="color:#6b7280;">${escapeHtml(h.note || 'Not girilmedi')}</div>
+            </div>`;
+        });
+    } else {
+        historyHtml = '<span class="muted">Henüz işlem geçmişi yok.</span>';
+    }
+    document.getElementById('m_history').innerHTML = historyHtml;
 
     // PDF Linki
     let pdfArea = document.getElementById('m_pdf_area');
