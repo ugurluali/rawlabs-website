@@ -30,17 +30,21 @@ try {
         $authResponse = $_POST['AuthenticationResponse'] ?? '';
         
         // Ham veri güvenli analizi
-        kuveytSafeDebugStringAnalysis($authResponse, 'Ham AuthenticationResponse');
+        if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+            kuveytSafeDebugStringAnalysis($authResponse, 'Ham AuthenticationResponse');
+        }
         
         $xmlString = kuveytNormalizeAuthenticationResponse($authResponse);
         
         // Normalize sonrası veri güvenli analizi
-        kuveytSafeDebugStringAnalysis($xmlString, 'Normalize Sonrası XML');
+        if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+            kuveytSafeDebugStringAnalysis($xmlString, 'Normalize Sonrası XML');
+        }
 
         $response = kuveytParseXml($xmlString);
 
         if (!$response) {
-            error_log("Kuveyt Türk Debug: simplexml parse başarısız.");
+            error_log("Kuveyt Türk Hata: simplexml parse başarısız. Fallback parse dahi çalışmadı.");
             // Parse başarısızsa kullanıcıyı beyaz ekranda bırakma
             $merchantOrderId = $_GET['order'] ?? '';
             
@@ -78,7 +82,9 @@ try {
             die('Geçersiz banka yanıtı. İşlem doğrulanamadı.');
         }
 
-        error_log("Kuveyt Türk Debug: simplexml parse başarılı.");
+        if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+            error_log("Kuveyt Türk Debug: Response başarıyla parse edildi.");
+        }
 
         $responseCode = $response['ResponseCode'] ?? '';
         $responseMessage = $response['ResponseMessage'] ?? '';
@@ -87,32 +93,45 @@ try {
         $orderIdFromBank = $response['OrderId'] ?? ($response['VPosMessage']['OrderId'] ?? '');
         $hashDataFromBank = $response['HashData'] ?? '';
         $bankHashPassword = $response['VPosMessage']['HashPassword'] ?? null;
+        $rootTag = $response['_root'] ?? '';
+
+        if (!preg_match('/^RAW-\d{8}-\d{4}$/', $merchantOrderId)) {
+            // Eğer parametreden gelmiyorsa veya geçersizse GET'ten order fallback yapalım
+            $merchantOrderId = $_GET['order'] ?? '';
+            if (!preg_match('/^RAW-\d{8}-\d{4}$/', $merchantOrderId)) {
+                die('Geçersiz sipariş formatı.');
+            }
+        }
 
         // 2. Base64 '+' karakter normalizasyonu
-        if (strpos($hashDataFromBank, ' ') !== false) {
-            error_log("Kuveyt Türk Debug: HashData içinde boşluk var, '+' ile değiştiriliyor.");
+        if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+            if (strpos($hashDataFromBank, ' ') !== false) {
+                error_log("Kuveyt Türk Debug: HashData içinde boşluk var, '+' ile değiştiriliyor.");
+            }
         }
         $hashDataFromBank = str_replace(' ', '+', trim($hashDataFromBank));
         
         if ($bankHashPassword !== null) {
             $bankHashPassword = str_replace(' ', '+', trim($bankHashPassword));
-            error_log("Kuveyt Türk Debug: Bank HashPassword bulundu ve normalize edildi.");
+            if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+                error_log("Kuveyt Türk Debug: Bank HashPassword bulundu ve normalize edildi.");
+            }
         }
         
         $md = str_replace(' ', '+', trim($md));
 
         // 3. Güvenli Debug Logları
-        error_log("Kuveyt Türk Debug: MerchantOrderId: " . ($merchantOrderId ? 'Var' : 'Yok') . ", MD: " . ($md ? 'Var' : 'Yok') . ", HashData: " . ($hashDataFromBank ? 'Var' : 'Yok') . ", ResponseCode: " . $responseCode);
-
-        if (!preg_match('/^RAW-\d{8}-\d{4}$/', $merchantOrderId)) {
-            die('Geçersiz sipariş formatı.');
+        if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+            error_log("Kuveyt Türk Debug: MerchantOrderId: " . ($merchantOrderId ? 'Var' : 'Yok') . ", MD: " . ($md ? 'Var' : 'Yok') . ", HashData: " . ($hashDataFromBank ? 'Var' : 'Yok') . ", ResponseCode: " . $responseCode);
         }
 
         // Debug için genel log
-        if (!empty($bankHashPassword)) {
-            error_log("Response1 hash source: bank HashPassword");
-        } else {
-            error_log("Response1 hash source: local password hash fallback");
+        if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+            if (!empty($bankHashPassword)) {
+                error_log("Response1 hash source: bank HashPassword");
+            } else {
+                error_log("Response1 hash source: local password hash fallback");
+            }
         }
 
         $orderFilePath = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . $merchantOrderId . '.json';
@@ -134,7 +153,7 @@ try {
 
         // HASH KONTROLÜ ÖNCESİ EKSİK VERİ KONTROLÜ (Transaction Response Contract)
         if (empty($hashDataFromBank) && empty($md) && empty($bankHashPassword)) {
-            error_log("Kuveyt Türk Debug: Hash doğrulaması atlandı, HashData/MD yok; banka transaction response contract döndü.");
+            error_log("Kuveyt Türk Güvenlik Uyarısı: HashData/MD yok; banka transaction response contract döndü.");
             
             $orderData['status'] = 'payment_failed';
             $orderData['paymentStatus'] = 'failed';
@@ -175,6 +194,9 @@ try {
 
         if ($responseCode === '00') {
             // 3D Doğrulama Başarılı -> Şimdi ProvisionGate (Request 2)
+            if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+                error_log("Kuveyt Türk Debug: Sipariş $merchantOrderId için provizyon (Request 2) atılıyor...");
+            }
             $amount = round((float)$orderData['summary']['grandTotal'] * 100);
             $merchantId = KUVEYT_MERCHANT_ID;
             $customerId = KUVEYT_CUSTOMER_ID;

@@ -89,7 +89,9 @@ try {
         // CardType formatı banka tarafından Case-Sensitive bekleniyor: Visa, MasterCard, Troy
         // "VISA" olarak değiştirmiyoruz!
         
-        error_log("Kuveyt Türk Debug [XML Request 1]: Amount=$amount, CurrencyCode=0949, TransactionType=Sale, InstallmentCount=0, CardType=$cardType");
+        if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+            error_log("Kuveyt Türk Debug [XML Request 1]: Amount=$amount, CurrencyCode=0949, TransactionType=Sale, InstallmentCount=0, CardType=$cardType");
+        }
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>
 <KuveytTurkVPosMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">

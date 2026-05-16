@@ -16,14 +16,15 @@ function kuveytHashRequest1($merchantId, $merchantOrderId, $amount, $okUrl, $fai
     $encodedHashStr = mb_convert_encoding($hashString, 'ISO-8859-9', 'UTF-8');
     $hashData = base64_encode(sha1($encodedHashStr, true));
 
-    // Güvenli Debug
-    $okDomain = parse_url($okUrl, PHP_URL_HOST) ?? 'bilinmiyor';
-    $failDomain = parse_url($failUrl, PHP_URL_HOST) ?? 'bilinmiyor';
-    $pwdLen = strlen($password);
-    $hPwdLen = strlen($hashedPassword);
-    
-    error_log("Kuveyt Türk Debug [Request 1 Hash]: MerchantId=$merchantId, MerchantOrderId=$merchantOrderId, Amount=$amount, OkDomain=$okDomain, FailDomain=$failDomain, UserName=$userName, PasswordLength=$pwdLen, HashedPwdLength=$hPwdLen");
-    error_log("Kuveyt Türk Debug [Request 1 HashString]: ToplamUzunluk=" . strlen($hashString) . ", AlanSirasi: MerchantId+MerchantOrderId+Amount+OkUrl+FailUrl+UserName+HashedPassword");
+    if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+        $okDomain = parse_url($okUrl, PHP_URL_HOST) ?? 'bilinmiyor';
+        $failDomain = parse_url($failUrl, PHP_URL_HOST) ?? 'bilinmiyor';
+        $pwdLen = strlen($password);
+        $hPwdLen = strlen($hashedPassword);
+        
+        error_log("Kuveyt Türk Debug [Request 1 Hash]: MerchantId=$merchantId, MerchantOrderId=$merchantOrderId, Amount=$amount, OkDomain=$okDomain, FailDomain=$failDomain, UserName=$userName, PasswordLength=$pwdLen, HashedPwdLength=$hPwdLen");
+        error_log("Kuveyt Türk Debug [Request 1 HashString]: ToplamUzunluk=" . strlen($hashString) . ", AlanSirasi: MerchantId+MerchantOrderId+Amount+OkUrl+FailUrl+UserName+HashedPassword");
+    }
 
     return $hashData;
 }
@@ -53,8 +54,14 @@ function kuveytVerifyResponse1Hash($merchantOrderId, $responseCode, $orderId, $r
     if (empty($receivedHash)) return false;
     
     if (!empty($bankHashPassword)) {
+        if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+            error_log("Kuveyt Türk Debug: Hash doğrulaması bankanın VPosMessage.HashPassword değeri kullanılarak yapılıyor.");
+        }
         $expectedHash = kuveytHashResponse1FromHashPassword($merchantOrderId, $responseCode, $orderId, $bankHashPassword);
     } else {
+        if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+            error_log("Kuveyt Türk Debug: Hash doğrulaması yerel KUVEYT_PASSWORD hash'i kullanılarak yapılıyor (Fallback).");
+        }
         $expectedHash = kuveytHashResponse1($merchantOrderId, $responseCode, $orderId, $password);
     }
     
@@ -88,10 +95,12 @@ function kuveytPostXml($url, $xmlString) {
     curl_close($ch);
     
     if ($error) {
+        error_log("Kuveyt Türk Sunucu Bağlantı Hatası: " . $error);
         throw new Exception("Kuveyt Türk Sunucu Bağlantı Hatası: " . $error);
     }
     
     if ($httpCode < 200 || $httpCode >= 300) {
+        error_log("Banka sunucusu HTTP hatası döndürdü. Kod: " . $httpCode);
         throw new Exception("Banka sunucusu HTTP hatası döndürdü. Kod: " . $httpCode);
     }
     
@@ -99,6 +108,8 @@ function kuveytPostXml($url, $xmlString) {
 }
 
 function kuveytSafeDebugStringAnalysis($value, $label = 'String Analizi') {
+    if (!defined('KUVEYT_DEBUG') || KUVEYT_DEBUG !== true) return;
+
     $isEmpty = empty($value) ? 'Evet' : 'Hayır';
     $len = strlen($value ?? '');
     $trimLen = strlen(trim($value ?? ''));
@@ -175,13 +186,15 @@ function kuveytParseXml($xmlString) {
         $firstTagName = $matches[1];
     }
 
-    $hasResponseCode = strpos($xmlString, '<ResponseCode') !== false ? 'Evet' : 'Hayır';
-    $hasResponseMessage = strpos($xmlString, '<ResponseMessage') !== false ? 'Evet' : 'Hayır';
-    $hasHashData = strpos($xmlString, '<HashData') !== false ? 'Evet' : 'Hayır';
-    $hasMD = strpos($xmlString, '<MD') !== false ? 'Evet' : 'Hayır';
-    $hasVPosMessage = strpos($xmlString, '<VPosMessage') !== false ? 'Evet' : 'Hayır';
+    if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+        $hasResponseCode = strpos($xmlString, '<ResponseCode') !== false ? 'Evet' : 'Hayır';
+        $hasResponseMessage = strpos($xmlString, '<ResponseMessage') !== false ? 'Evet' : 'Hayır';
+        $hasHashData = strpos($xmlString, '<HashData') !== false ? 'Evet' : 'Hayır';
+        $hasMD = strpos($xmlString, '<MD') !== false ? 'Evet' : 'Hayır';
+        $hasVPosMessage = strpos($xmlString, '<VPosMessage') !== false ? 'Evet' : 'Hayır';
 
-    error_log("Kuveyt Türk Debug [XML Yapı Analizi]: IlkTag=$firstTagName, AcilisTag=$openingTagCount, KapanisTag=$closingTagCount, GecersizAmpersand=$invalidAmpersandCount, RespCode=$hasResponseCode, RespMsg=$hasResponseMessage, HashData=$hasHashData, MD=$hasMD, VPos=$hasVPosMessage");
+        error_log("Kuveyt Türk Debug [XML Yapı Analizi]: IlkTag=$firstTagName, AcilisTag=$openingTagCount, KapanisTag=$closingTagCount, GecersizAmpersand=$invalidAmpersandCount, RespCode=$hasResponseCode, RespMsg=$hasResponseMessage, HashData=$hasHashData, MD=$hasMD, VPos=$hasVPosMessage");
+    }
 
     // 2. Invalid Ampersand Düzeltmesi
     $invalidAmpersandFixed = 'Hayır';
@@ -191,7 +204,9 @@ function kuveytParseXml($xmlString) {
         $invalidAmpersandFixed = 'Evet';
     }
     
-    error_log("Kuveyt Türk Debug [Ampersand Düzeltme]: Uygulandı=$invalidAmpersandFixed, Adet=$fixedAmpersandCount");
+    if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+        error_log("Kuveyt Türk Debug [Ampersand Düzeltme]: Uygulandı=$invalidAmpersandFixed, Adet=$fixedAmpersandCount");
+    }
     
     libxml_use_internal_errors(true);
     // Güvenlik: XXE saldırılarını engellemek için LIBXML_NONET kullanılıyor
@@ -205,7 +220,7 @@ function kuveytParseXml($xmlString) {
         $errorCount1 = count($errors);
         if ($errorCount1 > 0) {
             $err = $errors[0];
-            error_log(sprintf("Kuveyt Türk Debug: libxml Hata 1 [Code: %d, Level: %d, Line: %d, Col: %d]", $err->code, $err->level, $err->line, $err->column));
+            error_log(sprintf("Kuveyt Türk Hata: libxml Hata 1 [Code: %d, Level: %d, Line: %d, Col: %d]", $err->code, $err->level, $err->line, $err->column));
         }
         libxml_clear_errors();
         
@@ -218,9 +233,9 @@ function kuveytParseXml($xmlString) {
             $errors2 = libxml_get_errors();
             if (count($errors2) > 0) {
                 $err2 = $errors2[0];
-                error_log(sprintf("Kuveyt Türk Debug: libxml Hata 2 [Code: %d, Level: %d, Line: %d, Col: %d]", $err2->code, $err2->level, $err2->line, $err2->column));
+                error_log(sprintf("Kuveyt Türk Hata: libxml Hata 2 [Code: %d, Level: %d, Line: %d, Col: %d]", $err2->code, $err2->level, $err2->line, $err2->column));
             }
-            error_log("Kuveyt Türk Debug: XML Parse (Wrapper ile de) başarısız. Libxml hata sayısı: " . count($errors2));
+            error_log("Kuveyt Türk Hata: XML Parse (Wrapper ile de) başarısız. Libxml hata sayısı: " . count($errors2));
             libxml_clear_errors();
             
             // 3. Fallback Parse: Regex Extractor
@@ -241,12 +256,14 @@ function kuveytParseXml($xmlString) {
             $safeLogStr .= "HashData=" . (isset($response['HashData']) ? 'Var' : 'Yok') . ", ";
             $safeLogStr .= "MD=" . (isset($response['MD']) ? 'Var' : 'Yok');
             
-            error_log("Kuveyt Türk Debug [Regex Fallback Parser]: " . rtrim($safeLogStr, ', '));
+            error_log("Kuveyt Türk Hata [Regex Fallback Parser]: " . rtrim($safeLogStr, ', '));
             return $response;
         }
     }
     
-    error_log("Kuveyt Türk Debug: XML Parse başarılı. WrapperDendi=$usedWrapper, DeclarationTemizlendi=$hasDeclaration, IlkHataSayisi=$errorCount1");
+    if (defined('KUVEYT_DEBUG') && KUVEYT_DEBUG === true) {
+        error_log("Kuveyt Türk Debug: XML Parse başarılı. WrapperDendi=$usedWrapper, DeclarationTemizlendi=$hasDeclaration, IlkHataSayisi=$errorCount1");
+    }
     
     $json = json_encode($xml);
     return json_decode($json, true);
