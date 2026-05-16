@@ -76,6 +76,78 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
+// CSRF Token Oluştur
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Sipariş Güncelleme İşlemi (Faz 4)
+$updateMsg = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_order') {
+    if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $updateMsg = "<div style='color:#dc2626; padding:10px; background:#fee2e2; border-radius:4px; margin-bottom:15px;'>Güvenlik doğrulaması başarısız (CSRF). Lütfen sayfayı yenileyin.</div>";
+    } else {
+        $orderId = trim($_POST['orderId'] ?? '');
+        // Güvenlik: Path traversal engelleme
+        if (preg_match('/^RAW-\d{8}-\d{4}$/', $orderId)) {
+            $storagePath = defined('ORDER_STORAGE_PATH') ? ORDER_STORAGE_PATH : __DIR__ . '/orders/';
+            $orderFile = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . $orderId . '.json';
+            
+            if (file_exists($orderFile)) {
+                $fp = fopen($orderFile, 'c+');
+                if ($fp) {
+                    if (flock($fp, LOCK_EX)) {
+                        $size = filesize($orderFile);
+                        $content = fread($fp, $size);
+                        $data = json_decode($content, true);
+                        
+                        if ($data) {
+                            $newStatus = trim($_POST['orderStatus'] ?? '');
+                            $allowedStatuses = ['new', 'preparing', 'shipped', 'completed', 'cancelled'];
+                            if (!in_array($newStatus, $allowedStatuses)) $newStatus = 'new';
+                            
+                            $data['orderStatus'] = $newStatus;
+                            $data['updatedAt'] = date('c');
+                            
+                            if ($newStatus === 'shipped') {
+                                $data['cargoCompany'] = trim(strip_tags($_POST['cargoCompany'] ?? ''));
+                                $data['trackingNumber'] = trim(strip_tags($_POST['trackingNumber'] ?? ''));
+                                $data['trackingUrl'] = trim(strip_tags($_POST['trackingUrl'] ?? ''));
+                            }
+                            
+                            $note = trim(strip_tags($_POST['updateNote'] ?? ''));
+                            
+                            if (!isset($data['statusHistory'])) $data['statusHistory'] = [];
+                            
+                            $statusLabels = [
+                                'new' => 'Yeni',
+                                'preparing' => 'Hazırlanıyor',
+                                'shipped' => 'Kargoya Verildi',
+                                'completed' => 'Tamamlandı',
+                                'cancelled' => 'İptal'
+                            ];
+                            
+                            $data['statusHistory'][] = [
+                                'status' => $newStatus,
+                                'label' => $statusLabels[$newStatus],
+                                'updatedAt' => date('c'),
+                                'note' => $note
+                            ];
+                            
+                            ftruncate($fp, 0);
+                            rewind($fp);
+                            fwrite($fp, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                            $updateMsg = "<div style='color:#059669; padding:10px; background:#d1fae5; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Sipariş ({$orderId}) başarıyla güncellendi.</div>";
+                        }
+                        flock($fp, LOCK_UN);
+                    }
+                    fclose($fp);
+                }
+            }
+        }
+    }
+}
+
 // Oturum açık, verileri yükle
 $storagePath = defined('ORDER_STORAGE_PATH') ? ORDER_STORAGE_PATH : __DIR__ . '/orders/';
 $files = glob(rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . 'RAW-*.json');
@@ -121,6 +193,18 @@ function getStatusBadge($status) {
     return "<span style='background: {$s['bg']}; color: {$s['color']}; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;'>" . esc($s['text']) . "</span>";
 }
 
+function getOrderStatusBadge($status) {
+    $map = [
+        'new' => ['bg' => '#e2e8f0', 'color' => '#1e293b', 'text' => 'Yeni'],
+        'preparing' => ['bg' => '#ffedd5', 'color' => '#9a3412', 'text' => 'Hazırlanıyor'],
+        'shipped' => ['bg' => '#e0e7ff', 'color' => '#3730a3', 'text' => 'Kargoya Verildi'],
+        'completed' => ['bg' => '#dcfce7', 'color' => '#166534', 'text' => 'Tamamlandı'],
+        'cancelled' => ['bg' => '#fee2e2', 'color' => '#991b1b', 'text' => 'İptal']
+    ];
+    $s = $map[$status] ?? $map['new'];
+    return "<span style='background: {$s['bg']}; color: {$s['color']}; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;'>" . esc($s['text']) . "</span>";
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -156,6 +240,8 @@ function getStatusBadge($status) {
     <h1>Sipariş Takip Paneli</h1>
     <a href="?action=logout" class="btn btn-logout">Çıkış Yap</a>
 </div>
+
+<?= $updateMsg ?>
 
 <input type="text" id="searchInput" class="search-box" placeholder="Sipariş no, isim veya e-posta ara...">
 
@@ -209,7 +295,7 @@ function getStatusBadge($status) {
                         <span class="muted"><?= esc($customer['email'] ?? '') ?></span>
                     </td>
                     <td>₺<?= $total ?></td>
-                    <td><?= getStatusBadge($o['status'] ?? '') ?></td>
+                    <td><?= getOrderStatusBadge($o['orderStatus'] ?? 'new') ?></td>
                     <td>
                         <?= esc($o['paymentStatus'] ?? '-') ?><br>
                         <?php if(!empty($o['provider'])): ?>
@@ -245,10 +331,18 @@ function getStatusBadge($status) {
             </div>
             <div class="detail-section">
                 <h3>Sipariş & Ödeme Bilgisi</h3>
-                <p><strong>Durum:</strong> <span id="m_status"></span></p>
+                <p><strong>Ödeme:</strong> <span id="m_status"></span></p>
                 <p><strong>Ara Toplam:</strong> ₺<span id="m_sub"></span></p>
-                <p><strong>Kargo:</strong> ₺<span id="m_ship"></span></p>
+                <p><strong>Kargo Ücreti:</strong> ₺<span id="m_ship"></span></p>
                 <p><strong>Genel Toplam:</strong> ₺<span id="m_total"></span></p>
+                
+                <div id="m_cargo_details" style="display:none; background:#eef2ff; padding:10px; border-radius:4px; margin-top:10px; border:1px solid #c7d2fe;">
+                    <strong>Kargo Bilgileri</strong><br>
+                    <small>Firma: <span id="m_cargo_comp"></span></small><br>
+                    <small>Takip No: <span id="m_cargo_no"></span></small><br>
+                    <small>Link: <a href="#" id="m_cargo_link" target="_blank" style="color:#4f46e5; text-decoration:underline;">Takip Et</a></small>
+                </div>
+                
                 <div id="m_bank_details" style="display:none; background:#f3f4f6; padding:10px; border-radius:4px; margin-top:10px;">
                     <strong>Kuveyt Türk Referansları</strong><br>
                     <small>İşlem ID: <span id="m_txn"></span></small><br>
@@ -280,6 +374,51 @@ function getStatusBadge($status) {
                 <h3>Fatura / PDF</h3>
                 <div id="m_pdf_area">Bekleniyor...</div>
             </div>
+        </div>
+        
+        <div class="detail-section" style="background:#f9fafb; padding:15px; border-radius:6px; border:1px solid #e5e7eb; margin-top:20px;">
+            <h3>Siparişi Güncelle</h3>
+            <form method="POST" action="admin-orders.php">
+                <input type="hidden" name="action" value="update_order">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                <input type="hidden" name="orderId" id="f_orderId" value="">
+                
+                <div class="grid-2" style="margin-bottom:10px;">
+                    <div>
+                        <label style="display:block; margin-bottom:5px; font-size:0.9rem; font-weight:bold;">Sipariş Durumu</label>
+                        <select name="orderStatus" id="f_orderStatus" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;" onchange="toggleCargoFields(this.value)">
+                            <option value="new">Yeni</option>
+                            <option value="preparing">Hazırlanıyor</option>
+                            <option value="shipped">Kargoya Verildi</option>
+                            <option value="completed">Tamamlandı</option>
+                            <option value="cancelled">İptal</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block; margin-bottom:5px; font-size:0.9rem; font-weight:bold;">İşlem Notu (Opsiyonel)</label>
+                        <input type="text" name="updateNote" placeholder="Müşteriye iletilmez, iç nottur." style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+                    </div>
+                </div>
+                
+                <div id="cargoFields" style="display:none; background:#fff; padding:10px; border:1px solid #e5e7eb; border-radius:4px; margin-bottom:10px;">
+                    <div class="grid-2">
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-size:0.85rem;">Kargo Firması</label>
+                            <input type="text" name="cargoCompany" id="f_cargoCompany" placeholder="Örn: Yurtiçi Kargo" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-size:0.85rem;">Takip Numarası</label>
+                            <input type="text" name="trackingNumber" id="f_trackingNumber" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <label style="display:block; margin-bottom:5px; font-size:0.85rem;">Takip Linki (Opsiyonel)</label>
+                        <input type="url" name="trackingUrl" id="f_trackingUrl" placeholder="https://..." style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn" style="background:#10b981; color:white; width:100%;">Durumu Güncelle</button>
+            </form>
         </div>
     </div>
 </div>
@@ -338,6 +477,31 @@ function openModal(btn) {
         bankDiv.style.display = 'none';
     }
 
+    // Kargo Detayları Görüntüleme
+    let cargoDiv = document.getElementById('m_cargo_details');
+    if (order.orderStatus === 'shipped') {
+        cargoDiv.style.display = 'block';
+        document.getElementById('m_cargo_comp').innerText = order.cargoCompany || '-';
+        document.getElementById('m_cargo_no').innerText = order.trackingNumber || '-';
+        let link = document.getElementById('m_cargo_link');
+        if (order.trackingUrl) {
+            link.href = order.trackingUrl;
+            link.style.display = 'inline';
+        } else {
+            link.style.display = 'none';
+        }
+    } else {
+        cargoDiv.style.display = 'none';
+    }
+
+    // Güncelleme Formu Doldurma
+    document.getElementById('f_orderId').value = order.orderId;
+    document.getElementById('f_orderStatus').value = order.orderStatus || 'new';
+    document.getElementById('f_cargoCompany').value = order.cargoCompany || '';
+    document.getElementById('f_trackingNumber').value = order.trackingNumber || '';
+    document.getElementById('f_trackingUrl').value = order.trackingUrl || '';
+    toggleCargoFields(order.orderStatus || 'new');
+
     // Ürünler
     let itemsHtml = '';
     let items = order.items || [];
@@ -380,6 +544,11 @@ window.onclick = function(event) {
     if (event.target == modal) {
         closeModal();
     }
+}
+
+// Kargo alanlarını göster/gizle
+function toggleCargoFields(status) {
+    document.getElementById('cargoFields').style.display = (status === 'shipped') ? 'block' : 'none';
 }
 
 // XSS koruması (JS tarafı)
