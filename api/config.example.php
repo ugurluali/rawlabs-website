@@ -9,13 +9,14 @@
 define('SITE_URL', 'https://rawlabs.com.tr');
 define('ORDER_STORAGE_PATH', __DIR__ . '/orders/');
 
-// E-posta SMTP ayarları (TODO)
+// E-posta SMTP ayarları ve Bildirimler
 define('SMTP_HOST', 'mail.rawlabs.com.tr');
 define('SMTP_PORT', 465);
 define('SMTP_USER', 'bilgi@rawlabs.com.tr');
 define('SMTP_PASS', 'SMTP_PASSWORD_HERE');
 define('SMTP_FROM_EMAIL', 'bilgi@rawlabs.com.tr');
 define('SMTP_FROM_NAME', 'Rawlabs');
+define('ADMIN_EMAIL', 'bilgi@rawlabs.com.tr'); // Sipariş bildirimlerinin gideceği e-posta
 
 // Ödeme Ayarları
 define('PAYMENT_PROVIDER', 'kuveytturk'); // 'mock' veya 'kuveytturk'

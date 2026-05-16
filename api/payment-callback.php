@@ -252,6 +252,21 @@ try {
                         try { generateOrderPdf($orderData, $merchantOrderId, $pdfStoragePath); } catch (Exception $e) {}
                     }
 
+                    // Mail Gönderimi (Güvenli Try-Catch Bloğu)
+                    try {
+                        require_once __DIR__ . '/mailer.php';
+                        $mailResult = sendOrderSuccessEmails($orderData);
+                        $orderData['mailStatus'] = $mailResult;
+                    } catch (Throwable $e) {
+                        error_log("Mail Gönderim Hatası (Sipariş: $merchantOrderId)");
+                        $orderData['mailStatus'] = [
+                            'adminSent' => false,
+                            'customerSent' => false,
+                            'lastAttemptAt' => date('c'),
+                            'error' => "Mail gönderimi başarısız oldu"
+                        ];
+                    }
+
                     ftruncate($fp, 0);
                     rewind($fp);
                     fwrite($fp, json_encode($orderData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
@@ -377,6 +392,21 @@ try {
             } catch (Exception $e) {
                 error_log("PDF Üretim Hatası (Sipariş: $orderNumber): " . $e->getMessage());
             }
+        }
+
+        // Mail Gönderimi (Güvenli Try-Catch Bloğu)
+        try {
+            require_once __DIR__ . '/mailer.php';
+            $mailResult = sendOrderSuccessEmails($orderData);
+            $orderData['mailStatus'] = $mailResult;
+        } catch (Throwable $e) {
+            error_log("Mail Gönderim Hatası (Sipariş: $orderNumber)");
+            $orderData['mailStatus'] = [
+                'adminSent' => false,
+                'customerSent' => false,
+                'lastAttemptAt' => date('c'),
+                'error' => "Mail gönderimi başarısız oldu"
+            ];
         }
 
     } elseif ($status === 'failed') {
