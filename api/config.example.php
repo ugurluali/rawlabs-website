@@ -40,3 +40,8 @@ define('KUVEYT_FAIL_PAGE', SITE_URL . '/api/payment-failed.php');
 
 // Kullanıcı Auth Ayarları
 define('USER_STORAGE_PATH', __DIR__ . '/users/users.json');
+
+// Admin Panel Güvenliği
+// Şifre: admin123 (Bu hash örnektir. password_hash('şifreniz', PASSWORD_DEFAULT) ile üretin)
+define('ADMIN_PANEL_PASSWORD_HASH', '$2y$10$w85.gS2w0Rj3.W./VjJtK.bI17zH0pL92Z2qG56bQ/iYI3l6yBvF.');
+
