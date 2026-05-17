@@ -156,62 +156,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             $allowedStatuses = ['new', 'preparing', 'shipped', 'completed', 'cancelled'];
                             if (!in_array($newStatus, $allowedStatuses)) $newStatus = 'new';
                             
-                            $data['orderStatus'] = $newStatus;
-                            $data['updatedAt'] = date('c');
-                            
-                            if ($newStatus === 'shipped') {
-                                $data['cargoCompany'] = trim(strip_tags($_POST['cargoCompany'] ?? ''));
-                                $data['trackingNumber'] = trim(strip_tags($_POST['trackingNumber'] ?? ''));
-                                $data['trackingUrl'] = trim(strip_tags($_POST['trackingUrl'] ?? ''));
+                            // Backend Koruma: Ödemesi başarılı olmayan siparişler sadece cancelled yapılabilir
+                            if (($data['paymentStatus'] ?? '') !== 'success' && $newStatus !== 'cancelled') {
+                                $updateMsg = "<div style='color:#dc2626; padding:10px; background:#fee2e2; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Hata: Ödemesi başarılı olmayan siparişler sadece \"İptal\" durumuna alınabilir!</div>";
+                            } else {
+                                $data['orderStatus'] = $newStatus;
+                                $data['updatedAt'] = date('c');
                                 
-                                // Kargo maili durumu kontrolü ve gönderimi (Faz 5)
-                                if (!isset($data['shippingMailStatus'])) {
-                                    $data['shippingMailStatus'] = [
-                                        'sent' => false,
-                                        'sentAt' => null,
-                                        'error' => null
-                                    ];
-                                }
-                                
-                                if ($data['shippingMailStatus']['sent'] !== true) {
-                                    require_once __DIR__ . '/mailer.php';
-                                    $mailResult = sendShippingNotificationEmail($data);
+                                if ($newStatus === 'shipped') {
+                                    $data['cargoCompany'] = trim(strip_tags($_POST['cargoCompany'] ?? ''));
+                                    $data['trackingNumber'] = trim(strip_tags($_POST['trackingNumber'] ?? ''));
+                                    $data['trackingUrl'] = trim(strip_tags($_POST['trackingUrl'] ?? ''));
                                     
-                                    if ($mailResult === true) {
-                                        $data['shippingMailStatus']['sent'] = true;
-                                        $data['shippingMailStatus']['sentAt'] = date('c');
-                                        $data['shippingMailStatus']['error'] = null;
-                                    } else {
-                                        $data['shippingMailStatus']['sent'] = false;
-                                        $data['shippingMailStatus']['sentAt'] = null;
-                                        $data['shippingMailStatus']['error'] = "Kargo maili gönderimi başarısız oldu";
+                                    // Kargo maili durumu kontrolü ve gönderimi (Faz 5)
+                                    if (!isset($data['shippingMailStatus'])) {
+                                        $data['shippingMailStatus'] = [
+                                            'sent' => false,
+                                            'sentAt' => null,
+                                            'error' => null
+                                        ];
+                                    }
+                                    
+                                    if ($data['shippingMailStatus']['sent'] !== true) {
+                                        require_once __DIR__ . '/mailer.php';
+                                        $mailResult = sendShippingNotificationEmail($data);
+                                        
+                                        if ($mailResult === true) {
+                                            $data['shippingMailStatus']['sent'] = true;
+                                            $data['shippingMailStatus']['sentAt'] = date('c');
+                                            $data['shippingMailStatus']['error'] = null;
+                                        } else {
+                                            $data['shippingMailStatus']['sent'] = false;
+                                            $data['shippingMailStatus']['sentAt'] = null;
+                                            $data['shippingMailStatus']['error'] = "Kargo maili gönderimi başarısız oldu";
+                                        }
                                     }
                                 }
+                                
+                                $note = trim(strip_tags($_POST['updateNote'] ?? ''));
+                                
+                                if (!isset($data['statusHistory'])) $data['statusHistory'] = [];
+                                
+                                $statusLabels = [
+                                    'new' => 'Yeni',
+                                    'preparing' => 'Hazırlanıyor',
+                                    'shipped' => 'Kargoya Verildi',
+                                    'completed' => 'Tamamlandı',
+                                    'cancelled' => 'İptal'
+                                ];
+                                
+                                $data['statusHistory'][] = [
+                                    'status' => $newStatus,
+                                    'label' => $statusLabels[$newStatus],
+                                    'updatedAt' => date('c'),
+                                    'note' => $note
+                                ];
+                                
+                                ftruncate($fp, 0);
+                                rewind($fp);
+                                fwrite($fp, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                                $updateMsg = "<div style='color:#059669; padding:10px; background:#d1fae5; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Sipariş ({$orderId}) başarıyla güncellendi.</div>";
                             }
-                            
-                            $note = trim(strip_tags($_POST['updateNote'] ?? ''));
-                            
-                            if (!isset($data['statusHistory'])) $data['statusHistory'] = [];
-                            
-                            $statusLabels = [
-                                'new' => 'Yeni',
-                                'preparing' => 'Hazırlanıyor',
-                                'shipped' => 'Kargoya Verildi',
-                                'completed' => 'Tamamlandı',
-                                'cancelled' => 'İptal'
-                            ];
-                            
-                            $data['statusHistory'][] = [
-                                'status' => $newStatus,
-                                'label' => $statusLabels[$newStatus],
-                                'updatedAt' => date('c'),
-                                'note' => $note
-                            ];
-                            
-                            ftruncate($fp, 0);
-                            rewind($fp);
-                            fwrite($fp, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-                            $updateMsg = "<div style='color:#059669; padding:10px; background:#d1fae5; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Sipariş ({$orderId}) başarıyla güncellendi.</div>";
                         }
                         flock($fp, LOCK_UN);
                     }
@@ -250,23 +255,29 @@ if ($files) {
     });
 }
 
-// Sipariş durumu özet sayaçları (Faz 6A)
+// Sipariş durumu özet sayaçları (Faz 6B - Ödeme Bekliyor Dahil)
 $summaryCounts = [
     'total' => 0,
     'new' => 0,
     'preparing' => 0,
     'shipped' => 0,
     'completed' => 0,
-    'cancelled' => 0
+    'cancelled' => 0,
+    'payment_pending' => 0
 ];
 
 foreach ($orders as $o) {
-    $status = $o['orderStatus'] ?? 'new';
     $summaryCounts['total']++;
-    if (isset($summaryCounts[$status])) {
-        $summaryCounts[$status]++;
+    
+    if (($o['paymentStatus'] ?? '') !== 'success') {
+        $summaryCounts['payment_pending']++;
     } else {
-        $summaryCounts['new']++;
+        $status = $o['orderStatus'] ?? 'new';
+        if (isset($summaryCounts[$status])) {
+            $summaryCounts[$status]++;
+        } else {
+            $summaryCounts['new']++;
+        }
     }
 }
 
@@ -293,7 +304,8 @@ function getOrderStatusBadge($status) {
         'preparing' => ['bg' => '#ffedd5', 'color' => '#9a3412', 'text' => 'Hazırlanıyor'],
         'shipped' => ['bg' => '#e0e7ff', 'color' => '#3730a3', 'text' => 'Kargoya Verildi'],
         'completed' => ['bg' => '#dcfce7', 'color' => '#166534', 'text' => 'Tamamlandı'],
-        'cancelled' => ['bg' => '#fee2e2', 'color' => '#991b1b', 'text' => 'İptal']
+        'cancelled' => ['bg' => '#fee2e2', 'color' => '#991b1b', 'text' => 'İptal'],
+        'payment_pending' => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'text' => 'Ödeme Bekliyor']
     ];
     $s = $map[$status] ?? $map['new'];
     return "<span style='background: {$s['bg']}; color: {$s['color']}; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;'>" . esc($s['text']) . "</span>";
@@ -350,11 +362,15 @@ function getOrderStatusBadge($status) {
 
 <?= $updateMsg ?>
 
-<!-- Özet Sayaçları (Faz 6A) -->
+<!-- Özet Sayaçları (Faz 6B) -->
 <div class="stats-container">
     <div class="stat-card total">
         <span class="stat-val"><?= (int)$summaryCounts['total'] ?></span>
         <span class="stat-label">Toplam Sipariş</span>
+    </div>
+    <div class="stat-card payment-pending" style="border-left-color: #9ca3af;">
+        <span class="stat-val"><?= (int)$summaryCounts['payment_pending'] ?></span>
+        <span class="stat-label">Ödeme Bekliyor</span>
     </div>
     <div class="stat-card new">
         <span class="stat-val"><?= (int)$summaryCounts['new'] ?></span>
@@ -392,6 +408,7 @@ function getOrderStatusBadge($status) {
             <label style="display:block; margin-bottom:5px; font-size:0.85rem; font-weight:600; color:#4b5563;">Sipariş Durumu</label>
             <select id="statusFilter" class="search-box" style="margin-bottom:0; width:100%; max-width:none; background: white; cursor: pointer;">
                 <option value="all">Tümü</option>
+                <option value="payment_pending">Ödeme Bekliyor</option>
                 <option value="new">Yeni</option>
                 <option value="preparing">Hazırlanıyor</option>
                 <option value="shipped">Kargoya Verildi</option>
@@ -477,6 +494,8 @@ function getOrderStatusBadge($status) {
                         $payStatusVal = 'unknown';
                     }
                     
+                    $displayStatusVal = $payStatusVal !== 'success' ? 'payment_pending' : ($o['orderStatus'] ?? 'new');
+                    
                     $customer = $o['customer'] ?? [];
                     
                     // Test Siparişi Kontrolü
@@ -492,7 +511,7 @@ function getOrderStatusBadge($status) {
                     // JSON'a encode ederek modal için hazırla (Güvenli kaçış)
                     $jsonAttr = htmlspecialchars(json_encode($o, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
                 ?>
-                <tr data-status="<?= esc($o['orderStatus'] ?? 'new') ?>"
+                <tr data-status="<?= esc($displayStatusVal) ?>"
                     data-date="<?= esc($dateIso) ?>"
                     data-payment-status="<?= esc($payStatusVal) ?>"
                     data-user-type="<?= esc($userTypeVal) ?>"
@@ -503,8 +522,12 @@ function getOrderStatusBadge($status) {
                     data-customer-email="<?= esc($customer['email'] ?? '') ?>"
                     data-total="<?= esc($total) ?>"
                     data-status-label="<?php
-                        $statusLabels = ['new' => 'Yeni', 'preparing' => 'Hazırlanıyor', 'shipped' => 'Kargoya Verildi', 'completed' => 'Tamamlandı', 'cancelled' => 'İptal'];
-                        echo esc($statusLabels[$o['orderStatus'] ?? 'new'] ?? 'Yeni');
+                        if ($payStatusVal !== 'success') {
+                            echo 'Ödeme Bekliyor';
+                        } else {
+                            $statusLabels = ['new' => 'Yeni', 'preparing' => 'Hazırlanıyor', 'shipped' => 'Kargoya Verildi', 'completed' => 'Tamamlandı', 'cancelled' => 'İptal'];
+                            echo esc($statusLabels[$o['orderStatus'] ?? 'new'] ?? 'Yeni');
+                        }
                     ?>"
                     data-payment-status-label="<?= esc($o['paymentStatus'] ?? '-') ?>"
                     data-user-type-label="<?= empty($o['userId']) ? 'Misafir' : 'Üye' ?>"
@@ -522,7 +545,7 @@ function getOrderStatusBadge($status) {
                     </td>
                     <td>₺<?= $total ?></td>
                     <td>
-                        <?= getOrderStatusBadge($o['orderStatus'] ?? 'new') ?>
+                        <?= getOrderStatusBadge($payStatusVal !== 'success' ? 'payment_pending' : ($o['orderStatus'] ?? 'new')) ?>
                         <?php
                         // Kargo mail durumunu tablonun Sipariş Durumu hücresinde göster (Faz 5)
                         if (($o['orderStatus'] ?? 'new') === 'shipped') {
@@ -633,6 +656,10 @@ function getOrderStatusBadge($status) {
                 <input type="hidden" name="action" value="update_order">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                 <input type="hidden" name="orderId" id="f_orderId" value="">
+                
+                <div id="paymentWarningBanner" style="display:none; color:#dc2626; padding:10px; background:#fee2e2; border-radius:4px; margin-bottom:15px; font-weight:bold; font-size:0.875rem; border: 1px solid #fecaca;">
+                    ⚠️ DİKKAT: Bu siparişin ödemesi başarılı değildir! Ödenmemiş siparişleri kargolayamaz veya hazırlayamazsınız. Sadece İptal edebilirsiniz.
+                </div>
                 
                 <div class="grid-2" style="margin-bottom:10px;">
                     <div>
@@ -883,6 +910,28 @@ function openModal(btn) {
     document.getElementById('f_trackingNumber').value = order.trackingNumber || '';
     document.getElementById('f_trackingUrl').value = order.trackingUrl || '';
     toggleCargoFields(order.orderStatus || 'new');
+
+    // Ödeme Durumu Uyarı ve Kısıtlama Mantığı (Faz 6B)
+    let warningBanner = document.getElementById('paymentWarningBanner');
+    let orderStatusSelect = document.getElementById('f_orderStatus');
+    
+    if (order.paymentStatus !== 'success') {
+        warningBanner.style.display = 'block';
+        // Ödeme başarılı değilse sadece 'cancelled' seçeneğine ve mevcut statüsüne izin ver
+        for (let i = 0; i < orderStatusSelect.options.length; i++) {
+            let opt = orderStatusSelect.options[i];
+            if (opt.value !== 'cancelled' && opt.value !== order.orderStatus) {
+                opt.disabled = true;
+            } else {
+                opt.disabled = false;
+            }
+        }
+    } else {
+        warningBanner.style.display = 'none';
+        for (let i = 0; i < orderStatusSelect.options.length; i++) {
+            orderStatusSelect.options[i].disabled = false;
+        }
+    }
 
     // Ürünler
     let itemsHtml = '';
