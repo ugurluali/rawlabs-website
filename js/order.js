@@ -48,6 +48,87 @@ function createOrder() {
     return;
   }
 
+  // --- Fatura Bilgileri Okuma ve Validasyon (Faz 8A) ---
+  const billingTypeEl = document.querySelector('input[name="billing-type"]:checked');
+  const billingType = billingTypeEl ? billingTypeEl.value : 'individual';
+  const sameAsShippingEl = document.getElementById('billing-same-address');
+  const sameAsShipping = sameAsShippingEl ? sameAsShippingEl.checked : true;
+
+  const tcknEl = document.getElementById('billing-tckn');
+  const companyTitleEl = document.getElementById('billing-company');
+  const vknEl = document.getElementById('billing-vkn');
+  const taxOfficeEl = document.getElementById('billing-taxoffice');
+
+  const tckn = tcknEl ? tcknEl.value.trim() : '';
+  const companyTitle = companyTitleEl ? companyTitleEl.value.trim() : '';
+  const vkn = vknEl ? vknEl.value.trim() : '';
+  const taxOffice = taxOfficeEl ? taxOfficeEl.value.trim() : '';
+
+  let billingAddress = address;
+  let billingCity = city;
+  let billingDistrict = district;
+
+  if (!sameAsShipping) {
+    const bAddressEl = document.getElementById('billing-address');
+    const bCityEl = document.getElementById('billing-city');
+    const bDistrictEl = document.getElementById('billing-district');
+
+    billingAddress = bAddressEl ? bAddressEl.value.trim() : '';
+    billingCity = bCityEl ? bCityEl.value.trim() : '';
+    billingDistrict = bDistrictEl ? bDistrictEl.value.trim() : '';
+  }
+
+  // Validasyonlar
+  if (billingType === 'individual') {
+    if (tckn && !/^[0-9]{11}$/.test(tckn)) {
+      alert("Lütfen geçerli bir 11 haneli T.C. Kimlik Numarası giriniz (sadece rakam).");
+      return;
+    }
+  } else if (billingType === 'corporate') {
+    if (!companyTitle) {
+      alert("Lütfen Şirket Unvanı alanını doldurunuz.");
+      return;
+    }
+    if (!vkn || !/^[0-9]{10}$/.test(vkn)) {
+      alert("Lütfen geçerli bir 10 haneli Vergi Kimlik Numarası (VKN) giriniz (sadece rakam).");
+      return;
+    }
+    if (!taxOffice) {
+      alert("Lütfen Vergi Dairesi alanını doldurunuz.");
+      return;
+    }
+  }
+
+  if (!sameAsShipping) {
+    if (!billingCity) {
+      alert("Lütfen Fatura İli alanını seçiniz.");
+      return;
+    }
+    if (!billingDistrict) {
+      alert("Lütfen Fatura İlçesi alanını seçiniz.");
+      return;
+    }
+    if (!billingAddress) {
+      alert("Lütfen Fatura Açık Adres alanını doldurunuz.");
+      return;
+    }
+  }
+
+  const billingPayload = {
+    type: billingType,
+    sameAsShipping: sameAsShipping,
+    tckn: billingType === 'individual' ? (tckn || '11111111111') : null,
+    companyTitle: billingType === 'corporate' ? companyTitle : null,
+    vkn: billingType === 'corporate' ? vkn : null,
+    taxOffice: billingType === 'corporate' ? taxOffice : null,
+    fullName: billingType === 'corporate' ? companyTitle : fullName,
+    email: email,
+    phone: phone,
+    address: billingAddress,
+    district: billingDistrict,
+    city: billingCity
+  };
+
   // 3. Sepetteki Ürünleri ve Hesaplamaları Hazırlama
   const orderItems = [];
   let totalAmount = 0;
@@ -89,7 +170,8 @@ function createOrder() {
       city: city,
       district: district,
       address: address,
-      note: note
+      note: note,
+      billing: billingPayload
     },
     items: orderItems,
     summary: {
@@ -140,6 +222,25 @@ function createOrder() {
   });
 }
 
+function resetCheckoutButton() {
+  const btn = document.querySelector('#rawlabs-order-form button[type="submit"]');
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = '💳 Ödemeye Geç';
+  }
+}
+
 if (typeof window !== 'undefined') {
   window.createOrder = createOrder;
+  window.resetCheckoutButton = resetCheckoutButton;
+
+  // Tarayıcı geri tuşuyla gelindiğinde (bfcache) butonu sıfırla
+  window.addEventListener('pageshow', function(event) {
+    resetCheckoutButton();
+  });
+
+  // DOM yüklemesi tamamlandığında butonu sıfırla
+  window.addEventListener('DOMContentLoaded', function() {
+    resetCheckoutButton();
+  });
 }

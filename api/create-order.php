@@ -50,6 +50,82 @@ try {
         throw new Exception('Eksik müşteri bilgileri.');
     }
 
+    // --- Fatura Bilgileri Doğrulama ve Sanitizasyon (Faz 8A) ---
+    $billingData = isset($customer['billing']) && is_array($customer['billing']) ? $customer['billing'] : [];
+    
+    $bType = isset($billingData['type']) ? trim(strip_tags((string)$billingData['type'])) : 'individual';
+    if ($bType !== 'individual' && $bType !== 'corporate') {
+        $bType = 'individual';
+    }
+    
+    $bSameAsShipping = isset($billingData['sameAsShipping']) ? (bool)$billingData['sameAsShipping'] : true;
+    
+    // Varsayılan Değerler
+    $bTckn = isset($billingData['tckn']) ? trim(strip_tags((string)$billingData['tckn'])) : '';
+    $bCompanyTitle = isset($billingData['companyTitle']) ? trim(strip_tags((string)$billingData['companyTitle'])) : '';
+    $bVkn = isset($billingData['vkn']) ? trim(strip_tags((string)$billingData['vkn'])) : '';
+    $bTaxOffice = isset($billingData['taxOffice']) ? trim(strip_tags((string)$billingData['taxOffice'])) : '';
+    
+    $bFullName = isset($billingData['fullName']) ? trim(strip_tags((string)$billingData['fullName'])) : '';
+    $bEmail = isset($billingData['email']) ? trim(strip_tags((string)$billingData['email'])) : $email;
+    $bPhone = isset($billingData['phone']) ? trim(strip_tags((string)$billingData['phone'])) : $phone;
+    
+    $bAddress = $address;
+    $bDistrict = $district;
+    $bCity = $city;
+    
+    if (!$bSameAsShipping) {
+        $bAddress = isset($billingData['address']) ? trim(strip_tags((string)$billingData['address'])) : '';
+        $bDistrict = isset($billingData['district']) ? trim(strip_tags((string)$billingData['district'])) : '';
+        $bCity = isset($billingData['city']) ? trim(strip_tags((string)$billingData['city'])) : '';
+        
+        if (empty(trim($bAddress)) || empty(trim($bDistrict)) || empty(trim($bCity))) {
+            throw new Exception('Fatura adresi alanları boş bırakılamaz.');
+        }
+    }
+    
+    // Bireysel/Kurumsal Özel Validasyon
+    if ($bType === 'individual') {
+        if (empty($bTckn)) {
+            $bTckn = '11111111111';
+        } elseif (!preg_match('/^[0-9]{11}$/', $bTckn)) {
+            throw new Exception('T.C. Kimlik Numarası 11 haneli rakam olmalıdır.');
+        }
+        $bCompanyTitle = null;
+        $bVkn = null;
+        $bTaxOffice = null;
+        if (empty($bFullName)) {
+            $bFullName = $fullName;
+        }
+    } else { // corporate
+        if (empty($bCompanyTitle)) {
+            throw new Exception('Kurumsal fatura için şirket unvanı zorunludur.');
+        }
+        if (empty($bVkn) || !preg_match('/^[0-9]{10}$/', $bVkn)) {
+            throw new Exception('Vergi Kimlik Numarası (VKN) 10 haneli rakam olmalıdır.');
+        }
+        if (empty($bTaxOffice)) {
+            throw new Exception('Kurumsal fatura için vergi dairesi zorunludur.');
+        }
+        $bTckn = null;
+        $bFullName = $bCompanyTitle;
+    }
+    
+    $billingPayloadToSave = [
+        'type' => $bType,
+        'sameAsShipping' => $bSameAsShipping,
+        'tckn' => $bTckn,
+        'companyTitle' => $bCompanyTitle,
+        'vkn' => $bVkn,
+        'taxOffice' => $bTaxOffice,
+        'fullName' => $bFullName,
+        'email' => $bEmail,
+        'phone' => $bPhone,
+        'address' => $bAddress,
+        'district' => $bDistrict,
+        'city' => $bCity
+    ];
+
     // Sepet Doğrulaması
     $items = $data['items'] ?? [];
     if (empty($items)) {
@@ -155,7 +231,8 @@ try {
             'city' => trim((string)$city),
             'district' => trim((string)$district),
             'address' => trim((string)$address),
-            'note' => trim((string)$note)
+            'note' => trim((string)$note),
+            'billing' => $billingPayloadToSave
         ],
         'items' => $items,
         'summary' => [
@@ -164,6 +241,14 @@ try {
             'discount' => 0,
             'grandTotal' => (float)$backendGrandTotal,
             'currency' => 'TRY'
+        ],
+        'bizimHesap' => [
+            'status' => 'none',
+            'invoiceId' => null,
+            'invoiceNumber' => null,
+            'pdfUrl' => null,
+            'syncedAt' => null,
+            'error' => null
         ]
     ];
 
