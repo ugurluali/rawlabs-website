@@ -4,7 +4,25 @@
  * Sadece okuma yetkisi vardır. JSON dosyalarındaki verileri listeler.
  */
 
-session_start();
+// Güvenlik: HTTP Header'ları ve Cache Engelleme (Faz 6A)
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: no-referrer");
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+// Güvenlik: Session Cookie parametrelerini sıkılaştır (Faz 6A)
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+    session_start();
+}
 
 // Config yükle
 if (file_exists(__DIR__ . '/config.php')) {
@@ -18,6 +36,18 @@ if (empty($adminHash)) {
     die("ADMIN_PANEL_PASSWORD_HASH tanımlanmamış. Lütfen config.php dosyanızı güncelleyin.");
 }
 
+// Oturum zaman aşımı kontrolü (Faz 6A - 30 dakika idle timeout)
+$timeoutDuration = 1800; // 30 dakika
+if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
+    if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeoutDuration)) {
+        session_unset();
+        session_destroy();
+        session_start();
+    } else {
+        $_SESSION['last_activity'] = time();
+    }
+}
+
 // Çıkış işlemi
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     session_destroy();
@@ -25,16 +55,36 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     exit;
 }
 
-// Giriş işlemi
+// Giriş işlemi & Brute Force Giriş Limiti (Faz 6A)
 $error = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
-    if (password_verify($_POST['password'], $adminHash)) {
-        $_SESSION['admin_logged_in'] = true;
-        header("Location: admin-orders.php");
-        exit;
-    } else {
-        sleep(1); // Brute force koruması
-        $error = 'Hatalı şifre!';
+if (isset($_SESSION['login_lock_until']) && time() < $_SESSION['login_lock_until']) {
+    $secondsLeft = $_SESSION['login_lock_until'] - time();
+    $error = "Çok fazla hatalı giriş denemesi. Lütfen {$secondsLeft} saniye sonra tekrar deneyin.";
+} else {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
+        if (password_verify($_POST['password'], $adminHash)) {
+            session_regenerate_id(true); // Session fixation koruması
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['last_activity'] = time();
+            unset($_SESSION['login_attempts']);
+            unset($_SESSION['login_lock_until']);
+            header("Location: admin-orders.php");
+            exit;
+        } else {
+            sleep(1); // Brute force sleep koruması
+            
+            if (!isset($_SESSION['login_attempts'])) {
+                $_SESSION['login_attempts'] = 0;
+            }
+            $_SESSION['login_attempts']++;
+            
+            if ($_SESSION['login_attempts'] >= 5) {
+                $_SESSION['login_lock_until'] = time() + 60; // 60 saniye kilitle
+                $error = 'Çok fazla hatalı giriş denemesi. 60 saniye süreyle kilitlendiniz.';
+            } else {
+                $error = 'Hatalı şifre! (Kalan hak: ' . (5 - $_SESSION['login_attempts']) . ')';
+            }
+        }
     }
 }
 
@@ -200,6 +250,26 @@ if ($files) {
     });
 }
 
+// Sipariş durumu özet sayaçları (Faz 6A)
+$summaryCounts = [
+    'total' => 0,
+    'new' => 0,
+    'preparing' => 0,
+    'shipped' => 0,
+    'completed' => 0,
+    'cancelled' => 0
+];
+
+foreach ($orders as $o) {
+    $status = $o['orderStatus'] ?? 'new';
+    $summaryCounts['total']++;
+    if (isset($summaryCounts[$status])) {
+        $summaryCounts[$status]++;
+    } else {
+        $summaryCounts['new']++;
+    }
+}
+
 function esc($str) {
     return htmlspecialchars((string)$str, ENT_QUOTES, 'UTF-8');
 }
@@ -256,6 +326,19 @@ function getOrderStatusBadge($status) {
         .detail-section h3 { font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #374151; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .muted { color: #6b7280; font-size: 0.85rem; }
+        
+        /* Özet Sayaçları ve Gelişmiş Arama Stilleri (Faz 6A) */
+        .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-left: 4px solid #d1d5db; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .stat-card.total { border-left-color: #3b82f6; }
+        .stat-card.new { border-left-color: #64748b; }
+        .stat-card.preparing { border-left-color: #f97316; }
+        .stat-card.shipped { border-left-color: #6366f1; }
+        .stat-card.completed { border-left-color: #22c55e; }
+        .stat-card.cancelled { border-left-color: #ef4444; }
+        .stat-val { font-size: 1.5rem; font-weight: 800; color: #111827; line-height: 1; }
+        .stat-label { font-size: 0.72rem; color: #6b7280; text-transform: uppercase; font-weight: 700; margin-top: 6px; letter-spacing: 0.05em; }
     </style>
 </head>
 <body>
@@ -267,7 +350,47 @@ function getOrderStatusBadge($status) {
 
 <?= $updateMsg ?>
 
-<input type="text" id="searchInput" class="search-box" placeholder="Sipariş no, isim veya e-posta ara...">
+<!-- Özet Sayaçları (Faz 6A) -->
+<div class="stats-container">
+    <div class="stat-card total">
+        <span class="stat-val"><?= (int)$summaryCounts['total'] ?></span>
+        <span class="stat-label">Toplam Sipariş</span>
+    </div>
+    <div class="stat-card new">
+        <span class="stat-val"><?= (int)$summaryCounts['new'] ?></span>
+        <span class="stat-label">Yeni</span>
+    </div>
+    <div class="stat-card preparing">
+        <span class="stat-val"><?= (int)$summaryCounts['preparing'] ?></span>
+        <span class="stat-label">Hazırlanıyor</span>
+    </div>
+    <div class="stat-card shipped">
+        <span class="stat-val"><?= (int)$summaryCounts['shipped'] ?></span>
+        <span class="stat-label">Kargoda</span>
+    </div>
+    <div class="stat-card completed">
+        <span class="stat-val"><?= (int)$summaryCounts['completed'] ?></span>
+        <span class="stat-label">Tamamlandı</span>
+    </div>
+    <div class="stat-card cancelled">
+        <span class="stat-val"><?= (int)$summaryCounts['cancelled'] ?></span>
+        <span class="stat-label">İptal</span>
+    </div>
+</div>
+
+<!-- Filtreler ve Arama Alanı (Faz 6A) -->
+<div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; align-items: center;">
+    <input type="text" id="searchInput" class="search-box" style="margin-bottom:0; flex: 1; min-width: 250px;" placeholder="Sipariş no, isim, telefon veya e-posta ara...">
+    
+    <select id="statusFilter" class="search-box" style="margin-bottom:0; max-width: 220px; background: white; cursor: pointer;">
+        <option value="all">Sipariş Durumu: Tümü</option>
+        <option value="new">Yeni</option>
+        <option value="preparing">Hazırlanıyor</option>
+        <option value="shipped">Kargoya Verildi</option>
+        <option value="completed">Tamamlandı</option>
+        <option value="cancelled">İptal</option>
+    </select>
+</div>
 
 <div style="overflow-x: auto;">
     <table id="ordersTable">
@@ -307,7 +430,7 @@ function getOrderStatusBadge($status) {
                     // JSON'a encode ederek modal için hazırla (Güvenli kaçış)
                     $jsonAttr = htmlspecialchars(json_encode($o, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
                 ?>
-                <tr>
+                <tr data-status="<?= esc($o['orderStatus'] ?? 'new') ?>">
                     <td style="font-family: monospace; font-size:0.9rem;">
                         <?= esc($o['orderId'] ?? '-') ?>
                         <?= $testBadge ?>
@@ -473,16 +596,31 @@ function getOrderStatusBadge($status) {
 </div>
 
 <script>
-// Arama Filtresi
-document.getElementById('searchInput').addEventListener('keyup', function() {
-    let filter = this.value.toLowerCase();
+// Birleşik Arama ve Durum Filtreleme Mantığı (Faz 6A)
+function applyTableFilters() {
+    let textFilter = document.getElementById('searchInput').value.toLowerCase();
+    let statusFilter = document.getElementById('statusFilter').value;
     let rows = document.querySelectorAll('#ordersTable tbody tr');
     
     rows.forEach(row => {
+        if (row.cells.length < 2) return; // Boş uyarı satırını atla
+        
         let text = row.textContent.toLowerCase();
-        row.style.display = text.includes(filter) ? '' : 'none';
+        let matchesText = text.includes(textFilter);
+        
+        let rowStatus = row.getAttribute('data-status') || 'new';
+        let matchesStatus = (statusFilter === 'all' || rowStatus === statusFilter);
+        
+        if (matchesText && matchesStatus) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
     });
-});
+}
+
+document.getElementById('searchInput').addEventListener('keyup', applyTableFilters);
+document.getElementById('statusFilter').addEventListener('change', applyTableFilters);
 
 // Modal Kontrolleri
 function openModal(btn) {
