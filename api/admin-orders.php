@@ -569,7 +569,10 @@ function getOrderStatusBadge($status) {
                         <?php endif; ?>
                     </td>
                     <td><?= $userType ?></td>
-                    <td><button class="btn btn-view" onclick='openModal(this)' data-order='<?= $jsonAttr ?>'>Detay</button></td>
+                    <td>
+                        <button class="btn btn-view" onclick='openModal(this)' data-order='<?= $jsonAttr ?>'>Detay</button>
+                        <button class="btn" style="background:#4f46e5; color:white; padding: 0.375rem 0.75rem; border-radius: 0.375rem; font-size: 0.825rem; font-weight:600; margin-left: 4px;" onclick='printDirectProforma(this)' data-order='<?= $jsonAttr ?>'>Yazdır</button>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -848,6 +851,7 @@ document.getElementById('exportCsvBtn').addEventListener('click', function() {
 function openModal(btn) {
     let rawData = btn.getAttribute('data-order');
     let order = JSON.parse(rawData);
+    window.currentOrder = order; // Modal yazdirma butonu icin aktif siparisi kaydet
     let c = order.customer || {};
     let s = order.summary || {};
 
@@ -999,7 +1003,12 @@ function openModal(btn) {
 
     // PDF Linki
     let pdfArea = document.getElementById('m_pdf_area');
-    pdfArea.innerHTML = '<span class="muted">PDF/Fatura entegrasyonu sonraki fazda aktif edilecek.</span>';
+    pdfArea.innerHTML = `<button type="button" class="btn" style="background:#4f46e5; color:white; width:100%; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="printOrderProforma()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align:middle;">
+            <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+        </svg>
+        PDF / Proforma Yazdır
+    </button>`;
 
     document.getElementById('orderModal').style.display = 'flex';
 }
@@ -1029,6 +1038,327 @@ function escapeHtml(unsafe) {
          .replace(/>/g, "&gt;")
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
+}
+
+// PDF / Proforma Yazdırma Denetimleri (Faz 7A)
+window.currentOrder = null;
+
+function printDirectProforma(btn) {
+    let rawData = btn.getAttribute('data-order');
+    let order = JSON.parse(rawData);
+    triggerProformaPrint(order);
+}
+
+function printOrderProforma() {
+    if (window.currentOrder) {
+        triggerProformaPrint(window.currentOrder);
+    }
+}
+
+function triggerProformaPrint(order) {
+    let html = generateProformaHtml(order);
+    let printWin = window.open('', '_blank');
+    if (printWin) {
+        printWin.document.open();
+        printWin.document.write(html);
+        printWin.document.close();
+    } else {
+        alert("Lütfen yeni sekmelerin açılmasına izin verin (Pop-up Engelleyiciyi devre dışı bırakın).");
+    }
+}
+
+function generateProformaHtml(order) {
+    let c = order.customer || {};
+    let s = order.summary || {};
+    let items = order.items || [];
+    
+    // Tarih alanları
+    let date = order.paidAt || order.backend_createdAt || '';
+    let dateStr = date ? new Date(date).toLocaleString('tr-TR') : '-';
+    
+    // Ödeme ve sipariş durumları
+    let payStatus = (order.paymentStatus || '').toLowerCase();
+    let isPaid = payStatus === 'success';
+    let payStatusText = isPaid ? 'Başarılı (Kuveyt Türk)' : 'Ödeme Bekliyor / Yarım Kalan';
+    
+    let statusText = 'Yeni';
+    if (order.orderStatus) {
+        let labels = {
+            'new': 'Yeni',
+            'preparing': 'Hazırlanıyor',
+            'shipped': 'Kargoya Verildi',
+            'completed': 'Tamamlandı',
+            'cancelled': 'İptal'
+        };
+        statusText = labels[order.orderStatus] || order.orderStatus;
+    }
+    
+    // Ödeme başarısız ise büyük kırmızı uyarı banner'ı
+    let warningBanner = '';
+    if (!isPaid) {
+        warningBanner = '<div class="warning-banner">⚠️ DİKKAT: BU SİPARİŞİN ÖDEMESİ TAMAMLANMAMIŞTIR. BU BELGE SEVK/FATURA YERİNE KULLANILAMAZ.</div>';
+    }
+    
+    // Ürün tablosu satırları
+    let itemsHtml = '';
+    items.forEach(i => {
+        let name = escapeHtml(i.name || '-');
+        let qty = parseInt(i.quantity || 0);
+        let unit = parseFloat(i.unitPrice || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+        let total = parseFloat(i.lineTotal || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+        itemsHtml += '<tr>' +
+            '<td>' + name + '</td>' +
+            '<td style="text-align: center;">' + qty + '</td>' +
+            '<td style="text-align: right;">₺' + unit + '</td>' +
+            '<td style="text-align: right;">₺' + total + '</td>' +
+        '</tr>';
+    });
+    
+    // Kuveyt Türk Referansları
+    let bankHtml = '';
+    if (order.providerTransactionId) {
+        bankHtml = '<div class="section-title">Kuveyt Türk Referansları</div>' +
+            '<table class="info-table">' +
+                '<tr>' +
+                    '<td style="width: 25%;"><strong>İşlem ID (Txn ID):</strong></td>' +
+                    '<td style="width: 25%;">' + escapeHtml(order.providerTransactionId || '-') + '</td>' +
+                    '<td style="width: 25%;"><strong>Provizyon No:</strong></td>' +
+                    '<td style="width: 25%;">' + escapeHtml(order.provisionNumber || '-') + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                    '<td><strong>RRN:</strong></td>' +
+                    '<td>' + escapeHtml(order.rrn || '-') + '</td>' +
+                    '<td><strong>STAN:</strong></td>' +
+                    '<td>' + escapeHtml(order.stan || '-') + '</td>' +
+                '</tr>' +
+            '</table>';
+    }
+    
+    // Kargo Takip Bilgileri
+    let cargoText = 'Henüz girilmedi';
+    if (order.orderStatus === 'shipped') {
+        cargoText = escapeHtml(order.cargoCompany || '-') + ' - Takip No: ' + escapeHtml(order.trackingNumber || '-');
+        if (order.trackingUrl) {
+            cargoText += ' (' + escapeHtml(order.trackingUrl) + ')';
+        }
+    }
+    
+    let html = '<!DOCTYPE html>' +
+'<html lang="tr">' +
+'<head>' +
+    '<meta charset="UTF-8">' +
+    '<title>Sipariş Proforma Bilgi Formu - ' + escapeHtml(order.orderId || '') + '</title>' +
+    '<style>' +
+        'body {' +
+            'font-family: Arial, sans-serif;' +
+            'color: #333;' +
+            'margin: 0;' +
+            'padding: 20px;' +
+            'font-size: 12px;' +
+            'line-height: 1.4;' +
+        '}' +
+        '.header {' +
+            'display: flex;' +
+            'justify-content: space-between;' +
+            'align-items: center;' +
+            'border-bottom: 2px solid #B12A8F;' +
+            'padding-bottom: 15px;' +
+            'margin-bottom: 20px;' +
+        '}' +
+        '.logo {' +
+            'font-size: 24px;' +
+            'font-weight: bold;' +
+            'color: #6B2C83;' +
+            'letter-spacing: 0.5px;' +
+        '}' +
+        '.company-info {' +
+            'text-align: right;' +
+            'font-size: 11px;' +
+            'color: #666;' +
+        '}' +
+        '.title {' +
+            'text-align: center;' +
+            'font-size: 16px;' +
+            'font-weight: bold;' +
+            'margin-bottom: 20px;' +
+            'color: #1F1B2E;' +
+            'text-transform: uppercase;' +
+            'letter-spacing: 0.5px;' +
+        '}' +
+        '.warning-banner {' +
+            'background-color: #fee2e2;' +
+            'border: 2px solid #f87171;' +
+            'color: #b91c1c;' +
+            'padding: 10px;' +
+            'border-radius: 4px;' +
+            'font-weight: bold;' +
+            'text-align: center;' +
+            'margin-bottom: 20px;' +
+            'font-size: 11px;' +
+        '}' +
+        '.section-title {' +
+            'font-size: 12px;' +
+            'font-weight: bold;' +
+            'background: #f3f4f6;' +
+            'padding: 6px 10px;' +
+            'margin-top: 15px;' +
+            'margin-bottom: 8px;' +
+            'border-left: 3px solid #B12A8F;' +
+            'color: #1F1B2E;' +
+            'text-transform: uppercase;' +
+        '}' +
+        '.info-table {' +
+            'width: 100%;' +
+            'border-collapse: collapse;' +
+            'margin-bottom: 15px;' +
+        '}' +
+        '.info-table td {' +
+            'padding: 5px 8px;' +
+            'vertical-align: top;' +
+        '}' +
+        '.items-table {' +
+            'width: 100%;' +
+            'border-collapse: collapse;' +
+            'margin-bottom: 15px;' +
+        '}' +
+        '.items-table th, .items-table td {' +
+            'border: 1px solid #e5e7eb;' +
+            'padding: 6px 10px;' +
+        '}' +
+        '.items-table th {' +
+            'background: #f9fafb;' +
+            'font-weight: bold;' +
+            'text-align: left;' +
+        '}' +
+        '.totals-table {' +
+            'width: 40%;' +
+            'margin-left: auto;' +
+            'border-collapse: collapse;' +
+            'margin-bottom: 20px;' +
+        '}' +
+        '.totals-table td {' +
+            'padding: 5px 8px;' +
+            'border-bottom: 1px solid #eee;' +
+        '}' +
+        '.totals-table tr.grand-total td {' +
+            'font-weight: bold;' +
+            'font-size: 13px;' +
+            'border-bottom: 2px double #333;' +
+        '}' +
+        '.footer {' +
+            'margin-top: 40px;' +
+            'border-top: 1px solid #ddd;' +
+            'padding-top: 10px;' +
+            'text-align: center;' +
+            'font-size: 10px;' +
+            'color: #777;' +
+        '}' +
+        '@media print {' +
+            'body {' +
+                'padding: 0;' +
+            '}' +
+            '.no-print {' +
+                'display: none;' +
+            '}' +
+        '}' +
+    '</style>' +
+'</head>' +
+'<body>' +
+    warningBanner +
+    '<div class="header">' +
+        '<div class="logo">RAWLABS</div>' +
+        '<div class="company-info">' +
+            '<strong>1453 İstanbul Gıda Sanayi ve Ticaret Limited Şirketi</strong><br>' +
+            'www.rawlabs.com.tr | bilgi@rawlabs.com.tr<br>' +
+            'Mevlana Mah. Yunus Emre Cad. No:60 İç Kapı No: A<br>' +
+            'GEBZE / KOCAELİ' +
+        '</div>' +
+    '</div>' +
+    
+    '<div class="title">Sipariş / Proforma Bilgi Formu</div>' +
+    
+    '<div class="section-title">Sipariş & Teslimat Bilgileri</div>' +
+    '<table class="info-table">' +
+        '<tr>' +
+            '<td style="width: 20%;"><strong>Sipariş No:</strong></td>' +
+            '<td style="width: 30%;">' + escapeHtml(order.orderId || '-') + '</td>' +
+            '<td style="width: 20%;"><strong>Müşteri Adı:</strong></td>' +
+            '<td style="width: 30%;"><strong>' + escapeHtml(c.fullName || '-') + '</strong></td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td><strong>Sipariş Tarihi:</strong></td>' +
+            '<td>' + escapeHtml(dateStr) + '</td>' +
+            '<td><strong>Telefon:</strong></td>' +
+            '<td>' + escapeHtml(c.phone || '-') + '</td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td><strong>Ödeme Durumu:</strong></td>' +
+            '<td>' + escapeHtml(payStatusText) + '</td>' +
+            '<td><strong>E-posta:</strong></td>' +
+            '<td>' + escapeHtml(c.email || '-') + '</td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td><strong>Sipariş Durumu:</strong></td>' +
+            '<td>' + escapeHtml(statusText) + '</td>' +
+            '<td><strong>Teslimat Adresi:</strong></td>' +
+            '<td>' +
+                escapeHtml(c.address || '-') + '<br>' +
+                '<strong>' + escapeHtml(c.district || '-') + ' / ' + escapeHtml(c.city || '-') + '</strong>' +
+            '</td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td><strong>Kargo Bilgisi:</strong></td>' +
+            '<td>' + cargoText + '</td>' +
+            '<td><strong>Müşteri Notu:</strong></td>' +
+            '<td>' + escapeHtml(c.note || '-') + '</td>' +
+        '</tr>' +
+    '</table>' +
+    
+    '<div class="section-title">Sipariş Edilen Ürünler</div>' +
+    '<table class="items-table">' +
+        '<thead>' +
+            '<tr>' +
+                '<th style="width: 50%;">Ürün Adı</th>' +
+                '<th style="width: 10%; text-align: center;">Adet</th>' +
+                '<th style="width: 20%; text-align: right;">Birim Fiyat</th>' +
+                '<th style="width: 20%; text-align: right;">Toplam</th>' +
+            '</tr>' +
+        '</thead>' +
+        '<tbody>' +
+            itemsHtml +
+        '</tbody>' +
+    '</table>' +
+    
+    '<table class="totals-table">' +
+        '<tr>' +
+            '<td>Ara Toplam:</td>' +
+            '<td style="text-align: right;">₺' + parseFloat(s.subtotal || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + '</td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td>Kargo Ücreti:</td>' +
+            '<td style="text-align: right;">₺' + parseFloat(s.shippingFee || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + '</td>' +
+        '</tr>' +
+        '<tr class="grand-total">' +
+            '<td>Genel Toplam:</td>' +
+            '<td style="text-align: right;">₺' + parseFloat(s.grandTotal || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + '</td>' +
+        '</tr>' +
+    '</table>' +
+    
+    bankHtml +
+    
+    '<div class="footer">' +
+        'Bu belge e-fatura veya mali belge değildir. Sipariş/proforma bilgilendirme amacıyla oluşturulmuştur.' +
+    '</div>' +
+    
+    '<script>' +
+        'window.onload = function() {' +
+            'window.print();' +
+        '};' +
+    '<\/script>' +
+'</body>' +
+'</html>';
+
+    return html;
 }
 </script>
 </body>
