@@ -378,18 +378,71 @@ function getOrderStatusBadge($status) {
     </div>
 </div>
 
-<!-- Filtreler ve Arama Alanı (Faz 6A) -->
-<div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; align-items: center;">
-    <input type="text" id="searchInput" class="search-box" style="margin-bottom:0; flex: 1; min-width: 250px;" placeholder="Sipariş no, isim, telefon veya e-posta ara...">
+<!-- Filtreler ve Arama Alanı (Faz 6B) -->
+<div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 25px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+        <!-- Arama Kutusu -->
+        <div>
+            <label style="display:block; margin-bottom:5px; font-size:0.85rem; font-weight:600; color:#4b5563;">Arama</label>
+            <input type="text" id="searchInput" class="search-box" style="margin-bottom:0; width:100%; max-width:none;" placeholder="No, isim, tel veya e-posta...">
+        </div>
+        
+        <!-- Sipariş Durumu -->
+        <div>
+            <label style="display:block; margin-bottom:5px; font-size:0.85rem; font-weight:600; color:#4b5563;">Sipariş Durumu</label>
+            <select id="statusFilter" class="search-box" style="margin-bottom:0; width:100%; max-width:none; background: white; cursor: pointer;">
+                <option value="all">Tümü</option>
+                <option value="new">Yeni</option>
+                <option value="preparing">Hazırlanıyor</option>
+                <option value="shipped">Kargoya Verildi</option>
+                <option value="completed">Tamamlandı</option>
+                <option value="cancelled">İptal</option>
+            </select>
+        </div>
+
+        <!-- Ödeme Durumu -->
+        <div>
+            <label style="display:block; margin-bottom:5px; font-size:0.85rem; font-weight:600; color:#4b5563;">Ödeme Durumu</label>
+            <select id="paymentFilter" class="search-box" style="margin-bottom:0; width:100%; max-width:none; background: white; cursor: pointer;">
+                <option value="all">Tümü</option>
+                <option value="success">Başarılı (success)</option>
+                <option value="failed">Başarısız (failed)</option>
+                <option value="unknown">Beklemede / Bilinmiyor</option>
+            </select>
+        </div>
+
+        <!-- Müşteri Tipi -->
+        <div>
+            <label style="display:block; margin-bottom:5px; font-size:0.85rem; font-weight:600; color:#4b5563;">Müşteri Tipi</label>
+            <select id="userTypeFilter" class="search-box" style="margin-bottom:0; width:100%; max-width:none; background: white; cursor: pointer;">
+                <option value="all">Tümü</option>
+                <option value="member">Üye</option>
+                <option value="guest">Misafir</option>
+            </select>
+        </div>
+    </div>
     
-    <select id="statusFilter" class="search-box" style="margin-bottom:0; max-width: 220px; background: white; cursor: pointer;">
-        <option value="all">Sipariş Durumu: Tümü</option>
-        <option value="new">Yeni</option>
-        <option value="preparing">Hazırlanıyor</option>
-        <option value="shipped">Kargoya Verildi</option>
-        <option value="completed">Tamamlandı</option>
-        <option value="cancelled">İptal</option>
-    </select>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: space-between; border-top: 1px solid #f3f4f6; padding-top: 15px;">
+        <!-- Tarih Filtreleri -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <div style="display:flex; align-items:center; gap:5px;">
+                <span style="font-size:0.85rem; font-weight:600; color:#4b5563;">Başlangıç:</span>
+                <input type="date" id="startDateFilter" class="search-box" style="margin-bottom:0; padding: 0.35rem 0.5rem; width:auto; height: auto;">
+            </div>
+            <div style="display:flex; align-items:center; gap:5px;">
+                <span style="font-size:0.85rem; font-weight:600; color:#4b5563;">Bitiş:</span>
+                <input type="date" id="endDateFilter" class="search-box" style="margin-bottom:0; padding: 0.35rem 0.5rem; width:auto; height: auto;">
+            </div>
+        </div>
+        
+        <!-- Butonlar -->
+        <div style="display: flex; gap: 10px;">
+            <button id="clearFiltersBtn" class="btn" style="background:#e5e7eb; color:#374151; font-size:0.85rem;">Filtreleri Temizle</button>
+            <button id="exportCsvBtn" class="btn" style="background:#059669; color:white; font-size:0.85rem; display:flex; align-items:center; gap:5px;">
+                📥 CSV Dışa Aktar
+            </button>
+        </div>
+    </div>
 </div>
 
 <div style="overflow-x: auto;">
@@ -413,8 +466,17 @@ function getOrderStatusBadge($status) {
                 <?php foreach ($orders as $o): 
                     $date = $o['paidAt'] ?? $o['backend_createdAt'] ?? '';
                     $dateStr = $date ? date('d.m.Y H:i', strtotime($date)) : '-';
+                    $dateIso = $date ? date('Y-m-d', strtotime($date)) : '';
                     $total = number_format((float)($o['summary']['grandTotal'] ?? 0), 2, ',', '.');
-                    $userType = empty($o['userId']) ? '<span class="muted">Misafir</span>' : '<span style="color:#2563eb;font-weight:bold;">Üye</span>';
+                    
+                    $userTypeVal = empty($o['userId']) ? 'guest' : 'member';
+                    $userType = $userTypeVal === 'member' ? '<span style="color:#2563eb;font-weight:bold;">Üye</span>' : '<span class="muted">Misafir</span>';
+                    
+                    $payStatusVal = strtolower(trim($o['paymentStatus'] ?? ''));
+                    if (empty($payStatusVal) || $payStatusVal === '-') {
+                        $payStatusVal = 'unknown';
+                    }
+                    
                     $customer = $o['customer'] ?? [];
                     
                     // Test Siparişi Kontrolü
@@ -430,7 +492,24 @@ function getOrderStatusBadge($status) {
                     // JSON'a encode ederek modal için hazırla (Güvenli kaçış)
                     $jsonAttr = htmlspecialchars(json_encode($o, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
                 ?>
-                <tr data-status="<?= esc($o['orderStatus'] ?? 'new') ?>">
+                <tr data-status="<?= esc($o['orderStatus'] ?? 'new') ?>"
+                    data-date="<?= esc($dateIso) ?>"
+                    data-payment-status="<?= esc($payStatusVal) ?>"
+                    data-user-type="<?= esc($userTypeVal) ?>"
+                    data-order-id="<?= esc($o['orderId'] ?? '-') ?>"
+                    data-date-str="<?= esc($dateStr) ?>"
+                    data-customer-name="<?= esc($customer['fullName'] ?? '-') ?>"
+                    data-customer-phone="<?= esc($customer['phone'] ?? '') ?>"
+                    data-customer-email="<?= esc($customer['email'] ?? '') ?>"
+                    data-total="<?= esc($total) ?>"
+                    data-status-label="<?php
+                        $statusLabels = ['new' => 'Yeni', 'preparing' => 'Hazırlanıyor', 'shipped' => 'Kargoya Verildi', 'completed' => 'Tamamlandı', 'cancelled' => 'İptal'];
+                        echo esc($statusLabels[$o['orderStatus'] ?? 'new'] ?? 'Yeni');
+                    ?>"
+                    data-payment-status-label="<?= esc($o['paymentStatus'] ?? '-') ?>"
+                    data-user-type-label="<?= empty($o['userId']) ? 'Misafir' : 'Üye' ?>"
+                    data-cargo-company="<?= esc($o['cargoCompany'] ?? '') ?>"
+                    data-tracking-number="<?= esc($o['trackingNumber'] ?? '') ?>">
                     <td style="font-family: monospace; font-size:0.9rem;">
                         <?= esc($o['orderId'] ?? '-') ?>
                         <?= $testBadge ?>
@@ -596,22 +675,53 @@ function getOrderStatusBadge($status) {
 </div>
 
 <script>
-// Birleşik Arama ve Durum Filtreleme Mantığı (Faz 6A)
+// Birleşik Arama, Durum, Tarih, Ödeme ve Müşteri Tipi Filtreleme Mantığı (Faz 6B)
 function applyTableFilters() {
     let textFilter = document.getElementById('searchInput').value.toLowerCase();
     let statusFilter = document.getElementById('statusFilter').value;
+    let paymentFilter = document.getElementById('paymentFilter').value;
+    let userTypeFilter = document.getElementById('userTypeFilter').value;
+    
+    let startDateVal = document.getElementById('startDateFilter').value; // YYYY-MM-DD
+    let endDateVal = document.getElementById('endDateFilter').value;     // YYYY-MM-DD
+    
     let rows = document.querySelectorAll('#ordersTable tbody tr');
     
     rows.forEach(row => {
         if (row.cells.length < 2) return; // Boş uyarı satırını atla
         
+        // 1. Metin Filtresi
         let text = row.textContent.toLowerCase();
         let matchesText = text.includes(textFilter);
         
+        // 2. Sipariş Durumu Filtresi
         let rowStatus = row.getAttribute('data-status') || 'new';
         let matchesStatus = (statusFilter === 'all' || rowStatus === statusFilter);
         
-        if (matchesText && matchesStatus) {
+        // 3. Ödeme Durumu Filtresi
+        let rowPayment = row.getAttribute('data-payment-status') || 'unknown';
+        let matchesPayment = (paymentFilter === 'all' || rowPayment === paymentFilter);
+        
+        // 4. Müşteri Tipi Filtresi
+        let rowUserType = row.getAttribute('data-user-type') || 'guest';
+        let matchesUserType = (userTypeFilter === 'all' || rowUserType === userTypeFilter);
+        
+        // 5. Tarih Aralığı Filtresi
+        let rowDate = row.getAttribute('data-date') || ''; // YYYY-MM-DD
+        let matchesDate = true;
+        if (rowDate) {
+            if (startDateVal && rowDate < startDateVal) {
+                matchesDate = false;
+            }
+            if (endDateVal && rowDate > endDateVal) {
+                matchesDate = false;
+            }
+        } else if (startDateVal || endDateVal) {
+            matchesDate = false; // Tarihi olmayan siparişler tarih filtresi seçilmişse gizlensin
+        }
+        
+        // Birleşik Sonuç
+        if (matchesText && matchesStatus && matchesPayment && matchesUserType && matchesDate) {
             row.style.display = '';
         } else {
             row.style.display = 'none';
@@ -619,8 +729,93 @@ function applyTableFilters() {
     });
 }
 
+// Event listener'ları bağla
 document.getElementById('searchInput').addEventListener('keyup', applyTableFilters);
 document.getElementById('statusFilter').addEventListener('change', applyTableFilters);
+document.getElementById('paymentFilter').addEventListener('change', applyTableFilters);
+document.getElementById('userTypeFilter').addEventListener('change', applyTableFilters);
+document.getElementById('startDateFilter').addEventListener('change', applyTableFilters);
+document.getElementById('endDateFilter').addEventListener('change', applyTableFilters);
+
+// Filtreleri Temizleme Fonksiyonu (Faz 6B)
+document.getElementById('clearFiltersBtn').addEventListener('click', function() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('statusFilter').value = 'all';
+    document.getElementById('paymentFilter').value = 'all';
+    document.getElementById('userTypeFilter').value = 'all';
+    document.getElementById('startDateFilter').value = '';
+    document.getElementById('endDateFilter').value = '';
+    applyTableFilters();
+});
+
+// CSV Dışa Aktarma Fonksiyonu (Faz 6B)
+document.getElementById('exportCsvBtn').addEventListener('click', function() {
+    let rows = document.querySelectorAll('#ordersTable tbody tr');
+    let csvRows = [];
+    
+    // CSV Başlık Satırı
+    let headers = [
+        'Sipariş No',
+        'Tarih',
+        'Müşteri',
+        'Telefon',
+        'E-posta',
+        'Tutar',
+        'Sipariş Durumu',
+        'Ödeme Durumu',
+        'Tip',
+        'Kargo Firması',
+        'Takip No'
+    ];
+    
+    function escapeCsvCell(cell) {
+        if (cell === null || cell === undefined) {
+            return '""';
+        }
+        let str = cell.toString().replace(/"/g, '""'); // Çift tırnak kaçışı
+        return `"${str}"`;
+    }
+    
+    csvRows.push(headers.map(escapeCsvCell).join(','));
+    
+    // Sadece görünür satırları ekle
+    rows.forEach(row => {
+        if (row.style.display === 'none' || row.cells.length < 2) return;
+        
+        let rowData = [
+            row.getAttribute('data-order-id') || '',
+            row.getAttribute('data-date-str') || '',
+            row.getAttribute('data-customer-name') || '',
+            row.getAttribute('data-customer-phone') || '',
+            row.getAttribute('data-customer-email') || '',
+            row.getAttribute('data-total') || '',
+            row.getAttribute('data-status-label') || '',
+            row.getAttribute('data-payment-status-label') || '',
+            row.getAttribute('data-user-type-label') || '',
+            row.getAttribute('data-cargo-company') || '',
+            row.getAttribute('data-tracking-number') || ''
+        ];
+        
+        csvRows.push(rowData.map(escapeCsvCell).join(','));
+    });
+    
+    // UTF-8 BOM ekle (Excel Türkçe karakterleri düzgün açabilsin diye)
+    let csvContent = '\uFEFF' + csvRows.join('\n');
+    
+    // Blob ve indirme linki oluştur
+    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement('a');
+    
+    let dateStr = new Date().toISOString().slice(0, 10);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `rawlabs_siparisler_${dateStr}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
 
 // Modal Kontrolleri
 function openModal(btn) {
