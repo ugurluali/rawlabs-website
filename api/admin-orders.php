@@ -113,6 +113,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                 $data['cargoCompany'] = trim(strip_tags($_POST['cargoCompany'] ?? ''));
                                 $data['trackingNumber'] = trim(strip_tags($_POST['trackingNumber'] ?? ''));
                                 $data['trackingUrl'] = trim(strip_tags($_POST['trackingUrl'] ?? ''));
+                                
+                                // Kargo maili durumu kontrolü ve gönderimi (Faz 5)
+                                if (!isset($data['shippingMailStatus'])) {
+                                    $data['shippingMailStatus'] = [
+                                        'sent' => false,
+                                        'sentAt' => null,
+                                        'error' => null
+                                    ];
+                                }
+                                
+                                if ($data['shippingMailStatus']['sent'] !== true) {
+                                    require_once __DIR__ . '/mailer.php';
+                                    $mailResult = sendShippingNotificationEmail($data);
+                                    
+                                    if ($mailResult === true) {
+                                        $data['shippingMailStatus']['sent'] = true;
+                                        $data['shippingMailStatus']['sentAt'] = date('c');
+                                        $data['shippingMailStatus']['error'] = null;
+                                    } else {
+                                        $data['shippingMailStatus']['sent'] = false;
+                                        $data['shippingMailStatus']['sentAt'] = null;
+                                        $data['shippingMailStatus']['error'] = "Kargo maili gönderimi başarısız oldu";
+                                    }
+                                }
                             }
                             
                             $note = trim(strip_tags($_POST['updateNote'] ?? ''));
@@ -295,7 +319,24 @@ function getOrderStatusBadge($status) {
                         <span class="muted"><?= esc($customer['email'] ?? '') ?></span>
                     </td>
                     <td>₺<?= $total ?></td>
-                    <td><?= getOrderStatusBadge($o['orderStatus'] ?? 'new') ?></td>
+                    <td>
+                        <?= getOrderStatusBadge($o['orderStatus'] ?? 'new') ?>
+                        <?php
+                        // Kargo mail durumunu tablonun Sipariş Durumu hücresinde göster (Faz 5)
+                        if (($o['orderStatus'] ?? 'new') === 'shipped') {
+                            $sStat = $o['shippingMailStatus'] ?? null;
+                            if (!$sStat) {
+                                echo '<br><small style="color:#d97706; font-weight:bold;">📧 Kargo Maili: Gönderilmedi</small>';
+                            } elseif ($sStat['sent'] ?? false) {
+                                echo '<br><small style="color:#059669; font-weight:bold;">📧 Kargo Maili: Gönderildi</small>';
+                            } elseif (!empty($sStat['error'])) {
+                                echo '<br><small style="color:#dc2626; font-weight:bold;">📧 Kargo Maili: Hata</small>';
+                            } else {
+                                echo '<br><small style="color:#d97706; font-weight:bold;">📧 Kargo Maili: Gönderilmedi</small>';
+                            }
+                        }
+                        ?>
+                    </td>
                     <td>
                         <?= esc($o['paymentStatus'] ?? '-') ?><br>
                         <?php if(!empty($o['provider'])): ?>
@@ -375,6 +416,7 @@ function getOrderStatusBadge($status) {
                 <h3>Mail Durumu</h3>
                 <p><strong>Admin Maili:</strong> <span id="m_mail_admin"></span></p>
                 <p><strong>Müşteri Maili:</strong> <span id="m_mail_cust"></span></p>
+                <p><strong>Kargo Maili:</strong> <span id="m_mail_shipping"></span></p>
                 <p><strong>Mail Hatası:</strong> <span id="m_mail_error" class="muted">Yok</span></p>
             </div>
             <div class="detail-section">
@@ -532,6 +574,25 @@ function openModal(btn) {
         document.getElementById('m_mail_admin').innerHTML = mStat.adminSent ? '<span style="color:green;font-weight:bold;">Gönderildi</span>' : '<span style="color:red">Gönderilmedi</span>';
         document.getElementById('m_mail_cust').innerHTML = mStat.customerSent ? '<span style="color:green;font-weight:bold;">Gönderildi</span>' : '<span style="color:red">Gönderilmedi</span>';
         document.getElementById('m_mail_error').innerText = mStat.error || 'Yok';
+    }
+
+    // Kargo Maili Durumu (Faz 5)
+    let sStat = order.shippingMailStatus || null;
+    if (!sStat) {
+        if (order.orderStatus === 'shipped') {
+            document.getElementById('m_mail_shipping').innerHTML = '<span style="color:orange;font-weight:bold;">Gönderilmedi</span>';
+        } else {
+            document.getElementById('m_mail_shipping').innerHTML = '<span class="muted">Gerekli Değil (Kargolanmadı)</span>';
+        }
+    } else {
+        if (sStat.sent) {
+            let sentDate = sStat.sentAt ? new Date(sStat.sentAt).toLocaleString('tr-TR') : '';
+            document.getElementById('m_mail_shipping').innerHTML = `<span style="color:green;font-weight:bold;">Gönderildi</span> ${sentDate ? '<small class="muted">(' + escapeHtml(sentDate) + ')</small>' : ''}`;
+        } else if (sStat.error) {
+            document.getElementById('m_mail_shipping').innerHTML = `<span style="color:red;font-weight:bold;">Hata: ${escapeHtml(sStat.error)}</span>`;
+        } else {
+            document.getElementById('m_mail_shipping').innerHTML = '<span style="color:orange;font-weight:bold;">Gönderilmedi</span>';
+        }
     }
 
     // Durum Geçmişi

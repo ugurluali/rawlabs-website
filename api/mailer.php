@@ -221,3 +221,64 @@ function sendOrderSuccessCustomerMail($orderData) {
         return "Mail gönderimi başarısız oldu";
     }
 }
+
+/**
+ * Müşteriye kargo takip/bilgilendirme maili gönderir.
+ */
+function sendShippingNotificationEmail($orderData) {
+    try {
+        $customerEmail = $orderData['customer']['email'] ?? '';
+        if (empty($customerEmail) || !filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+            return "Geçersiz veya boş müşteri e-postası.";
+        }
+
+        $mail = createMailer();
+        $mail->addAddress($customerEmail, $orderData['customer']['fullName'] ?? 'Müşteri');
+        
+        $orderId = $orderData['orderId'] ?? 'RAW-';
+        $mail->Subject = 'Rawlabs Siparişiniz Kargoya Verildi - ' . $orderId;
+
+        $customerName = htmlspecialchars($orderData['customer']['fullName'] ?? 'Müşterimiz', ENT_QUOTES, 'UTF-8');
+        $cargoCompany = htmlspecialchars($orderData['cargoCompany'] ?? '', ENT_QUOTES, 'UTF-8');
+        $trackingNumber = htmlspecialchars($orderData['trackingNumber'] ?? '', ENT_QUOTES, 'UTF-8');
+        $trackingUrl = htmlspecialchars($orderData['trackingUrl'] ?? '', ENT_QUOTES, 'UTF-8');
+        $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://rawlabs.com.tr';
+
+        $html = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;'>";
+        $html .= "<h2 style='color: #2c3e50;'>Harika Haber! Siparişiniz Kargoya Verildi.</h2>";
+        $html .= "<p>Sayın <strong>" . $customerName . "</strong>,</p>";
+        $html .= "<p><strong>" . htmlspecialchars($orderId, ENT_QUOTES, 'UTF-8') . "</strong> numaralı siparişiniz kargo firmasına teslim edilmiştir.</p>";
+        
+        $html .= "<div style='background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin: 20px 0;'>";
+        $html .= "<h3 style='margin-top: 0; color: #34495e;'>Kargo Bilgileri</h3>";
+        $html .= "<p><strong>Kargo Firması:</strong> " . $cargoCompany . "</p>";
+        $html .= "<p><strong>Takip Numarası:</strong> " . $trackingNumber . "</p>";
+
+        if (!empty($trackingUrl) && filter_var($trackingUrl, FILTER_VALIDATE_URL)) {
+            $html .= "<p style='margin-top: 15px;'>";
+            $html .= "<a href='" . $trackingUrl . "' target='_blank' style='display: inline-block; background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;'>Kargo Takip Sayfası</a>";
+            $html .= "</p>";
+        }
+        $html .= "</div>";
+
+        $html .= "<h3 style='color: #34495e;'>Rawlabs Destek</h3>";
+        $html .= "<p>Siparişinizle ilgili herhangi bir sorunuz olması durumunda bizimle <a href='mailto:bilgi@rawlabs.com.tr' style='color: #3498db; text-decoration: none;'>bilgi@rawlabs.com.tr</a> adresinden veya <a href='tel:+905324206635' style='color: #3498db; text-decoration: none;'>0532 420 66 35</a> numaralı telefonumuzdan iletişime geçebilirsiniz.</p>";
+        
+        $html .= "<p style='margin-top: 30px; color: #7f8c8d; font-size: 14px;'>Bizi tercih ettiğiniz için teşekkür ederiz.<br><strong>Rawlabs Ekibi</strong><br><a href='{$siteUrl}' style='color: #3498db; text-decoration: none;'>{$siteUrl}</a></p>";
+        $html .= "</div>";
+
+        $mail->isHTML(true);
+        $mail->Body = $html;
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        $errorMsg = isset($mail) && $mail instanceof PHPMailer ? $mail->ErrorInfo : '';
+        error_log("Rawlabs SMTP Kargo Bildirim Mail Hatası (Sipariş: {$orderData['orderId']}): " . $e->getMessage() . ($errorMsg ? " | PHPMailer Hata: " . $errorMsg : ""));
+        return "Kargo maili gönderimi başarısız oldu";
+    } catch (\Throwable $e) {
+        $errorMsg = isset($mail) && $mail instanceof PHPMailer ? $mail->ErrorInfo : '';
+        error_log("Rawlabs SMTP Kargo Bildirim Mail Hatası (Sipariş: {$orderData['orderId']}): " . $e->getMessage() . ($errorMsg ? " | PHPMailer Hata: " . $errorMsg : ""));
+        return "Kargo maili gönderimi başarısız oldu";
+    }
+}
