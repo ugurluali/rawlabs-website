@@ -24,23 +24,41 @@ function sendOrderSuccessEmails($orderData) {
         'error' => null
     ];
 
-    try {
-        if (!$mailStatus['adminSent']) {
+    $hasError = false;
+
+    // 1. Admin Maili Gönderimi
+    if (!$mailStatus['adminSent']) {
+        try {
             $adminResult = sendOrderSuccessAdminMail($orderData);
-            $mailStatus['adminSent'] = $adminResult === true;
-            if ($adminResult !== true) throw new Exception("Admin Mail: " . $adminResult);
+            if ($adminResult === true) {
+                $mailStatus['adminSent'] = true;
+            } else {
+                $hasError = true;
+            }
+        } catch (\Throwable $e) {
+            $hasError = true;
+            error_log("Rawlabs sendOrderSuccessEmails Admin Mail Beklenmedik Hata (Sipariş: {$orderData['orderId']}): " . $e->getMessage());
         }
+    }
 
-        if (!$mailStatus['customerSent']) {
+    // 2. Müşteri Maili Gönderimi
+    if (!$mailStatus['customerSent']) {
+        try {
             $customerResult = sendOrderSuccessCustomerMail($orderData);
-            $mailStatus['customerSent'] = $customerResult === true;
-            if ($customerResult !== true) throw new Exception("Customer Mail: " . $customerResult);
+            if ($customerResult === true) {
+                $mailStatus['customerSent'] = true;
+            } else {
+                $hasError = true;
+            }
+        } catch (\Throwable $e) {
+            $hasError = true;
+            error_log("Rawlabs sendOrderSuccessEmails Müşteri Mail Beklenmedik Hata (Sipariş: {$orderData['orderId']}): " . $e->getMessage());
         }
+    }
 
-    } catch (Exception $e) {
-        // Hata güvenli şekilde kaydedilir, hassas veri barındırmaz.
+    // Eğer herhangi bir adımda hata oluştuysa genel hata mesajı set edilir
+    if ($hasError) {
         $mailStatus['error'] = "Mail gönderimi başarısız oldu";
-        error_log("Mail Gönderim Hatası (Sipariş: {$orderData['orderId']})");
     }
 
     return $mailStatus;
@@ -73,8 +91,8 @@ function createMailer() {
     $mail->Port       = $port;
     $mail->CharSet    = 'UTF-8';
     
-    // Timeout düşük tutularak banka callback timeout engellenir
-    $mail->Timeout    = 5;
+    // Timeout makul seviyede tutulur (Kuveyt Türk callback süresi için optimize edilmiştir)
+    $mail->Timeout    = 15;
 
     $mail->setFrom($fromEmail, $fromName);
     return $mail;
@@ -134,8 +152,12 @@ function sendOrderSuccessAdminMail($orderData) {
         $mail->send();
         return true;
     } catch (Exception $e) {
+        $errorMsg = isset($mail) && $mail instanceof PHPMailer ? $mail->ErrorInfo : '';
+        error_log("Rawlabs SMTP Admin Mail Hatası (Sipariş: {$orderData['orderId']}): " . $e->getMessage() . ($errorMsg ? " | PHPMailer Hata: " . $errorMsg : ""));
         return "Mail gönderimi başarısız oldu";
     } catch (\Throwable $e) {
+        $errorMsg = isset($mail) && $mail instanceof PHPMailer ? $mail->ErrorInfo : '';
+        error_log("Rawlabs SMTP Admin Mail Hatası (Sipariş: {$orderData['orderId']}): " . $e->getMessage() . ($errorMsg ? " | PHPMailer Hata: " . $errorMsg : ""));
         return "Mail gönderimi başarısız oldu";
     }
 }
@@ -190,8 +212,12 @@ function sendOrderSuccessCustomerMail($orderData) {
         $mail->send();
         return true;
     } catch (Exception $e) {
+        $errorMsg = isset($mail) && $mail instanceof PHPMailer ? $mail->ErrorInfo : '';
+        error_log("Rawlabs SMTP Müşteri Mail Hatası (Sipariş: {$orderData['orderId']}): " . $e->getMessage() . ($errorMsg ? " | PHPMailer Hata: " . $errorMsg : ""));
         return "Mail gönderimi başarısız oldu";
     } catch (\Throwable $e) {
+        $errorMsg = isset($mail) && $mail instanceof PHPMailer ? $mail->ErrorInfo : '';
+        error_log("Rawlabs SMTP Müşteri Mail Hatası (Sipariş: {$orderData['orderId']}): " . $e->getMessage() . ($errorMsg ? " | PHPMailer Hata: " . $errorMsg : ""));
         return "Mail gönderimi başarısız oldu";
     }
 }
