@@ -393,6 +393,16 @@ function initChatbot() {
     }
   }
 
+  // Sohbet geçmişi (sadece AI konuşmaları için)
+  let chatHistory = [];
+  const MAX_HISTORY = 6;
+
+  // Hassas veri filtresi (16 haneli olası kart numaralarını maskeler)
+  function filterSensitive(text) {
+    if (!text) return '';
+    return text.replace(/(?:\d[ -]*?){13,16}/g, '[KVKK GİZLENDİ]');
+  }
+
   // Handle message sending to secure backend or hybrid canned responses
   function handleChatMessage(userText) {
     appendMessage('user', userText);
@@ -468,7 +478,10 @@ function initChatbot() {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ message: userText })
+      body: JSON.stringify({ 
+        message: userText,
+        history: chatHistory
+      })
     })
     .then(res => {
       if (!res.ok) throw new Error('Sunucu hatası');
@@ -478,6 +491,15 @@ function initChatbot() {
       removeTyping();
       if (data && data.status === 'success' && data.reply) {
         appendMessage('bot', data.reply);
+        
+        // Başarılı yapay zeka işlemlerini geçmişe kaydet (KVKK filtreli)
+        chatHistory.push({ role: 'user', content: filterSensitive(userText) });
+        chatHistory.push({ role: 'assistant', content: data.reply });
+        
+        // Yalnızca son N mesajı tut
+        if (chatHistory.length > MAX_HISTORY) {
+          chatHistory = chatHistory.slice(chatHistory.length - MAX_HISTORY);
+        }
       } else {
         appendMessage('bot', 'Şu anda asistanımıza bağlanamıyorum. Dilerseniz iletişim sayfasından bize ulaşabilirsiniz.');
       }
