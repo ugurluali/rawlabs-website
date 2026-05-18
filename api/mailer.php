@@ -282,3 +282,62 @@ function sendShippingNotificationEmail($orderData) {
         return "Kargo maili gönderimi başarısız oldu";
     }
 }
+
+/**
+ * İletişim / Bize Ulaşın formundan gelen mesajı yöneticiye e-posta olarak iletir.
+ * @param array $contactData İletişim formu verisi
+ * @return bool|string Başarılı ise true, hata durumunda hata mesajı (string)
+ */
+function sendContactFormEmail($contactData) {
+    try {
+        $recipientEmail = 'bilgi@rawlabs.com.tr';
+        
+        $mail = createMailer();
+        $mail->addAddress($recipientEmail);
+        
+        $subject = htmlspecialchars($contactData['subject'] ?? 'Genel', ENT_QUOTES, 'UTF-8');
+        $mail->Subject = 'Rawlabs İletişim Formu - ' . $subject;
+
+        $safeName = htmlspecialchars($contactData['name'] ?? '', ENT_QUOTES, 'UTF-8');
+        $safeEmail = htmlspecialchars($contactData['email'] ?? '', ENT_QUOTES, 'UTF-8');
+        $safePhone = htmlspecialchars($contactData['phone'] ?? 'Belirtilmedi', ENT_QUOTES, 'UTF-8');
+        $safeMessage = nl2br(htmlspecialchars($contactData['message'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $sendTime = date('d.m.Y H:i:s');
+        $ipAddress = htmlspecialchars($contactData['ipAddress'] ?? 'Belirtilmedi', ENT_QUOTES, 'UTF-8');
+
+        // Şık, modern ve mobil uyumlu HTML e-posta tasarımı
+        $html = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;'>";
+        $html .= "<h2 style='color: #aa3183; border-bottom: 2px solid #eaeeef; padding-bottom: 10px; margin-top: 0;'>Yeni İletişim Formu Mesajı</h2>";
+        $html .= "<p>Sitenizdeki iletişim formundan yeni bir mesaj gönderildi. Detaylar aşağıdadır:</p>";
+        
+        $html .= "<div style='background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin: 20px 0; line-height: 1.6;'>";
+        $html .= "<p><strong>Ad Soyad:</strong> {$safeName}</p>";
+        $html .= "<p><strong>E-posta:</strong> <a href='mailto:{$safeEmail}' style='color: #aa3183;'>{$safeEmail}</a></p>";
+        $html .= "<p><strong>Telefon:</strong> {$safePhone}</p>";
+        $html .= "<p><strong>Konu:</strong> {$subject}</p>";
+        $html .= "<p><strong>Mesaj:</strong><br><span style='white-space: pre-wrap;'>{$safeMessage}</span></p>";
+        $html .= "</div>";
+        
+        $html .= "<hr style='border: 0; border-top: 1px solid #ddd; margin: 20px 0;'>";
+        $html .= "<p style='font-size: 11px; color: #7f8c8d; line-height: 1.4;'>";
+        $html .= "<strong>Gönderim Zamanı:</strong> {$sendTime}<br>";
+        $html .= "<strong>Gönderen IP:</strong> {$ipAddress}";
+        $html .= "</p>";
+        $html .= "</div>";
+
+        $mail->isHTML(true);
+        $mail->Body = $html;
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        $errorMsg = isset($mail) && $mail instanceof PHPMailer ? $mail->ErrorInfo : '';
+        error_log("Rawlabs SMTP İletişim Mail Hatası: " . $e->getMessage() . ($errorMsg ? " | PHPMailer Hata: " . $errorMsg : ""));
+        return "Mail gönderimi başarısız oldu";
+    } catch (\Throwable $e) {
+        $errorMsg = isset($mail) && $mail instanceof PHPMailer ? $mail->ErrorInfo : '';
+        error_log("Rawlabs SMTP İletişim Mail Hatası: " . $e->getMessage() . ($errorMsg ? " | PHPMailer Hata: " . $errorMsg : ""));
+        return "Mail gönderimi başarısız oldu";
+    }
+}
+

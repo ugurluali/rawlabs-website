@@ -59,11 +59,19 @@
               <h2 style="margin-bottom:24px;font-size:1.3rem">Mesaj Gönderin</h2>
               <div class="form-group"><label for="name">Ad Soyad</label><input type="text" id="name" placeholder="Adınız Soyadınız" required></div>
               <div class="form-group"><label for="email">E-posta</label><input type="email" id="email" placeholder="ornek@email.com" required></div>
+              <div class="form-group"><label for="phone">Telefon Numarası</label><input type="tel" id="phone" placeholder="05XX XXX XX XX" required></div>
               <div class="form-group"><label for="subject">Konu</label>
                 <select id="subject"><option>Ürün Hakkında Bilgi</option><option>Sipariş Takibi</option><option>İade / Değişim</option><option>İş Birliği</option><option>Diğer</option></select>
               </div>
               <div class="form-group"><label for="message">Mesajınız</label><textarea id="message" placeholder="Mesajınızı buraya yazın..." required></textarea></div>
-              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitForm()">Mesajı Gönder →</button>
+              
+              <!-- Honeypot (Gizli Spam Engelleyici Alan) -->
+              <input type="text" id="website" name="website" style="display:none;" tabindex="-1" autocomplete="off">
+              
+              <!-- Hata Mesajı Gösterim Alanı -->
+              <div id="formError" style="color: #e74c3c; margin-bottom: 15px; font-size: 0.88rem; text-align: center; display: none; background: rgba(231, 76, 60, 0.08); padding: 10px; border-radius: var(--radius-sm); border: 1px solid rgba(231, 76, 60, 0.15);"></div>
+              
+              <button class="btn btn-primary" id="submitBtn" style="width:100%;justify-content:center" onclick="submitForm()">Mesajı Gönder →</button>
             </div>
             <div class="form-success" id="formSuccess">
               <div class="form-success-icon">✅</div>
@@ -111,7 +119,96 @@
   <script src="js/main.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    function submitForm(){const n=document.getElementById('name').value,e=document.getElementById('email').value,m=document.getElementById('message').value;if(!n||!e||!m){alert('Lütfen tüm alanları doldurun.');return}document.getElementById('contactForm').style.display='none';document.getElementById('formSuccess').classList.add('show')}
+    async function submitForm() {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const subject = document.getElementById('subject').value;
+      const message = document.getElementById('message').value.trim();
+      const website = document.getElementById('website').value; // Honeypot
+      
+      const formError = document.getElementById('formError');
+      const submitBtn = document.getElementById('submitBtn');
+      
+      // Hata sıfırlama
+      formError.style.display = 'none';
+      formError.textContent = '';
+      
+      // Temel Frontend Validasyonları
+      if (!name || !email || !phone || !message) {
+        showError('Lütfen tüm zorunlu alanları doldurun.');
+        return;
+      }
+      
+      // Ad Soyad Uzunluk Kontrolü
+      if (name.length < 2 || name.length > 100) {
+        showError('Ad Soyad 2 ile 100 karakter arasında olmalıdır.');
+        return;
+      }
+      
+      // E-posta Format Kontrolü
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showError('Lütfen geçerli bir e-posta adresi girin.');
+        return;
+      }
+      
+      // Telefon Format Kontrolü (7-20 karakter, sadece izin verilen karakterler)
+      const phoneRegex = /^[0-9\s\+\-\(\)]+$/;
+      if (phone.length < 7 || phone.length > 20 || !phoneRegex.test(phone)) {
+        showError('Lütfen geçerli bir telefon numarası girin (7-20 karakter aralığında).');
+        return;
+      }
+      
+      // Mesaj Uzunluğu Kontrolü
+      if (message.length < 10 || message.length > 3000) {
+        showError('Mesajınız en az 10 ve en fazla 3000 karakter olmalıdır.');
+        return;
+      }
+      
+      try {
+        // Çift tıklamayı engelle ve yükleniyor durumunu göster
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Gönderiliyor...';
+        
+        const payload = { name, email, phone, subject, message, website };
+        
+        const response = await fetch('api/contact-submit.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8'
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json().catch(() => ({}));
+        
+        if (response.ok && result.success) {
+          // Başarılı gönderim
+          document.getElementById('contactForm').style.display = 'none';
+          document.getElementById('formSuccess').classList.add('show');
+        } else {
+          // Sunucudan gelen hata mesajı
+          showError(result.message || 'Mesajınız gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
+          resetBtn();
+        }
+      } catch (error) {
+        console.error('Gönderim hatası:', error);
+        showError('Sunucu bağlantısı kurulamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.');
+        resetBtn();
+      }
+      
+      function showError(msg) {
+        formError.textContent = msg;
+        formError.style.display = 'block';
+        formError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      
+      function resetBtn() {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Mesajı Gönder →';
+      }
+    }
   </script>
 </body>
 </html>
