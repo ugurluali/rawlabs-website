@@ -393,11 +393,71 @@ function initChatbot() {
     }
   }
 
-  // Handle message sending to secure backend
+  // Handle message sending to secure backend or hybrid canned responses
   function handleChatMessage(userText) {
     appendMessage('user', userText);
     
-    // Disable inputs
+    const lowerText = userText.toLowerCase();
+    
+    // AI triggers (danışmanlık gerektiren ifadeler)
+    const aiKeywords = [
+      'nasıl geçiş',
+      'nasıl başlam',
+      'nasıl kullan',
+      'hangi ürün',
+      'ne öner',
+      'önerirsiniz',
+      'ürün öner',
+      'seçemiyorum',
+      'alerji',
+      'alerjik',
+      'hassasiyet',
+      'iştahsız',
+      'yavru',
+      'kısır',
+      'barf farkı',
+      'yardım al'
+    ];
+    let needsAI = aiKeywords.some(kw => lowerText.includes(kw));
+
+    let cannedReply = null;
+
+    if (!needsAI) {
+      if (lowerText.includes('kargo ücret') || lowerText.includes('kargo ne kadar') || lowerText.includes('kargo kaç')) {
+        cannedReply = "3.000 TL ve üzeri siparişlerde kargo ücretsizdir. 3.000 TL altındaki siparişlerde sabit 300 TL kargo ücreti uygulanır.";
+      } else if (lowerText.includes('ücretsiz kargo') || lowerText.includes('kargo bedava')) {
+        cannedReply = "Rawlabs’ta ücretsiz kargo limiti 3.000 TL’dir. Sepet tutarınız 3.000 TL ve üzerine ulaştığında kargo ücreti otomatik olarak ücretsiz olur.";
+      } else if (lowerText.includes('teslimat') || lowerText.includes('ne zaman kargo') || lowerText.includes('kargo ne zaman')) {
+        cannedReply = "Siparişler ödeme onayından sonra hazırlanır ve en kısa sürede kargoya teslim edilir. Kargoya verildiğinde takip bilgileriniz e-posta yoluyla tarafınıza iletilir. Yoğun dönemlerde veya resmi tatillerde teslim süresi değişebilir.";
+      } else if (lowerText.includes('iade') || lowerText.includes('değişim')) {
+        cannedReply = "Rawlabs ürünleri gıda niteliğinde olduğu için iade ve değişim süreçleri hijyen, ambalaj bütünlüğü ve yasal koşullar çerçevesinde değerlendirilir. Ambalajı açılmış, kullanılmış veya saklama koşulları bozulmuş ürünlerde iade kabul edilemeyebilir. Detaylı bilgi için İade ve Geri Ödeme Politikası sayfamızı inceleyebilirsiniz.";
+      } else if (lowerText.includes('freeze-dried nedir') || lowerText.includes('freeze dry nedir') || lowerText.includes('dondurarak kurutma') || lowerText.includes('nedir')) {
+        cannedReply = "Freeze-dried, taze içeriklerin düşük sıcaklıkta dondurulduktan sonra neminin alınmasıyla elde edilen özel bir kurutma teknolojisidir. Bu yöntemde ürünler pişirilmez ve yüksek ısıl işleme maruz kalmaz. Böylece doğal aroma, koku ve besin değerlerinin mümkün olduğunca korunması hedeflenir.";
+      } else if (lowerText.includes('ödül mama')) {
+        cannedReply = "Rawlabs ödül mamaları eğitim, motivasyon veya ara öğün desteği için küçük porsiyonlarda kullanılabilir. Günlük toplam beslenme miktarı dikkate alınarak verilmesi önerilir.";
+      } else if (lowerText.includes('kedi mama') || lowerText.includes('kedim için') || lowerText.includes('kediler için')) {
+        cannedReply = "Rawlabs’ta kediler için tam mama ve ödül maması seçenekleri bulunur. Kedinizin yaşı, kilosu, kısır olup olmadığı ve varsa hassasiyetlerine göre seçim yapmanız önerilir. Dilerseniz size ürün seçiminde yardımcı olabilirim.";
+      } else if (lowerText.includes('köpek mama') || lowerText.includes('köpeğim için') || lowerText.includes('köpekler için')) {
+        cannedReply = "Rawlabs’ta köpekler için tam mama ve ödül maması seçenekleri bulunur. Köpeğinizin yaşı, kilosu, aktivite düzeyi ve varsa hassasiyetlerine göre uygun ürünü seçebilirsiniz. Dilerseniz ürün seçiminde birlikte ilerleyebiliriz.";
+      } else if (lowerText.includes('ödeme') || lowerText.includes('kredi kartı') || lowerText.includes('taksit') || lowerText.includes('havale')) {
+        cannedReply = "Rawlabs’ta ödemeler kredi kartı ile Kuveyt Türk Sanal POS / 3D Secure altyapısı üzerinden güvenli şekilde alınır. Kart bilgileriniz Rawlabs tarafından saklanmaz.";
+      } else if (lowerText.includes('sipariş durum') || lowerText.includes('siparişim') || lowerText.includes('kargom nerede') || lowerText.includes('takip')) {
+        cannedReply = "Güvenliğiniz gereği sipariş detaylarınızı buradan görüntüleyemiyoruz. Siparişinizi Hesabım sayfasından kontrol edebilir veya bilgi@rawlabs.com.tr adresinden bize ulaşabilirsiniz.";
+      } else if (lowerText.includes('iletişim') || lowerText.includes('telefon') || lowerText.includes('numara') || lowerText.includes('ulaşabilirim') || lowerText.includes('whatsapp')) {
+        cannedReply = "Bize bilgi@rawlabs.com.tr adresinden, +90 532 420 66 35 numaralı telefondan veya web sitemizdeki iletişim formundan ulaşabilirsiniz.";
+      } else if (lowerText.includes('kampanya') || lowerText.includes('indirim')) {
+        cannedReply = "Güncel kampanya ve avantajları ana sayfamızdaki kampanya alanından takip edebilirsiniz. Kampanya koşulları dönemsel olarak değişebilir.";
+      }
+    }
+
+    // Eğer hazır cevapla eşleştiyse, hemen ekranda göster ve AI'a gitme
+    if (cannedReply) {
+      appendMessage('bot', cannedReply);
+      return;
+    }
+    
+    // Hazır cevapla eşleşmiyorsa (veya AI zorunluysa), backend'e gönder
+    // Disable inputs for AI loading state
     chatInput.disabled = true;
     chatSubmitBtn.disabled = true;
     
@@ -430,7 +490,6 @@ function initChatbot() {
     .finally(() => {
       chatInput.disabled = false;
       chatSubmitBtn.disabled = false;
-      chatInput.value = '';
       chatInput.focus();
     });
   }
@@ -440,6 +499,7 @@ function initChatbot() {
     e.preventDefault();
     const text = chatInput.value.trim();
     if (!text) return;
+    chatInput.value = ''; // Kullanıcı gönderir göndermez kutuyu temizle
     handleChatMessage(text);
   });
 
