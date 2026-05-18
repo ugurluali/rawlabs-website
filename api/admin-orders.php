@@ -512,8 +512,9 @@ function getOrderStatusBadge($status) {
         
         /* Özet Sayaçları ve Gelişmiş Arama Stilleri (Faz 6A) */
         .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-left: 4px solid #d1d5db; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .stat-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-left: 4px solid #d1d5db; border-top: 1px solid #f3f4f6; border-right: 1px solid #f3f4f6; border-bottom: 1px solid #f3f4f6; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, border-width 0.2s; cursor: pointer; user-select: none; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.12); }
+        .stat-card.active { border-top-color: #B12A8F; border-right-color: #B12A8F; border-bottom-color: #B12A8F; border-left-color: #B12A8F; border-left-width: 4px; box-shadow: 0 4px 10px rgba(177, 42, 143, 0.15); transform: translateY(-1px); }
         .stat-card.total { border-left-color: #3b82f6; }
         .stat-card.new { border-left-color: #64748b; }
         .stat-card.preparing { border-left-color: #f97316; }
@@ -535,31 +536,31 @@ function getOrderStatusBadge($status) {
 
 <!-- Özet Sayaçları (Faz 6B) -->
 <div class="stats-container">
-    <div class="stat-card total">
+    <div class="stat-card total" onclick="quickFilter('all')">
         <span class="stat-val"><?= (int)$summaryCounts['total'] ?></span>
         <span class="stat-label">Toplam Sipariş</span>
     </div>
-    <div class="stat-card payment-pending" style="border-left-color: #9ca3af;">
+    <div class="stat-card payment-pending" style="border-left-color: #9ca3af;" onclick="quickFilter('payment_pending')">
         <span class="stat-val"><?= (int)$summaryCounts['payment_pending'] ?></span>
         <span class="stat-label">Ödeme Bekliyor</span>
     </div>
-    <div class="stat-card new">
+    <div class="stat-card new" onclick="quickFilter('new')">
         <span class="stat-val"><?= (int)$summaryCounts['new'] ?></span>
         <span class="stat-label">Yeni</span>
     </div>
-    <div class="stat-card preparing">
+    <div class="stat-card preparing" onclick="quickFilter('preparing')">
         <span class="stat-val"><?= (int)$summaryCounts['preparing'] ?></span>
         <span class="stat-label">Hazırlanıyor</span>
     </div>
-    <div class="stat-card shipped">
+    <div class="stat-card shipped" onclick="quickFilter('shipped')">
         <span class="stat-val"><?= (int)$summaryCounts['shipped'] ?></span>
         <span class="stat-label">Kargoda</span>
     </div>
-    <div class="stat-card completed">
+    <div class="stat-card completed" onclick="quickFilter('completed')">
         <span class="stat-val"><?= (int)$summaryCounts['completed'] ?></span>
         <span class="stat-label">Tamamlandı</span>
     </div>
-    <div class="stat-card cancelled">
+    <div class="stat-card cancelled" onclick="quickFilter('cancelled')">
         <span class="stat-val"><?= (int)$summaryCounts['cancelled'] ?></span>
         <span class="stat-label">İptal</span>
     </div>
@@ -946,6 +947,39 @@ function getOrderStatusBadge($status) {
 </div>
 
 <script>
+// Üst Kartlardan Hızlı Filtreleme (Faz 8)
+function quickFilter(status) {
+    let statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.value = status;
+        applyTableFilters();
+        
+        // Tablo alanına yumuşak geçiş yap
+        let table = document.getElementById('ordersTable');
+        if (table) {
+            table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // Eğer filtre sonucu sadece 1 satır kaldıysa, o satırı hafifçe vurgula (flash)
+        let visibleRows = Array.from(document.querySelectorAll('#ordersTable tbody tr')).filter(row => {
+            return row.style.display !== 'none' && row.cells.length >= 2;
+        });
+        
+        if (visibleRows.length === 1) {
+            let row = visibleRows[0];
+            row.style.transition = 'background-color 0.3s ease';
+            row.style.backgroundColor = '#fdf2f8'; // Rawlabs mor/pembe vurgusu
+            
+            setTimeout(() => {
+                row.style.backgroundColor = '#fbcfe8'; // Mor/pembe orta vurgu
+                setTimeout(() => {
+                    row.style.backgroundColor = ''; // Varsayılana dön
+                }, 800);
+            }, 150);
+        }
+    }
+}
+
 // Birleşik Arama, Durum, Tarih, Ödeme ve Müşteri Tipi Filtreleme Mantığı (Faz 6B)
 function applyTableFilters() {
     let textFilter = document.getElementById('searchInput').value.toLowerCase();
@@ -956,6 +990,28 @@ function applyTableFilters() {
     let startDateVal = document.getElementById('startDateFilter').value; // YYYY-MM-DD
     let endDateVal = document.getElementById('endDateFilter').value;     // YYYY-MM-DD
     
+    // Aktif kart stilini select ile eşitle (Faz 8)
+    let cards = document.querySelectorAll('.stat-card');
+    cards.forEach(card => card.classList.remove('active'));
+    if (statusFilter === 'all') {
+        let totalCard = document.querySelector('.stat-card.total');
+        if (totalCard) totalCard.classList.add('active');
+    } else {
+        let cardMap = {
+            'payment_pending': '.stat-card.payment-pending',
+            'new': '.stat-card.new',
+            'preparing': '.stat-card.preparing',
+            'shipped': '.stat-card.shipped',
+            'completed': '.stat-card.completed',
+            'cancelled': '.stat-card.cancelled'
+        };
+        let targetClass = cardMap[statusFilter];
+        if (targetClass) {
+            let targetCard = document.querySelector(targetClass);
+            if (targetCard) targetCard.classList.add('active');
+        }
+    }
+
     let rows = document.querySelectorAll('#ordersTable tbody tr');
     
     rows.forEach(row => {
