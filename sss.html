@@ -37,9 +37,12 @@
   </style>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-    {"@type":"Question","name":"Freeze dry mama nedir?","acceptedAnswer":{"@type":"Answer","text":"Freeze dry, taze gıdaların -40°C'de dondurularak vakum altında kurutulması işlemidir. Bu yöntemle besin değerlerinin %97'si korunur."}},
-    {"@type":"Question","name":"Rawlabs mamalarında katkı maddesi var mı?","acceptedAnswer":{"@type":"Answer","text":"Hayır. Rawlabs mamalarında hiçbir katkı maddesi, koruyucu veya renklendirici bulunmaz. Sadece %100 doğal içerikler kullanılır."}},
-    {"@type":"Question","name":"Kargo ücretsiz mi?","acceptedAnswer":{"@type":"Answer","text":"3.000 TL ve üzeri siparişlerde kargo ücretsizdir. 3.000 TL altındaki siparişlerde sabit 300 TL kargo ücreti uygulanır."}}
+    {"@type":"Question","name":"Freeze dry mama nedir?","acceptedAnswer":{"@type":"Answer","text":"Freeze dry (dondurarak kurutma), taze gıdaların kurutulması işlemidir. Bu yöntemle besin değerlerinin %97'si korunur."}},
+    {"@type":"Question","name":"Çiğ beslenme nedir?","acceptedAnswer":{"@type":"Answer","text":"Çiğ beslenme veya BARF, kedi ve köpeklerin doğalarına daha yakın bir beslenme modeli sunmayı amaçlayan bir yaklaşımdır. Bu modelde içerikler yüksek ısıl işleme maruz bırakılmadan hazırlanır."}},
+    {"@type":"Question","name":"Rawlabs mamalarında katkı maddesi var mı?","acceptedAnswer":{"@type":"Answer","text":"Rawlabs ürünleri sade ve doğal içerik yaklaşımıyla hazırlanır. Koruyucu, renklendirici veya yapay katkı maddesi kullanılmaz."}},
+    {"@type":"Question","name":"Kargo ücretsiz mi?","acceptedAnswer":{"@type":"Answer","text":"3.000 TL ve üzeri siparişlerde kargo ücretsizdir. 3.000 TL altındaki siparişlerde sabit 300 TL kargo ücreti uygulanır."}},
+    {"@type":"Question","name":"Ödeme nasıl yapılır?","acceptedAnswer":{"@type":"Answer","text":"Rawlabs’ta ödemeler kredi kartı veya banka kartı ile güvenli 3D Secure ödeme altyapısı üzerinden kredi kartı ile güvenli şekilde tamamlanır."}},
+    {"@type":"Question","name":"İade ve değişim koşulları nelerdir?","acceptedAnswer":{"@type":"Answer","text":"Rawlabs ürünleri gıda niteliğinde olduğu için iade ve değişim süreçleri hijyen, ambalaj bütünlüğü ve yasal koşullar çerçevesinde değerlendirilir."}}
   ]}
   </script>
 </head>
@@ -57,22 +60,134 @@
       <div class="container">
         <div class="faq-tabs">
           <button class="faq-tab active" onclick="filterFaq('all')">Tümü</button>
-          <button class="faq-tab" onclick="filterFaq('urun')">Ürünler</button>
-          <button class="faq-tab" onclick="filterFaq('siparis')">Sipariş</button>
-          <button class="faq-tab" onclick="filterFaq('teslimat')">Teslimat</button>
-          <button class="faq-tab" onclick="filterFaq('iade')">İade</button>
+          <button class="faq-tab" onclick="filterFaq('cig-freeze')">Çiğ Beslenme & Freeze Dry</button>
+          <button class="faq-tab" onclick="filterFaq('urun-kullanim')">Ürünler & Kullanım</button>
+          <button class="faq-tab" onclick="filterFaq('saklama-gecis')">Saklama, Geçiş & Porsiyon</button>
+          <button class="faq-tab" onclick="filterFaq('siparis-kargo')">Sipariş, Ödeme & Teslimat</button>
+          <button class="faq-tab" onclick="filterFaq('iletisim-destek')">İletişim & Destek</button>
         </div>
         <div class="faq-list" id="faq-list">
-          <div class="faq-item animate-on-scroll" data-cat="urun"><div class="faq-question" onclick="toggleFaq(this)"><span>Freeze dry mama nedir?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Freeze dry (dondurarak kurutma), taze gıdaların -40°C'de dondurularak vakum altında kurutulması işlemidir. Bu yöntemle besin değerlerinin %97'si korunur, tat ve aroma bozulmaz. Geleneksel kurutma yöntemlerinden çok daha üstündür. <a href="blog.html">Blog yazımızda</a> detaylı bilgi bulabilirsiniz.</div></div></div>
-          <div class="faq-item animate-on-scroll" data-cat="urun"><div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs mamalarında katkı maddesi var mı?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Hayır, kesinlikle yok. Rawlabs mamalarında hiçbir katkı maddesi, koruyucu, renklendirici veya yapay aroma bulunmaz. Sadece %100 doğal, insan tüketimine uygun kalitede içerikler kullanılır.</div></div></div>
-          <div class="faq-item animate-on-scroll" data-cat="urun"><div class="faq-question" onclick="toggleFaq(this)"><span>Tam mama ile ödül maması arasındaki fark nedir?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner"><strong>Tam mama</strong>, evcil hayvanınızın günlük tüm besin ihtiyaçlarını karşılayacak şekilde formüle edilmiş ana öğündür. <strong>Ödül maması</strong> ise eğitim, ödüllendirme veya ara öğün olarak kullanılan, genellikle tek içerikli atıştırmalıklardır. <a href="magaza.html">Mağazamızda</a> her iki kategoriyi de bulabilirsiniz.</div></div></div>
-          <div class="faq-item animate-on-scroll" data-cat="urun"><div class="faq-question" onclick="toggleFaq(this)"><span>Hangi hayvan için hangi mama uygun?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Her ürünümüz kedi veya köpek için özel olarak formüle edilmiştir. Hangisinin dostunuza uygun olduğunu öğrenmek için <a href="mama-onerisi.html">Beslenme Asistanı</a> aracımızı kullanabilirsiniz.</div></div></div>
-          <div class="faq-item animate-on-scroll" data-cat="siparis"><div class="faq-question" onclick="toggleFaq(this)"><span>Nasıl sipariş verebilirim?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner"><a href="magaza.html">Mağaza</a> sayfamızdan ürünleri sepetinize ekleyerek güvenli ödeme adımlarını tamamlayabilir ve siparişinizi online olarak oluşturabilirsiniz. Siparişiniz başarıyla tamamlandığında bilgilendirme e-postası gönderilir.</div></div></div>
-          <div class="faq-item animate-on-scroll" data-cat="siparis"><div class="faq-question" onclick="toggleFaq(this)"><span>Hangi ödeme yöntemlerini kabul ediyorsunuz?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Şu anda siparişlerinizi kredi kartı veya banka kartı ile güvenli 3D Secure ödeme altyapısı üzerinden tamamlayabilirsiniz. Yeni ödeme yöntemleri aktif olduğunda bu sayfada ayrıca duyurulacaktır.</div></div></div>
-          <div class="faq-item animate-on-scroll" data-cat="teslimat"><div class="faq-question" onclick="toggleFaq(this)"><span>Kargo ücretsiz mi?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">3.000 TL ve üzeri siparişlerde kargo ücretsizdir. 3.000 TL altındaki siparişlerde sabit 300 TL kargo ücreti uygulanır.</div></div></div>
-          <div class="faq-item animate-on-scroll" data-cat="teslimat"><div class="faq-question" onclick="toggleFaq(this)"><span>Siparişim ne zaman teslim edilir?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Siparişler genellikle aynı gün veya ertesi iş günü kargoya hazırlanır. Teslimat süresi bulunduğunuz bölgeye göre değişebilir. Siparişiniz kargoya verildiğinde kargo firması ve takip bilgileri e-posta ile paylaşılır.</div></div></div>
-          <div class="faq-item animate-on-scroll" data-cat="iade"><div class="faq-question" onclick="toggleFaq(this)"><span>İade ve değişim politikanız nedir?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Açılmamış ve tekrar satılabilir durumdaki ürünlerde, yasal süreler ve mesafeli satış mevzuatı kapsamında iade süreci değerlendirilir. Hasarlı, hatalı veya yanlış ürün teslimatlarında bizimle iletişime geçebilirsiniz. Detaylı bilgi için <a href="iade-ve-geri-odeme-politikasi.html">İade ve Geri Ödeme Politikası</a> sayfamızı inceleyebilirsiniz.</div></div></div>
-          <div class="faq-item animate-on-scroll" data-cat="iade"><div class="faq-question" onclick="toggleFaq(this)"><span>Ürün beğenmezsem iade edebilir miyim?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><div class="faq-answer-inner">Evcil dostunuzun ürüne alışma süreci değişebilir. Memnuniyetiniz bizim için önemlidir; ürünle ilgili bir sorun yaşarsanız bizimle iletişime geçerek destek alabilirsiniz.</div></div></div>
+          
+          <!-- 1. Çiğ Beslenme ve Freeze Dry -->
+          <div class="faq-item animate-on-scroll" data-cat="cig-freeze">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Çiğ beslenme nedir?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Çiğ beslenme veya BARF, kedi ve köpeklerin doğalarına daha yakın bir beslenme modeli sunmayı amaçlayan bir yaklaşımdır. Bu modelde içerikler yüksek ısıl işleme maruz bırakılmadan, taze ve doğal malzemelerle hazırlanır. Isıl işlem görmeyen içeriklerde protein, aroma ve doğal besin değerlerinin korunması hedeflenir. Ancak her patili dostun yaşı, kilosu, aktivite seviyesi ve sağlık durumu farklı olduğu için beslenme düzeni oluşturulurken veteriner hekim görüşü almak önemlidir.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="cig-freeze">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Çiğ beslenmenin faydaları nelerdir?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Çiğ beslenme yaklaşımı, doğru uygulandığında bazı patili dostlarda şu alanlarda destekleyici etkiler gösterebilir:
+              <ul style="margin-top: 8px; margin-bottom: 8px; padding-left: 20px; list-style-type: disc;">
+                <li>Sindirim sisteminin desteklenmesi</li>
+                <li>Bağışıklık sisteminin dengeli şekilde desteklenmesi</li>
+                <li>Diş ve ağız sağlığının desteklenmesi</li>
+                <li>Ağız kokusunda ve tüy dökülmesinde azalma gözlemlenmesi</li>
+                <li>Deri ve tüy görünümünün desteklenmesi (daha parlak ve yumuşak tüy görünümü)</li>
+                <li>Kas kütlesinin korunmasına destek</li>
+                <li>Dışkı miktarı ve kokusunda olumlu değişimler gözlemlenmesi</li>
+                <li>Enerji ve canlılık düzeyinin desteklenmesi</li>
+              </ul>
+              Bu etkiler her kedi ve köpekte aynı şekilde görülmeyebilir. Hastalık, alerji veya özel beslenme ihtiyacı olan patili dostlar için veteriner hekime danışılması önerilir.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="cig-freeze">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Freeze Dry teknolojisi nedir?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Freeze Dry teknolojisi, taze gıda maddelerinin önce düşük sıcaklıklarda dondurulması, ardından süblimleşme yöntemiyle içerisindeki nemin alınması işlemidir. Bu yöntemde ürünler pişirilmez ve yüksek ısıl işleme maruz kalmaz. Freeze Dry yöntemiyle ürünlerin doğal besin değerlerinin, tatlarının ve kokularının mümkün olduğunca korunması hedeflenir. Bu sayede çiğ beslenme yaklaşımı daha pratik, saklaması kolay ve kullanıma hazır bir forma dönüşür.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="cig-freeze">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Freeze Dry mama ile raw, yani çiğ mama arasında fark nedir?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Freeze Dry mama, çiğ beslenmenin daha pratik hale getirilmiş formudur. Temel fark üretim teknolojisidir. Raw, yani çiğ mamalarda içerik taze formda sunulur. Freeze Dry mamalarda ise çiğ içeriklerin nemi alınır. Böylece ürün daha hafif, daha uzun ömürlü ve günlük kullanım açısından daha pratik hale gelir.</div></div>
+          </div>
+
+          <!-- 2. Ürünler ve Kullanım -->
+          <div class="faq-item animate-on-scroll" data-cat="urun-kullanim">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Ürünler kedi ve köpekler için uygun mu?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Rawlabs’ta kediler ve köpekler için farklı ürün seçenekleri bulunur. Ürün seçerken patili dostunuzun türüne, yaşına, kilosuna, aktivite düzeyine ve varsa hassasiyetlerine dikkat etmeniz önerilir. Kararsız kalırsanız ürün açıklamalarını inceleyebilir veya bizimle iletişime geçebilirsiniz.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="urun-kullanim">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Tam mama ile ödül maması arasındaki fark nedir?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Tam mamalar, patili dostunuzun günlük beslenmesini desteklemek amacıyla formüle edilen ana öğün ürünleridir. Ödül mamaları ise eğitim, motivasyon veya ara öğün desteği için daha küçük porsiyonlarda verilen lezzetli ürünlerdir. Ödül mamaları günlük toplam beslenme miktarı dikkate alınarak verilmelidir.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="urun-kullanim">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs ürünlerinde katkı maddesi var mı?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Rawlabs ürünleri sade ve doğal içerik yaklaşımıyla hazırlanır. Koruyucu, renklendirici veya yapay katkı maddesi kullanılmaz. İçerik detaylarını her ürünün kendi açıklama bölümünden inceleyebilirsiniz.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="urun-kullanim">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs ürünlerinden hangisini seçmeliyim?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Bilinen bir alerji veya özel hassasiyet yoksa, başlangıç için sindirimi daha kolay olabilecek tavuk bazlı protein kaynakları tercih edilebilir. Ancak en doğru seçim; patili dostunuzun türüne, yaşına, kilosuna, aktivite düzeyine, kısır olup olmamasına ve varsa hassasiyetlerine göre yapılmalıdır. Kararsız kalırsanız bize ulaşarak destek alabilirsiniz.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="urun-kullanim">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs ürünlerini farklı şekilde kullanabilir miyim?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Evet. Geçiş süreci tamamlandıktan sonra farklı protein kaynakları arasında dönüşümlü kullanım tercih edilebilir. Bu, patili dostunuzun farklı lezzetlerle tanışmasına ve beslenme rutininden sıkılmamasına yardımcı olabilir. Protein değişimlerinde ani geçiş yapmak yerine patili dostunuzun sindirim tepkilerini takip ederek ilerlemeniz önerilir.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="urun-kullanim">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs ürünlerini farklı mamalarla karıştırarak verebilir miyim?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Evet, Rawlabs ürünleri farklı mamalarla birlikte kullanılabilir. Ancak günlük toplam beslenme miktarına dikkat edilmelidir. Karışık kullanımda porsiyon oranlarını dengeli belirlemek, sindirim hassasiyetlerini takip etmek ve ani mama değişimlerinden kaçınmak önemlidir.</div></div>
+          </div>
+
+          <!-- 3. Saklama, Geçiş ve Porsiyon -->
+          <div class="faq-item animate-on-scroll" data-cat="saklama-gecis">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs ürünlerini nasıl saklamalıyım?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Freeze Dry ürünler güneş ışığı almayan, serin, kuru ve nemsiz bir ortamda muhafaza edilmelidir. Paketin ağzı açıldıktan sonra ürünün nem almamasına dikkat edilmelidir. Ürünün tazeliğini korumak için her kullanımdan sonra ambalajı sıkıca kapatmanız önerilir.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="saklama-gecis">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs ürünlerine hangi yaştan itibaren başlanabilir?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Anne sütünden ayrılmış, yaklaşık 2 aylık ve ek gıdaya geçiş sürecine uygun olan patili dostlarımız için Rawlabs ürünleri değerlendirilebilir. Yavru kedi ve köpeklerde beslenme düzeni hassas olduğu için özellikle ilk geçiş döneminde veteriner hekim görüşü alınması önerilir.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="saklama-gecis">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs ürünlerini önerilen miktarlardan fazla verirsem ne olur?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Her patili dostun günlük enerji ihtiyacı farklıdır. Yaş, kilo, aktivite düzeyi ve metabolizma bu ihtiyacı etkiler. Önerilen miktarın üzerinde besleme yapılması durumunda kilo artışı görülebilir. Bu nedenle porsiyon kontrolü yapılmalı ve patili dostunuzun kilo durumu düzenli olarak takip edilmelidir.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="saklama-gecis">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs ürünlerine nasıl başlayabilirim?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Rawlabs ürünlerine geçişte kademeli geçiş yöntemi önerilir. Bu yöntem, patili dostunuzun sindirim sisteminin yeni besine daha rahat uyum sağlamasına yardımcı olabilir.
+              <p style="margin-top: 8px; font-weight: 600;">Örnek geçiş planı:</p>
+              <ul style="margin-top: 4px; margin-bottom: 8px; padding-left: 20px; list-style-type: disc;">
+                <li><strong>1-2. Gün:</strong> Mevcut mamanın %75’i + Rawlabs ürününün %25’i</li>
+                <li><strong>3-4. Gün:</strong> Mevcut mamanın %50’si + Rawlabs ürününün %50’si</li>
+                <li><strong>5-6. Gün:</strong> Mevcut mamanın %25’i + Rawlabs ürününün %75’i</li>
+                <li><strong>7. Gün ve Sonrası:</strong> Tamamen Rawlabs ürününe geçiş</li>
+              </ul>
+              Hassas sindirime sahip veya özel beslenme ihtiyacı bulunan patili dostlarda veteriner hekim görüşü alınması önerilir.</div></div>
+          </div>
+
+          <!-- 4. Sipariş, Ödeme ve Teslimat -->
+          <div class="faq-item animate-on-scroll" data-cat="siparis-kargo">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Nasıl sipariş verebilirim?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Rawlabs’ta sipariş vermek için ürünleri sepete ekleyebilir, sepet sayfasında bilgilerinizi kontrol ettikten sonra teslimat ve fatura bilgilerinizi doldurarak güvenli ödeme adımına geçebilirsiniz. Ödeme işlemi Kuveyt Türk Sanal POS altyapısı üzerinden kredi kartı ile güvenli şekilde tamamlanır. Siparişiniz oluşturulduktan sonra bilgilendirme e-postası tarafınıza iletilir.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="siparis-kargo">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Hangi ödeme yöntemlerini kabul ediyorsunuz?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Rawlabs’ta ödemeler kredi kartı ile güvenli ödeme altyapısı üzerinden alınır. Kart bilgileriniz Rawlabs tarafından saklanmaz; ödeme işlemi banka altyapısı üzerinden güvenli şekilde tamamlanır. Ödeme başarılı olduğunda siparişiniz sistemimize düşer ve tarafınıza bilgilendirme e-postası gönderilir.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="siparis-kargo">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Kargo ücretsiz mi?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">3.000 TL ve üzeri siparişlerde kargo ücretsizdir. 3.000 TL altındaki siparişlerde sabit 300 TL kargo ücreti uygulanır. Kargo ücreti, sepet toplamınıza göre ödeme öncesinde otomatik olarak gösterilir.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="siparis-kargo">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Siparişim ne zaman kargoya verilir?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Siparişleriniz ödeme onayından sonra hazırlanır ve en kısa sürede kargoya teslim edilir. Kargoya verildiğinde takip bilgileriniz e-posta yoluyla tarafınıza iletilir. Yoğun dönemlerde veya resmi tatillerde teslim süresinde değişiklik olabilir.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="siparis-kargo">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Siparişimi nasıl takip ederim?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Sipariş durumunuzu web sitemizdeki Hesabım bölümünden kontrol edebilirsiniz. Siparişiniz kargoya verildiğinde takip bilgileriniz e-posta yoluyla tarafınıza gönderilir. Destek ihtiyacınız olursa <a href="mailto:bilgi@rawlabs.com.tr">bilgi@rawlabs.com.tr</a> adresinden bize ulaşabilirsiniz.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="siparis-kargo">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs ürünleri nasıl teslim edilir?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Rawlabs ürünleri Türkiye’nin tüm bölgelerine kargo ile gönderilir. Siparişleriniz, ürünlerin güvenli şekilde size ulaşması için uygun paketleme ile hazırlanır. 3.000 TL ve üzeri siparişlerde kargo ücretsizdir. 3.000 TL altındaki siparişlerde sabit 300 TL kargo ücreti uygulanır.</div></div>
+          </div>
+
+          <!-- 5. İletişim, İade ve Destek -->
+          <div class="faq-item animate-on-scroll" data-cat="iletisim-destek">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>İade ve değişim koşulları nelerdir?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Rawlabs ürünleri gıda niteliğinde olduğu için iade ve değişim süreçleri hijyen, ambalaj bütünlüğü ve yasal koşullar çerçevesinde değerlendirilir. Ambalajı açılmış, kullanılmış veya saklama koşulları bozulmuş ürünlerde iade kabul edilemeyebilir. Detaylı bilgi için <a href="iade-ve-geri-odeme-politikasi.html">İade ve Geri Ödeme Politikası</a> sayfamızı inceleyebilir veya <a href="mailto:bilgi@rawlabs.com.tr">bilgi@rawlabs.com.tr</a> adresinden bize ulaşabilirsiniz.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="iletisim-destek">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Ürün beğenmezsem iade edebilir miyim?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Evcil dostunuzun ürüne alışma süreci değişebilir. Memnuniyetiniz bizim için önemlidir; ürünle ilgili bir sorun yaşarsanız bizimle iletişime geçerek destek alabilirsiniz.</div></div>
+          </div>
+          <div class="faq-item animate-on-scroll" data-cat="iletisim-destek">
+            <div class="faq-question" onclick="toggleFaq(this)"><span>Rawlabs ile nasıl iletişim kurabilirim?</span><span class="faq-toggle">+</span></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Dilerseniz bize <a href="mailto:bilgi@rawlabs.com.tr">bilgi@rawlabs.com.tr</a> adresinden veya <a href="tel:+905324206635">+90 532 420 66 35</a> numaralı telefondan ulaşabilirsiniz. Ayrıca web sitemizdeki <a href="iletisim.html">iletişim formunu</a> kullanarak da bize mesaj gönderebilirsiniz.</div></div>
+          </div>
         </div>
         <div class="faq-cta animate-on-scroll">
           <h3>Cevabınızı Bulamadınız mı?</h3>
