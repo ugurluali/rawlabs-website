@@ -438,7 +438,9 @@ $summaryCounts = [
 foreach ($orders as $o) {
     $summaryCounts['total']++;
     
-    if (($o['paymentStatus'] ?? '') !== 'success') {
+    $isCancelled = ($o['orderStatus'] ?? '') === 'cancelled';
+    
+    if (($o['paymentStatus'] ?? '') !== 'success' && !$isCancelled) {
         $summaryCounts['payment_pending']++;
     } else {
         $status = $o['orderStatus'] ?? 'new';
@@ -664,7 +666,8 @@ function getOrderStatusBadge($status) {
                         $payStatusVal = 'unknown';
                     }
                     
-                    $displayStatusVal = $payStatusVal !== 'success' ? 'payment_pending' : ($o['orderStatus'] ?? 'new');
+                    $isCancelled = ($o['orderStatus'] ?? '') === 'cancelled';
+                    $displayStatusVal = ($payStatusVal !== 'success' && !$isCancelled) ? 'payment_pending' : ($o['orderStatus'] ?? 'new');
                     
                     $customer = $o['customer'] ?? [];
                     
@@ -692,7 +695,7 @@ function getOrderStatusBadge($status) {
                     data-customer-email="<?= esc($customer['email'] ?? '') ?>"
                     data-total="<?= esc($total) ?>"
                     data-status-label="<?php
-                        if ($payStatusVal !== 'success') {
+                        if ($payStatusVal !== 'success' && !$isCancelled) {
                             echo 'Ödeme Bekliyor';
                         } else {
                             $statusLabels = ['new' => 'Yeni', 'preparing' => 'Hazırlanıyor', 'shipped' => 'Kargoya Verildi', 'completed' => 'Tamamlandı', 'cancelled' => 'İptal'];
@@ -715,7 +718,7 @@ function getOrderStatusBadge($status) {
                     </td>
                     <td>₺<?= $total ?></td>
                     <td>
-                        <?= getOrderStatusBadge($payStatusVal !== 'success' ? 'payment_pending' : ($o['orderStatus'] ?? 'new')) ?>
+                        <?= getOrderStatusBadge(($payStatusVal !== 'success' && !$isCancelled) ? 'payment_pending' : ($o['orderStatus'] ?? 'new')) ?>
                         <?php
                         // Kargo mail durumunu tablonun Sipariş Durumu hücresinde göster (Faz 5)
                         if (($o['orderStatus'] ?? 'new') === 'shipped') {
