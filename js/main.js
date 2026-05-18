@@ -325,6 +325,9 @@ function initChatbot() {
       </div>
       <button type="button" class="chatbot-close" aria-label="Kapat">×</button>
     </div>
+    <div style="background:#fff5f5; color:#e11d48; font-size:0.75rem; padding:8px 12px; border-bottom:1px solid #ffe4e6; line-height:1.4; font-weight: 500; text-align: center;">
+      ⚠️ Bu bir yapay zeka asistanıdır. Lütfen şifre, kart bilgisi veya özel kişisel bilgilerinizi paylaşmayınız.
+    </div>
     <div class="chatbot-messages" id="chatbot-messages">
       <div class="chatbot-msg bot">
         Merhaba 👋 Rawlabs’a hoş geldiniz. Size nasıl yardımcı olabiliriz?
@@ -339,7 +342,7 @@ function initChatbot() {
     </div>
     <form class="chatbot-input-area" id="chatbot-form">
       <input type="text" id="chatbot-input" placeholder="Mesajınızı yazın..." aria-label="Mesaj yazın" required>
-      <button type="submit" aria-label="Gönder">
+      <button type="submit" id="chatbot-submit-btn" aria-label="Gönder">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
       </button>
     </form>
@@ -349,6 +352,7 @@ function initChatbot() {
   const messagesContainer = chatWindow.querySelector('#chatbot-messages');
   const chatForm = chatWindow.querySelector('#chatbot-form');
   const chatInput = chatWindow.querySelector('#chatbot-input');
+  const chatSubmitBtn = chatWindow.querySelector('#chatbot-submit-btn');
 
   // Toggle open/close
   triggerBtn.addEventListener('click', () => {
@@ -371,14 +375,64 @@ function initChatbot() {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
-  // Placeholder AI function for future integration
+  let typingIndicator = null;
+  function showTyping() {
+    typingIndicator = document.createElement('div');
+    typingIndicator.className = 'chatbot-msg bot';
+    typingIndicator.style.opacity = '0.75';
+    typingIndicator.style.fontStyle = 'italic';
+    typingIndicator.textContent = 'Rawlabs Asistanı yazıyor...';
+    messagesContainer.appendChild(typingIndicator);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  function removeTyping() {
+    if (typingIndicator) {
+      typingIndicator.remove();
+      typingIndicator = null;
+    }
+  }
+
+  // Handle message sending to secure backend
   function handleChatMessage(userText) {
     appendMessage('user', userText);
     
-    // Simulate thinking delay
-    setTimeout(() => {
-      appendMessage('bot', 'Yapay zeka destekli asistanımız yakında aktif olacak. Şimdilik hızlı seçenekleri kullanabilir veya WhatsApp üzerinden bize ulaşabilirsiniz.');
-    }, 400);
+    // Disable inputs
+    chatInput.disabled = true;
+    chatSubmitBtn.disabled = true;
+    
+    showTyping();
+
+    fetch(resolveUrl('api/chatbot.php'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message: userText })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Sunucu hatası');
+      return res.json();
+    })
+    .then(data => {
+      removeTyping();
+      if (data && data.status === 'success' && data.reply) {
+        appendMessage('bot', data.reply);
+      } else {
+        appendMessage('bot', 'Şu anda asistanımıza bağlanamıyorum. Dilerseniz iletişim sayfasından bize ulaşabilirsiniz.');
+      }
+    })
+    .catch(err => {
+      console.error('Chatbot Hatası:', err);
+      removeTyping();
+      appendMessage('bot', 'Şu anda asistanımıza bağlanamıyorum. Dilerseniz iletişim sayfasından bize ulaşabilirsiniz.');
+    })
+    .finally(() => {
+      chatInput.disabled = false;
+      chatSubmitBtn.disabled = false;
+      chatInput.value = '';
+      chatInput.focus();
+    });
   }
 
   // Submit custom message
@@ -386,29 +440,14 @@ function initChatbot() {
     e.preventDefault();
     const text = chatInput.value.trim();
     if (!text) return;
-    chatInput.value = '';
     handleChatMessage(text);
   });
 
-  // Quick replies actions
+  // Quick replies actions (connected to the same smart backend endpoint)
   chatWindow.querySelectorAll('.chatbot-option-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const opt = btn.getAttribute('data-opt');
-      appendMessage('user', btn.textContent);
-
-      setTimeout(() => {
-        if (opt === 'mama') {
-          appendMessage('bot', `Patili dostunuza en uygun mamayı ve porsiyonu bulmak için testimizi çözebilirsiniz:<br><a href="${resolveUrl('mama-onerisi.html')}" style="color:var(--primary); font-weight:bold; text-decoration:underline; display:inline-block; margin-top:4px;">Mama Önerisi Testine Git →</a>`);
-        } else if (opt === 'urun') {
-          appendMessage('bot', `Freeze dry teknolojisiyle üretilen %100 doğal kedi ve köpek mamalarımızı inceleyebilirsiniz:<br><a href="${resolveUrl('magaza.html')}" style="color:var(--primary); font-weight:bold; text-decoration:underline; display:inline-block; margin-top:4px;">Mağazaya Göz At →</a>`);
-        } else if (opt === 'nedir') {
-          appendMessage('bot', `Freeze dry, besin değerlerini %97 oranında koruyan en sağlıklı saklama yöntemidir. Pişirme yapılmadığı için etin doğallığı korunur.<br><a href="${resolveUrl('blog/freeze-dry-mama-nedir.html')}" style="color:var(--primary); font-weight:bold; text-decoration:underline; display:inline-block; margin-top:4px;">Detaylı Yazımızı Okuyun →</a>`);
-        } else if (opt === 'kargo') {
-          appendMessage('bot', `Siparişleriniz özenle hazırlanıp en kısa sürede teslim edilmektedir. Teslimat koşullarımız için:<br><a href="${resolveUrl('teslimat-kosullari.html')}" style="color:var(--primary); font-weight:bold; text-decoration:underline; display:inline-block; margin-top:4px;">Teslimat Koşulları →</a>`);
-        } else if (opt === 'wp') {
-          appendMessage('bot', `WhatsApp destek hattımız üzerinden uzman ekibimizle anında görüşebilirsiniz:<br><a href="https://wa.me/905324206635" target="_blank" style="color:var(--primary); font-weight:bold; text-decoration:underline; display:inline-block; margin-top:4px;">WhatsApp'a Bağlan →</a>`);
-        }
-      }, 300);
+      const text = btn.textContent;
+      handleChatMessage(text);
     });
   });
 }

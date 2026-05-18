@@ -50,4 +50,7 @@ define('BIZIMHESAP_FIRM_ID', 'YOUR_BIZIMHESAP_FIRM_ID');
 // Token bazı servislerde gerekebilir. Addinvoice için panelinizde Token yoksa boş bırakabilirsiniz.
 define('BIZIMHESAP_TOKEN', '');
 
-
+// Yapay Zeka (AI) Chatbot Entegrasyonu Ayarları (Faz 1A)
+define('AI_PROVIDER', 'openai'); // 'openai', 'gemini' veya 'claude'
+define('AI_MODEL_NAME', 'gpt-4o-mini'); // Sağlayıcıya göre model adı
+define('AI_API_KEY', 'YOUR_AI_API_KEY_HERE'); // GERÇEK ANAHTARI SADECE CANLI CONFIG DOSYASINA YAZIN
