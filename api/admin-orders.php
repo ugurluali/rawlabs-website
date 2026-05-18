@@ -227,6 +227,175 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// --- BİZİM HESAP SENKRONİZASYONU (Faz 8C) ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'sync_bizim_hesap') {
+    if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $updateMsg = "<div style='color:#dc2626; padding:10px; background:#fee2e2; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Güvenlik doğrulaması başarısız (CSRF). Lütfen sayfayı yenileyin.</div>";
+    } else {
+        $orderId = trim($_POST['orderId'] ?? '');
+        if (preg_match('/^RAW-\d{8}-\d{4}$/', $orderId)) {
+            $storagePath = defined('ORDER_STORAGE_PATH') ? ORDER_STORAGE_PATH : __DIR__ . '/orders/';
+            $orderFile = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . $orderId . '.json';
+            
+            if (file_exists($orderFile)) {
+                // 1. ADIM: Siparişi kilitle, oku, 'processing' olarak işaretle (Mükerrerlik engeli)
+                $fp = fopen($orderFile, 'r+');
+                if ($fp) {
+                    $canSync = false;
+                    $orderData = [];
+                    
+                    if (flock($fp, LOCK_EX)) {
+                        $size = filesize($orderFile);
+                        if ($size > 0) {
+                            $content = fread($fp, $size);
+                            $orderData = json_decode($content, true);
+                            
+                            if ($orderData) {
+                                $paymentStatus = $orderData['paymentStatus'] ?? '';
+                                if (!isset($orderData['bizimHesap'])) {
+                                    $orderData['bizimHesap'] = [
+                                        'status' => 'none',
+                                        'invoiceId' => null,
+                                        'invoiceNumber' => null,
+                                        'pdfUrl' => null,
+                                        'syncedAt' => null,
+                                        'error' => null
+                                    ];
+                                }
+                                
+                                $bhStatus = $orderData['bizimHesap']['status'] ?? 'none';
+                                
+                                if ($paymentStatus !== 'success') {
+                                    $updateMsg = "<div style='color:#dc2626; padding:10px; background:#fee2e2; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Hata: Ödemesi başarılı olmayan siparişler Bizim Hesap'a aktarılamaz!</div>";
+                                } elseif ($bhStatus === 'success') {
+                                    $updateMsg = "<div style='color:#b45309; padding:10px; background:#fef3c7; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Bilgi: Bu sipariş zaten daha önce başarıyla aktarılmış.</div>";
+                                } elseif ($bhStatus === 'processing') {
+                                    $updateMsg = "<div style='color:#b45309; padding:10px; background:#fef3c7; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Bilgi: Bu siparişin aktarımı şu an devam ediyor. Lütfen bekleyin.</div>";
+                                } else {
+                                    // Aktarım izni ver ve durumunu güncelle
+                                    $orderData['bizimHesap']['status'] = 'processing';
+                                    $orderData['bizimHesap']['error'] = null;
+                                    
+                                    ftruncate($fp, 0);
+                                    rewind($fp);
+                                    fwrite($fp, json_encode($orderData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                                    $canSync = true;
+                                }
+                            }
+                        }
+                        flock($fp, LOCK_UN);
+                    }
+                    fclose($fp);
+                    
+                    // 2. ADIM: cURL çağrısını helper üzerinden kilitsiz yürüt (Sunucuyu bloke etmemek için)
+                    if ($canSync) {
+                        require_once __DIR__ . '/bizimhesap-helper.php';
+                        $syncResult = addBizimHesapInvoice($orderData);
+                        
+                        // 3. ADIM: Sonucu sipariş JSON'una kilitleyerek yaz
+                        $fp = fopen($orderFile, 'r+');
+                        if ($fp) {
+                            if (flock($fp, LOCK_EX)) {
+                                $size = filesize($orderFile);
+                                if ($size > 0) {
+                                    $content = fread($fp, $size);
+                                    $latestData = json_decode($content, true);
+                                    
+                                    if ($latestData) {
+                                        if (!isset($latestData['bizimHesap'])) {
+                                            $latestData['bizimHesap'] = $orderData['bizimHesap'];
+                                        }
+                                        
+                                        if ($syncResult['success']) {
+                                            $latestData['bizimHesap']['status'] = 'success';
+                                            $latestData['bizimHesap']['invoiceId'] = $syncResult['invoiceId'];
+                                            $latestData['bizimHesap']['syncedAt'] = date('c');
+                                            $latestData['bizimHesap']['error'] = null;
+                                            
+                                            $updateMsg = "<div style='color:#059669; padding:10px; background:#d1fae5; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Sipariş ({$orderId}) başarıyla Bizim Hesap'a aktarıldı. Taslak Fatura ID: {$syncResult['invoiceId']}</div>";
+                                        } else {
+                                            $latestData['bizimHesap']['status'] = 'failed';
+                                            $latestData['bizimHesap']['syncedAt'] = date('c');
+                                            $latestData['bizimHesap']['error'] = $syncResult['error'];
+                                            
+                                            $updateMsg = "<div style='color:#dc2626; padding:10px; background:#fee2e2; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Hata: Bizim Hesap aktarımı başarısız oldu. Hata: " . htmlspecialchars($syncResult['error'], ENT_QUOTES, 'UTF-8') . "</div>";
+                                        }
+                                        
+                                        ftruncate($fp, 0);
+                                        rewind($fp);
+                                        fwrite($fp, json_encode($latestData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                                    }
+                                }
+                                flock($fp, LOCK_UN);
+                            }
+                            fclose($fp);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// --- RESMİ FATURA BİLGİLERİ KAYDETME (Faz 8C) ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_invoice_info') {
+    if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $updateMsg = "<div style='color:#dc2626; padding:10px; background:#fee2e2; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Güvenlik doğrulaması başarısız (CSRF). Lütfen sayfayı yenileyin.</div>";
+    } else {
+        $orderId = trim($_POST['orderId'] ?? '');
+        if (preg_match('/^RAW-\d{8}-\d{4}$/', $orderId)) {
+            $storagePath = defined('ORDER_STORAGE_PATH') ? ORDER_STORAGE_PATH : __DIR__ . '/orders/';
+            $orderFile = rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . $orderId . '.json';
+            
+            if (file_exists($orderFile)) {
+                $fp = fopen($orderFile, 'r+');
+                if ($fp) {
+                    if (flock($fp, LOCK_EX)) {
+                        $size = filesize($orderFile);
+                        if ($size > 0) {
+                            $content = fread($fp, $size);
+                            $data = json_decode($content, true);
+                            
+                            if ($data) {
+                                if (!isset($data['bizimHesap'])) {
+                                    $data['bizimHesap'] = [
+                                        'status' => 'none',
+                                        'invoiceId' => null,
+                                        'invoiceNumber' => null,
+                                        'pdfUrl' => null,
+                                        'syncedAt' => null,
+                                        'error' => null
+                                    ];
+                                }
+                                
+                                $invoiceNumber = trim(strip_tags($_POST['invoiceNumber'] ?? ''));
+                                $pdfUrl = trim(strip_tags($_POST['pdfUrl'] ?? ''));
+                                
+                                // Basit URL Doğrulaması
+                                if (!empty($pdfUrl) && !filter_var($pdfUrl, FILTER_VALIDATE_URL)) {
+                                    $updateMsg = "<div style='color:#dc2626; padding:10px; background:#fee2e2; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Hata: Girdiğiniz Fatura PDF Linki geçerli bir URL formatında olmalıdır!</div>";
+                                } else {
+                                    $data['bizimHesap']['invoiceNumber'] = !empty($invoiceNumber) ? $invoiceNumber : null;
+                                    $data['bizimHesap']['pdfUrl'] = !empty($pdfUrl) ? $pdfUrl : null;
+                                    $data['bizimHesap']['invoiceInfoSavedAt'] = date('c');
+                                    
+                                    ftruncate($fp, 0);
+                                    rewind($fp);
+                                    fwrite($fp, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                                    
+                                    $updateMsg = "<div style='color:#059669; padding:10px; background:#d1fae5; border-radius:4px; margin-bottom:15px; font-weight:bold;'>Resmi Fatura Bilgileri ({$orderId}) başarıyla güncellendi.</div>";
+                                }
+                            }
+                        }
+                        flock($fp, LOCK_UN);
+                    }
+                    fclose($fp);
+                }
+            }
+        }
+    }
+}
+
 // Oturum açık, verileri yükle
 $storagePath = defined('ORDER_STORAGE_PATH') ? ORDER_STORAGE_PATH : __DIR__ . '/orders/';
 $files = glob(rtrim($storagePath, '/\\') . DIRECTORY_SEPARATOR . 'RAW-*.json');
@@ -472,13 +641,14 @@ function getOrderStatusBadge($status) {
                 <th>Tutar</th>
                 <th>Sipariş Durumu</th>
                 <th>Ödeme</th>
+                <th>Fatura (Bizim Hesap)</th>
                 <th>Tip</th>
                 <th>İşlem</th>
             </tr>
         </thead>
         <tbody>
             <?php if (empty($orders)): ?>
-            <tr><td colspan="8" style="text-align: center; padding: 2rem;">Sipariş bulunamadı.</td></tr>
+            <tr><td colspan="9" style="text-align: center; padding: 2rem;">Sipariş bulunamadı.</td></tr>
             <?php else: ?>
                 <?php foreach ($orders as $o): 
                     $date = $o['paidAt'] ?? $o['backend_createdAt'] ?? '';
@@ -568,6 +738,32 @@ function getOrderStatusBadge($status) {
                             <small class="muted"><?= esc($o['provider']) ?></small>
                         <?php endif; ?>
                     </td>
+                    <td>
+                        <?php
+                        $bh = $o['bizimHesap'] ?? null;
+                        $bhStatus = $bh['status'] ?? 'none';
+                        
+                        if ($bhStatus === 'success') {
+                            echo '<span style="background: #dcfce7; color: #166534; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">Aktarıldı</span>';
+                            if (!empty($bh['invoiceId'])) {
+                                echo '<br><small class="muted" style="font-family: monospace;">ID: ' . esc($bh['invoiceId']) . '</small>';
+                            }
+                        } elseif ($bhStatus === 'processing') {
+                            echo '<span style="background: #fef08a; color: #854d0e; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">🔄 Aktarılıyor...</span>';
+                        } elseif ($bhStatus === 'failed') {
+                            echo '<span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">⚠️ Hata</span>';
+                            if (!empty($bh['error'])) {
+                                echo '<br><small style="color: #dc2626; font-size: 0.72rem; display:block; max-width: 150px; white-space: normal; line-height:1.2;">' . esc($bh['error']) . '</small>';
+                            }
+                        } else {
+                            echo '<span style="background: #e2e8f0; color: #475569; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">Aktarılmadı</span>';
+                        }
+                        
+                        if (!empty($bh['invoiceNumber'])) {
+                            echo '<br><small style="color:#6B2C83; font-weight:bold;">No: ' . esc($bh['invoiceNumber']) . '</small>';
+                        }
+                        ?>
+                    </td>
                     <td><?= $userType ?></td>
                     <td>
                         <button class="btn btn-view" onclick='openModal(this)' data-order='<?= $jsonAttr ?>'>Detay</button>
@@ -650,6 +846,48 @@ function getOrderStatusBadge($status) {
             <div class="detail-section">
                 <h3>Fatura / PDF</h3>
                 <div id="m_pdf_area">Bekleniyor...</div>
+            </div>
+        </div>
+        
+        <!-- Bizim Hesap Resmi Fatura İşlemleri (Faz 8C) -->
+        <div class="detail-section" style="background:#fdf2f8; padding:15px; border-radius:6px; border:1px solid #fbcfe8; margin-top:20px;">
+            <h3 style="color:#B12A8F; border-bottom: 1px solid #fbcfe8; font-size: 1.1rem; padding-bottom: 5px; margin-top:0;">Bizim Hesap Resmi Fatura İşlemleri</h3>
+            
+            <!-- Bizim Hesap Durumu ve Aktarım Butonu -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <strong>Aktarım Durumu:</strong> <span id="m_bh_status">Bekleniyor...</span>
+                    <div id="m_bh_info" style="font-size:0.85rem; margin-top:4px;" class="muted"></div>
+                </div>
+                <div id="m_bh_action_area">
+                    <!-- JavaScript ile dolacak -->
+                </div>
+            </div>
+
+            <!-- Resmi Fatura Bilgileri Formu (Manuel Giriş) -->
+            <div style="background:white; padding:12px; border-radius:4px; border:1px solid #fdf2f8; margin-top:10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                <strong style="display:block; margin-bottom:10px; color:#B12A8F; font-size:0.9rem;">Resmi Fatura Bilgileri (Manuel Kayıt)</strong>
+                <form id="f_invoice_info_form" method="POST" action="admin-orders.php" style="margin:0;">
+                    <input type="hidden" name="action" value="save_invoice_info">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                    <input type="hidden" name="orderId" id="f_invoice_orderId" value="">
+                    
+                    <div class="grid-2" style="margin-bottom:10px;">
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-size:0.8rem; font-weight:bold; color: #1F1B2E;">Fatura No</label>
+                            <input type="text" name="invoiceNumber" id="f_invoiceNumber" placeholder="Örn: BHS202600000123" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-size:0.8rem; font-weight:bold; color: #1F1B2E;">Fatura PDF Linki</label>
+                            <input type="url" name="pdfUrl" id="f_pdfUrl" placeholder="https://..." style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px; box-sizing:border-box;">
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <span id="m_invoice_saved_info" style="font-size:0.85rem; font-weight: 500;"></span>
+                        <button type="submit" class="btn" style="background:#B12A8F; color:white; font-size:0.85rem; padding:6px 12px; font-weight:bold;">Fatura Bilgilerini Kaydet</button>
+                    </div>
+                </form>
             </div>
         </div>
         
@@ -1009,6 +1247,75 @@ function openModal(btn) {
         </svg>
         PDF / Proforma Yazdır
     </button>`;
+
+    // Bizim Hesap & Resmi Fatura İşlemleri (Faz 8C)
+    let bh = order.bizimHesap || {};
+    let bhStatus = bh.status || 'none';
+    let payStatusVal = (order.paymentStatus || '').toLowerCase();
+    let hasBilling = order.customer && order.customer.billing;
+
+    // Set orderId in both forms
+    document.getElementById('f_invoice_orderId').value = order.orderId || '';
+
+    // Populate manual invoice fields
+    document.getElementById('f_invoiceNumber').value = bh.invoiceNumber || '';
+    document.getElementById('f_pdfUrl').value = bh.pdfUrl || '';
+    
+    let savedInfoEl = document.getElementById('m_invoice_saved_info');
+    if (bh.invoiceInfoSavedAt) {
+        let savedDate = new Date(bh.invoiceInfoSavedAt).toLocaleString('tr-TR');
+        savedInfoEl.innerHTML = `<span style="color:#059669; font-weight:bold;">✔️ Kaydedildi (${escapeHtml(savedDate)})</span>`;
+        if (bh.pdfUrl) {
+            savedInfoEl.innerHTML += ` | <a href="${escapeHtml(bh.pdfUrl)}" target="_blank" style="color:#2563eb; font-weight:bold; text-decoration:underline;">Fatura PDF Görüntüle</a>`;
+        } else {
+            savedInfoEl.innerHTML += ` | <span class="muted">PDF linki girilmedi</span>`;
+        }
+    } else {
+        savedInfoEl.innerText = '';
+    }
+
+    // Configure status & sync button
+    let statusEl = document.getElementById('m_bh_status');
+    let infoEl = document.getElementById('m_bh_info');
+    let actionEl = document.getElementById('m_bh_action_area');
+
+    if (payStatusVal !== 'success') {
+        statusEl.innerHTML = '<span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 9999px; font-weight: 600; font-size: 0.8rem;">Aktarılamaz</span>';
+        infoEl.innerHTML = '<span style="color:#dc2626; font-weight:bold;">⚠️ Ödeme başarılı olmayan sipariş Bizim Hesap\'a aktarılamaz.</span>';
+        actionEl.innerHTML = '<button class="btn" disabled style="background:#d1d5db; color:#9ca3af; cursor:not-allowed; font-size:0.85rem; padding:6px 12px; font-weight:bold;">🚀 Bizim Hesap\'a Aktar</button>';
+    } else if (!hasBilling) {
+        statusEl.innerHTML = '<span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 9999px; font-weight: 600; font-size: 0.8rem;">Eksik Bilgi</span>';
+        infoEl.innerHTML = '<span style="color:#dc2626; font-weight:bold;">⚠️ Fatura bilgisi eksik (Eski Sipariş). Aktarılamaz.</span>';
+        actionEl.innerHTML = '<button class="btn" disabled style="background:#d1d5db; color:#9ca3af; cursor:not-allowed; font-size:0.85rem; padding:6px 12px; font-weight:bold;">🚀 Bizim Hesap\'a Aktar</button>';
+    } else if (bhStatus === 'success') {
+        statusEl.innerHTML = '<span style="background: #dcfce7; color: #166534; padding: 0.25rem 0.5rem; border-radius: 9999px; font-weight: 600; font-size: 0.8rem;">Aktarıldı</span>';
+        let syncDate = bh.syncedAt ? new Date(bh.syncedAt).toLocaleString('tr-TR') : '-';
+        infoEl.innerHTML = `<span style="color:#059669; font-weight:bold;">✔️ Daha önce aktarıldı.</span><br><small class="muted">Bizim Hesap ID: <strong>${escapeHtml(bh.invoiceId)}</strong> | Zaman: ${escapeHtml(syncDate)}</small>`;
+        actionEl.innerHTML = '<button class="btn" disabled style="background:#d1d5db; color:#9ca3af; cursor:not-allowed; font-size:0.85rem; padding:6px 12px; font-weight:bold;">🚀 Bizim Hesap\'a Aktar</button>';
+    } else if (bhStatus === 'processing') {
+        statusEl.innerHTML = '<span style="background: #fef08a; color: #854d0e; padding: 0.25rem 0.5rem; border-radius: 9999px; font-weight: 600; font-size: 0.8rem;">🔄 Aktarılıyor...</span>';
+        infoEl.innerHTML = '<span class="muted">Sipariş şu anda Bizim Hesap API\'sine gönderiliyor...</span>';
+        actionEl.innerHTML = '<button class="btn" disabled style="background:#d1d5db; color:#9ca3af; cursor:not-allowed; font-size:0.85rem; padding:6px 12px; font-weight:bold;">🚀 Aktarılıyor...</button>';
+    } else if (bhStatus === 'failed') {
+        statusEl.innerHTML = '<span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 9999px; font-weight: 600; font-size: 0.8rem;">⚠️ Hata</span>';
+        let syncDate = bh.syncedAt ? new Date(bh.syncedAt).toLocaleString('tr-TR') : '-';
+        infoEl.innerHTML = `<span style="color:#dc2626; font-weight:bold;">Hata: ${escapeHtml(bh.error || 'Bilinmeyen API hatası')}</span><br><small class="muted">Son deneme: ${escapeHtml(syncDate)}</small>`;
+        actionEl.innerHTML = `<form method="POST" action="admin-orders.php" style="margin:0;">
+            <input type="hidden" name="action" value="sync_bizim_hesap">
+            <input type="hidden" name="csrf_token" value="${escapeHtml(document.querySelector('input[name="csrf_token"]').value)}">
+            <input type="hidden" name="orderId" value="${escapeHtml(order.orderId)}">
+            <button type="submit" class="btn" style="background:#B12A8F; color:white; font-size:0.85rem; padding:6px 12px; font-weight:bold;" onclick="this.innerHTML='🔄 Aktarılıyor...'; this.disabled=true; this.form.submit();">🚀 Yeniden Aktarmayı Dene</button>
+        </form>`;
+    } else {
+        statusEl.innerHTML = '<span style="background: #e2e8f0; color: #475569; padding: 0.25rem 0.5rem; border-radius: 9999px; font-weight: 600; font-size: 0.8rem;">Aktarılmadı</span>';
+        infoEl.innerHTML = '<span class="muted">Sipariş henüz Bizim Hesap sistemine gönderilmedi.</span>';
+        actionEl.innerHTML = `<form method="POST" action="admin-orders.php" style="margin:0;">
+            <input type="hidden" name="action" value="sync_bizim_hesap">
+            <input type="hidden" name="csrf_token" value="${escapeHtml(document.querySelector('input[name="csrf_token"]').value)}">
+            <input type="hidden" name="orderId" value="${escapeHtml(order.orderId)}">
+            <button type="submit" class="btn" style="background:#B12A8F; color:white; font-size:0.85rem; padding:6px 12px; font-weight:bold;" onclick="this.innerHTML='🔄 Aktarılıyor...'; this.disabled=true; this.form.submit();">🚀 Bizim Hesap'a Aktar</button>
+        </form>`;
+    }
 
     document.getElementById('orderModal').style.display = 'flex';
 }

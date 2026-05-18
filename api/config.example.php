@@ -46,7 +46,8 @@ define('USER_STORAGE_PATH', __DIR__ . '/users/users.json');
 define('ADMIN_PANEL_PASSWORD_HASH', '$2y$10$w85.gS2w0Rj3.W./VjJtK.bI17zH0pL92Z2qG56bQ/iYI3l6yBvF.');
 
 // Bizim Hesap Entegrasyon Ayarları (Faz 8)
-define('BIZIMHESAP_FIRM_ID', 'BURAYA_GERCEK_FIRMID_GELECEK');
-define('BIZIMHESAP_TOKEN', 'BURAYA_GERCEK_TOKEN_GELECEK');
+define('BIZIMHESAP_FIRM_ID', 'YOUR_BIZIMHESAP_FIRM_ID');
+// Token bazı servislerde gerekebilir. Addinvoice için panelinizde Token yoksa boş bırakabilirsiniz.
+define('BIZIMHESAP_TOKEN', '');
 
 
