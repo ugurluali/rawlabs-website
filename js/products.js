@@ -438,11 +438,18 @@ const PRODUCTS = [
   }
 ];
 
-// En çok satanları getir
-function getBestSellers(count = 6) {
-  return PRODUCTS.filter(p => p.badge || p.reviewCount > 0)
-    .sort((a, b) => b.reviewCount - a.reviewCount)
-    .slice(0, count);
+// En çok tercih edilen ürünleri getir (Ana sayfa için belirlenmiş 5 özel ürün)
+function getBestSellers() {
+  const targetSlugs = [
+    "tavuk-balik-kedi-mamasi-300g",
+    "dana-balik-kopek-mamasi-300g",
+    "hindi-balik-kedi-mamasi-300g",
+    "dana-ciger-odulu-40g",
+    "hamsi-odulu-40g"
+  ];
+  return targetSlugs
+    .map(slug => PRODUCTS.find(p => p.slug === slug))
+    .filter(Boolean);
 }
 
 // Kategoriye göre filtrele
