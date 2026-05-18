@@ -1,0 +1,34 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# 1. Birebir Ürün Eşleştirmeleri (301 Yönlendirmeleri)
+# Hedef URL'lerde kendi özel parametreleri (?slug=...) bulunduğu için eski query string'ler (utm vb.) otomatik olarak düşer.
+RewriteRule ^product/freeze-dried-hamsi-odulu-kedi-kopek-odulu/?$ /urun.html?slug=hamsi-odulu-40g [R=301,L]
+RewriteRule ^product/freeze-dried-dana-ciger-kedi-kopek-odul-mamasi/?$ /urun.html?slug=dana-ciger-odulu-40g [R=301,L]
+RewriteRule ^product/freeze-dried-dana-yurek-odul-mamasi/?$ /urun.html?slug=dana-yurek-odulu-40g [R=301,L]
+RewriteRule ^product/freeze-dried-hindi-ciger-kedi-kopek-odul-mamasi/?$ /urun.html?slug=hindi-ciger-odulu-40g [R=301,L]
+RewriteRule ^product/freeze-dried-hindi-gogus-odul-mamasi/?$ /urun.html?slug=hindi-gogus-odulu-40g [R=301,L]
+RewriteRule ^product/freeze-dried-kopek-mamasi-dana-balik-300g/?$ /urun.html?slug=dana-balik-kopek-mamasi-300g [R=301,L]
+RewriteRule ^product/freeze-dried-dana-billur-odulu-kedi-kopek-odulu/?$ /urun.html?slug=dana-billur-odulu-40g [R=301,L]
+RewriteRule ^product/freeze-dried-kedi-mamasi-300g-tavuk-balik-dogal-katkisiz/?$ /urun.html?slug=tavuk-balik-kedi-mamasi-300g [R=301,L]
+RewriteRule ^product/freeze-dried-kedi-mamasi-hindi-balik-300g/?$ /urun.html?slug=hindi-balik-kedi-mamasi-300g [R=301,L]
+RewriteRule ^product/freeze-dried-tavuk-balik-kopek-mamasi-300g/?$ /urun.html?slug=tavuk-balik-kopek-mamasi-300g [R=301,L]
+RewriteRule ^product/freeze-dried-hindi-balik-kopek-mamasi-300g/?$ /urun.html?slug=hindi-balik-kopek-mamasi-300g [R=301,L]
+RewriteRule ^product/freeze-dried-dana-girtlak-kopek-mamasi-eklem-dis-sagligi/?$ /urun.html?slug=dana-girtlak-odulu-40g [R=301,L]
+RewriteRule ^product/freeze-dried-kuzu-girtlak-kopek-odul-mamasi/?$ /urun.html?slug=kuzu-girtlak-odulu-40g [R=301,L]
+RewriteRule ^product/freeze-dried-tavuk-gogus-kedi-kopek-odulu/?$ /urun.html?slug=tavuk-gogus-odulu-40g [R=301,L]
+RewriteRule ^product/freeze-dried-tavuk-ciger-kedi-kopek-odul-mamasi/?$ /urun.html?slug=tavuk-ciger-odulu-40g [R=301,L]
+
+# 2. Test Ürünleri ve Eşleşmeyen Eski WordPress Kalıntıları
+# Eski query string'leri temizlemek için hedefin sonuna ? eklendi.
+RewriteRule ^product/test/?$ /magaza.html? [R=301,L]
+
+# 3. Kategori ve Tag Arşivlerini Mağazaya Toplu Yönlendirme
+RewriteRule ^product-category/.*$ /magaza.html? [R=301,L]
+RewriteRule ^product-tag/.*$ /magaza.html? [R=301,L]
+
+# 4. Geri Kalan Tüm Tanımsız Eski Product Linkleri (Catch-all Fallback)
+# Bu kural zorunlu olarak en altta olmalıdır.
+RewriteRule ^product/.*$ /magaza.html? [R=301,L]
+
+</IfModule>
