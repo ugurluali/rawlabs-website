@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initMiniCart();
   initScrollToTop();
   initChatbot();
+  initCookieBanner();
 });
 
 /* ---------- Sticky Header ---------- */
@@ -410,5 +411,138 @@ function initChatbot() {
       }, 300);
     });
   });
+}
+
+/* ---------- Çerez Onay (Cookie Consent) Mantığı ---------- */
+
+function loadOptionalTrackingScripts() {
+  // Gelecekte eklenecek olan Google Analytics, Facebook Pixel, vb. opsiyonel izleme/pazarlama scriptleri burada tetiklenecektir.
+  // Örnek: console.log("Opsiyonel izleme scriptleri yüklendi.");
+}
+
+function resetCookieConsent() {
+  localStorage.removeItem('rawlabs_cookie_consent');
+  initCookieBanner();
+}
+
+function initCookieBanner() {
+  // Admin panellerinde veya /api/ yollarında banner gösterilmesin
+  const path = window.location.pathname;
+  const isAdminPage = path.includes('/admin') || path.includes('admin-orders.php') || path.includes('/api/');
+  if (isAdminPage) return;
+
+  const storageKey = 'rawlabs_cookie_consent';
+  let consent = null;
+
+  // localStorage'da kayıtlı rıza kontrolü
+  try {
+    const rawConsent = localStorage.getItem(storageKey);
+    if (rawConsent) {
+      consent = JSON.parse(rawConsent);
+    }
+  } catch (e) {
+    console.error('Çerez rıza verisi okunamadı:', e);
+  }
+
+  // GPC (Global Privacy Control) kontrolü
+  const isGpcActive = navigator.globalPrivacyControl === true;
+
+  // Eğer zaten bir rıza seçimi varsa ve bu seçim geçerliyse
+  if (consent && consent.status) {
+    if (consent.status === 'accepted') {
+      loadOptionalTrackingScripts();
+    }
+    return;
+  }
+
+  // Eğer kullanıcı tarayıcıda GPC tercihini açmışsa ve henüz bir tercih kaydetmemişse
+  // mevzuat gereği varsayılan olarak çerezleri reddedilmiş (rejected) olarak kabul ediyoruz.
+  if (isGpcActive && !consent) {
+    const defaultGpcConsent = {
+      status: 'rejected',
+      gpc: true,
+      updatedAt: new Date().toISOString()
+    };
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(defaultGpcConsent));
+    } catch (e) {
+      console.error('GPC çerez rıza verisi kaydedilemedi:', e);
+    }
+    return;
+  }
+
+  // Blog dizini altındaysak relative path düzeltmesi yapıyoruz (404 hatasını önlemek için)
+  const isBlogDir = path.includes('/blog/');
+  const pathPrefix = isBlogDir ? '../' : '';
+  const policyUrl = pathPrefix + 'cerez-politikasi.html';
+
+  // Eğer banner zaten sayfada varsa tekrar ekleme
+  if (document.getElementById('cookie-consent-banner')) return;
+
+  // Banner elemanının oluşturulması
+  const banner = document.createElement('div');
+  banner.id = 'cookie-consent-banner';
+  banner.className = 'cookie-consent-banner';
+  banner.setAttribute('role', 'dialog');
+  banner.setAttribute('aria-label', 'Çerez Onay Bildirimi');
+
+  banner.innerHTML = `
+    <div class="cookie-consent-content">
+      <p>
+        Sizlere daha iyi bir deneyim sunabilmek amacıyla sitemizde zorunlu çerezler kullanmaktayız. Ayrıca onay vermeniz durumunda analiz ve pazarlama amaçlı çerezler de kullanılacaktır. Detaylı bilgi için <a href="${policyUrl}" class="cookie-policy-link">Çerez Politikamızı</a> inceleyebilirsiniz.
+      </p>
+      <div class="cookie-consent-buttons">
+        <button type="button" class="cookie-consent-btn cookie-consent-btn-reject" id="cookie-reject">Reddet</button>
+        <button type="button" class="cookie-consent-btn cookie-consent-btn-accept" id="cookie-accept">Kabul Et</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(banner);
+
+  // Buton olay dinleyicileri
+  const acceptBtn = document.getElementById('cookie-accept');
+  const rejectBtn = document.getElementById('cookie-reject');
+
+  if (acceptBtn) {
+    acceptBtn.addEventListener('click', () => {
+      const consentData = {
+        status: 'accepted',
+        gpc: isGpcActive,
+        updatedAt: new Date().toISOString()
+      };
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(consentData));
+      } catch (e) {
+        console.error('Rıza verisi kaydedilemedi:', e);
+      }
+      loadOptionalTrackingScripts();
+      closeCookieBanner();
+    });
+  }
+
+  if (rejectBtn) {
+    rejectBtn.addEventListener('click', () => {
+      const consentData = {
+        status: 'rejected',
+        gpc: isGpcActive,
+        updatedAt: new Date().toISOString()
+      };
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(consentData));
+      } catch (e) {
+        console.error('Rıza verisi kaydedilemedi:', e);
+      }
+      closeCookieBanner();
+    });
+  }
+
+  function closeCookieBanner() {
+    banner.classList.add('cookie-consent-fade-out');
+    // Animasyon tamamlandıktan sonra DOM'dan kaldır
+    banner.addEventListener('animationend', () => {
+      banner.remove();
+    }, { once: true });
+  }
 }
 

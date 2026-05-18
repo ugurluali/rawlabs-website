@@ -62,6 +62,12 @@
 
         <h2>4. Çerez Yönetimi</h2>
         <p>Çoğu internet tarayıcısı çerezleri otomatik olarak kabul eder. Ancak tarayıcı ayarlarınızı değiştirerek çerezleri reddedebilir veya bir çerez gönderildiğinde uyarılmayı seçebilirsiniz. Çerezleri devre dışı bırakmanız halinde web sitemizin bazı özelliklerinin tam olarak çalışmayabileceğini lütfen unutmayın.</p>
+        
+        <div style="margin: 20px 0;">
+          <button type="button" class="btn btn-secondary" onclick="if(typeof resetCookieConsent === 'function') { resetCookieConsent(); } else { localStorage.removeItem('rawlabs_cookie_consent'); window.location.reload(); }" style="padding: 10px 20px; font-size: 0.88rem;">
+            ⚙️ Çerez Tercihlerimi Düzenle / Değiştir
+          </button>
+        </div>
 
         <h2>5. KVKK Kapsamında Bilgilendirme</h2>
         <p>Çerezler aracılığıyla işlenen verileriniz, Gizlilik Politikamızda belirtilen esaslar doğrultusunda 1453 İstanbul Gıda Sanayi ve Ticaret Limited Şirketi tarafından işlenmektedir.</p>
